@@ -14,9 +14,10 @@ TODO:
   * Then clean the mess
   * Put a limit on file uploaded size and number of files
   * Certainly not secure at all, but who cares?
+* Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
-* Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
+  * As a preprocessor
 * Put live on latex.ytotech.com
   * Create a landing page with rationale
   * https://fonts.google.com/specimen/Droid+Serif
