@@ -15,6 +15,7 @@ TODO:
   * Put a limit on file uploaded size and number of files
   * Certainly not secure at all, but who cares?
 * Use Pandoc?
+  * http://pandoc.org/MANUAL.html#creating-a-pdf
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
 * Put live on latex.ytotech.com
   * Create a landing page with rationale
@@ -27,4 +28,5 @@ TODO:
 Inspired by:
 * https://www.overleaf.com/
 * https://github.com/aslushnikov/latex-online
+* https://github.com/sharelatex/clsi-sharelatex
 * http://mrzool.cc/writing/typesetting-automation/
