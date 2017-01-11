@@ -10,6 +10,7 @@ TODO:
   * Multi-part upload
     * See http://flask.pocoo.org/docs/0.12/api/#flask.Request.files
   * Create temporary folder with all files
+    * See https://github.com/sharelatex/clsi-sharelatex API
   * Try compiles
   * Then clean the mess
   * Put a limit on file uploaded size and number of files
@@ -17,7 +18,7 @@ TODO:
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
-  * As a preprocessor
+  * As a preprocessor -> another method
 * Put live on latex.ytotech.com
   * Create a landing page with rationale
   * https://fonts.google.com/specimen/Droid+Serif

@@ -2,7 +2,8 @@
 *.aux
 *.out
 *.pdf
-texmf/
+tmp/*
+!tmp/.commitflag
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

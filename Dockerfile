@@ -70,10 +70,17 @@ RUN tlmgr init-usertree \
 # See https://github.com/gliderlabs/docker-alpine/blob/master/docs/usage.md
 # RUN sh /check.sh
 
-# TODO Copy application source code. (Or use a mount point?)
-# COPY ./docker-entrypoint.sh /
-
+# This is an HTTP app.
 EXPOSE 80
 
-# CMD ["app.py"]
-# ENTRYPOINT ["python"]
+# Create app directory.
+RUN \
+    mkdir -p /home/latex-on-http
+
+# Copy application source code.
+# (TODO Or use a mount point? Or use pip install?)
+COPY ./run.sh ./requirements.txt /home/latex-on-http/
+COPY ./latex-on-http/ /home/latex-on-http/latex-on-http/
+
+WORKDIR /home/latex-on-http/
+CMD ["/bin/bash", "/home/latex-on-http/run.sh"]
