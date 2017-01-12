@@ -1,10 +1,13 @@
 import subprocess
 import codecs
 import os
+import shutil
 
 # TODO Temporary dirty work.
 
 def run_command(command):
+    # TODO And if the command fails?
+    # Currently it is stuck herer!
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -24,6 +27,8 @@ def run_command(command):
 def latexToPdf(compilerName, directory, latex):
     if compilerName not in ['latex', 'lualatex', 'xelatex', 'pdflatex']:
         raise ValueError('Invalid compiler')
+    print("Compiling")
+    # print(latex)
     # TODO Choose appropriate options following the compiler.
     # Copy files to tmp directory.
     # TODO Handle filesystem in another part. Check path.
@@ -34,8 +39,10 @@ def latexToPdf(compilerName, directory, latex):
     print("Writing file")
     print(inputPath)
     # TODO Force UTF-8?
-    # with open(inputPath, 'wb', 'utf-8') as f:
-    with open(inputPath, 'wb') as f:
+    # with open(inputPath, 'w') as f:
+    #     f.write(latex)
+    # TODO I don't know what I'm doing here.
+    with codecs.open(inputPath, 'wb', 'utf-8') as f:
         f.write(latex)
     print('--output-directory=' + directory)
     print(inputPath)
@@ -47,7 +54,10 @@ def latexToPdf(compilerName, directory, latex):
     )
     # TODO Check for compilation errors.
     # TODO Return compile log.
+    pdf = None
     if (os.path.isfile(outputPath)):
-        with open(outputPath, 'r') as f:
-            return f.read()
-    # TODO Clean things up before returning.
+        with open(outputPath, 'rb') as f:
+            pdf = f.read()
+        # Clean things up before returning.
+        shutil.rmtree(directory)
+    return pdf

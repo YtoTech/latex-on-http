@@ -27,7 +27,7 @@ RUN apt-get update \
 RUN apt-get install -y \
     # TODO We need Python (go for Python 3!)
     python3 \
-    python-pip \
+    python3-pip \
     # TODO To install with Latex. (the two followings)
     wget \
     xzdec \
@@ -38,7 +38,8 @@ RUN apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Virtualenv
-RUN pip install \
+RUN pip3 install -U \
+  pip \
   virtualenv
 
 # TODO After Latex installation.
@@ -49,6 +50,9 @@ RUN tlmgr init-usertree \
   # TODO (Use Vanilla 2016 Latex instead)
   && tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final \
   && tlmgr install \
+    anyfontsize \
+    babel \
+    babel-french \
     fontspec \
     geometry \
     ragged2e \

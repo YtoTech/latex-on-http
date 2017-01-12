@@ -52,6 +52,7 @@ def compiler_latex():
     if len(payload['resources']) > 1:
         return jsonify('NOT_IMPLEMENTED'), 500
     # We assume an unique Latex resource.
+    # TODO Try catch.
     pdf = compiler.latexToPdf(
         compilerName,
         # TODO Absolute directory.
@@ -63,6 +64,7 @@ def compiler_latex():
     # TODO Specify ouput file name.
     return Response(
         pdf,
+        status='201',
         headers={
             'Content-Type': 'application/pdf'
         }
