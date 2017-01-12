@@ -15,6 +15,15 @@ TODO:
   * Then clean the mess
   * Put a limit on file uploaded size and number of files
   * Certainly not secure at all, but who cares?
+* Create client libraries (or samples codes)
+    * For the moment in my get paid project
+    * So we can manage the sending of files
+    * So we can use it in a terminal like a local Latex installation
+    * In:
+        * Javascript
+            * Node
+            * In browser? (rather pointless? Just give a sample code)
+        * Python
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
@@ -26,6 +35,20 @@ TODO:
   * Add usage examples with wget, Python (requests), Javascript, Ruby, PHP.
   * Add click-and-see example on the browser, with code snippet
   * Add HTML form to upload a file to compile (with the other project files?)
+
+Hello World:
+
+
+```
+POST:/compilers/latex
+{
+	"resources": [
+		{
+			"content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
+		}
+	]
+}
+```
 
 Inspired by:
 * https://www.overleaf.com/
