@@ -50,6 +50,13 @@ POST:/compilers/latex
 }
 ```
 
+Deploy:
+
+```
+docker build . -t latex-on-http
+docker run -d -p 127.0.0.1:80:80 --name latex-on-http latex-on-http
+```
+
 Inspired by:
 * https://www.overleaf.com/
 * https://github.com/aslushnikov/latex-online
