@@ -1,4 +1,3 @@
 virtualenv -p python3 venv/
-source venv/bin/activate
-pip3 install -r requirements.txt
-python3 latex-on-http/app.py
+venv/bin/pip3 install -r requirements.txt
+venv/bin/python3 latex-on-http/app.py
