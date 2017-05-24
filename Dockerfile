@@ -1,22 +1,43 @@
 # Latex On HTTP Docker container.
 #
 # Try an installation based on Alpine.
-FROM debian:latest
+FROM debian:jessie
 MAINTAINER Yoan Tournade <yoan@ytotech.com>
 
-# TODO Install Vanilla Latex?
-# http://tex.stackexchange.com/questions/1092/how-to-install-vanilla-texlive-on-debian-or-ubuntu
+# TODO Get inspiration from
+# https://github.com/thomasWeise/docker-texlive/blob/master/image/Dockerfile
+# https://github.com/harshjv/docker-texlive-2015
+# https://hub.docker.com/r/mtneug/texlive/
+# This one seems to include latest Texlive install.
+# https://hub.docker.com/r/rchurchley/texlive/
+
+
+# TODO Or try install Vanilla Latex?
+# https://tex.stackexchange.com/questions/1092/how-to-install-vanilla-texlive-on-debian-or-ubuntu
+# https://www.tug.org/texlive/debian.html
+
 RUN apt-get update \
   && apt-get install -y \
     # TODO How do we select the list of Latex packages to install?
     # (texlive-full is heavy!)
+    biber \
+    wget \
+    xzdec \
+    fontconfig \
+    latex-xcolor \
+    preview-latex-style \
+    texlive-bibtex-extra \
     texlive-fonts-extra \
+    texlive-generic-extra \
+    # Heavy one, but we got all languages.
+    texlive-lang-all \
     texlive-latex-base \
     texlive-latex-extra \
     texlive-latex-recommended \
     texlive-luatex \
     texlive-math-extra \
-    texlive-xetex
+    texlive-xetex \
+    texlive-science
 
 # Enable contrib for MS fonts.
 # RUN echo "deb http://deb.debian.org/debian stable contrib non-free" >> /etc/apt/sources.list
@@ -28,9 +49,6 @@ RUN apt-get install -y \
     # TODO We need Python (go for Python 3!)
     python3 \
     python3-pip \
-    # TODO To install with Latex. (the two followings)
-    wget \
-    xzdec \
     # Add some fonts.
     fonts-liberation \
     cm-super \
