@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import subprocess
 import codecs
 import os
@@ -7,12 +8,22 @@ import shutil
 
 def run_command(command):
     # TODO And if the command fails?
-    # Currently it is stuck herer!
+    # Currently it is stuck here!
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT
     )
+    # Always have a timeout to control max compilation time and in case the
+    # process is stuck.
+    # try:
+    #     out, err = process.communicate(timeout=15)
+    #     print(out)
+    # except subprocess.TimeoutExpired:
+    #     process.kill()
+    #     out, err = process.communicate()
+    #     print(out)
+    # TODO Read output line by line in a thread
     while True:
         output = process.stdout.readline()
         if process.poll() is not None:
@@ -21,6 +32,7 @@ def run_command(command):
             # TODO Don't need output on the terminal.
             print(output.strip())
     rc = process.poll()
+    print('Program returned with status code {}'.format(rc))
     # TODO Does it return command output?
     return rc
 
@@ -33,7 +45,7 @@ def latexToPdf(compilerName, directory, latex):
     # Copy files to tmp directory.
     # TODO Handle filesystem in another part. Check path.
     directory = os.path.abspath(directory)
-    os.makedirs(directory)
+    os.makedirs(directory, exist_ok=True)
     inputPath = directory + '/input.tex'
     outputPath = directory + '/input.pdf'
     print("Writing file")
@@ -45,13 +57,22 @@ def latexToPdf(compilerName, directory, latex):
     with codecs.open(inputPath, 'wb', 'utf-8') as f:
         f.write(latex)
     print('--output-directory=' + directory)
-    print(inputPath)
+    print([
+        compilerName,
+        '--output-format=pdf',
+        '--output-directory=' + directory,
+        '-halt-on-error',
+        '-interaction=nonstopmode',
+        inputPath
+    ])
     run_command([
         compilerName,
         '--output-format=pdf',
         '--output-directory=' + directory,
-        inputPath]
-    )
+        '-halt-on-error',
+        '-interaction=nonstopmode',
+        inputPath
+    ])
     # TODO Check for compilation errors.
     # TODO Return compile log.
     pdf = None

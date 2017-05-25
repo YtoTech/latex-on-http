@@ -36,25 +36,40 @@ TODO:
   * Add click-and-see example on the browser, with code snippet
   * Add HTML form to upload a file to compile (with the other project files?)
 
-Hello World:
-
-
-```
-POST:/compilers/latex
-{
-	"resources": [
-		{
-			"content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
-		}
-	]
-}
-```
-
 Deploy:
 
 ```
 docker build . -t latex-on-http
 docker run -d -p 127.0.0.1:80:80 --name latex-on-http latex-on-http
+```
+
+Hello World:
+
+`POST /compilers/latex`
+
+```
+{
+    "resources": [
+        {
+            "content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
+        }
+    ]
+}
+```
+
+With Curl:
+
+```
+curl -v -X POST http://localhost/compilers/latex \
+    -H "Content-Type:application/json" \
+    -d '{
+        "resources": [
+            {
+                "content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
+            }
+        ]
+    }' \
+    > hello_world.pdf
 ```
 
 Inspired by:

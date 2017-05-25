@@ -1,9 +1,18 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify, redirect, Response
 import compiler
 import uuid
+import urllib.request
+import os.path
 app = Flask(__name__)
 
 # xelatex -output-directory /root/latex/ /root/latex/sample.tex
+
+def is_safe_path(basedir, path, follow_symlinks=False):
+    # resolves symbolic links
+    if follow_symlinks:
+        return os.path.realpath(path).startswith(basedir)
+    return os.path.abspath(path).startswith(basedir)
 
 @app.route('/')
 def hello():
@@ -32,31 +41,52 @@ def compiler_latex():
     # TODO Must be an array.
     # Iterate on resources.
     mainResource = None
+    print(payload)
+    workspaceId = str(uuid.uuid4())
+    workspacePath = os.path.abspath('./tmp/' + workspaceId)
     for resource in payload['resources']:
         # Must have:
-        # TODO Either data or url.
-        # TODO Path relative to the project.
+        # Either data or url.
         if 'main' in resource and resource['main'] is True:
             mainResource = resource
         if 'url' in resource:
-            # TODO Fetch and put in resource content.
-            return jsonify('NOT_IMPLEMENTED'), 500
+            # Fetch and put in resource content.
+            # TODO Handle errors (404, network, etc.).
+            print('Fetching {} ...'.format(resource['url']))
+            resource['content'] = urllib.request.urlopen(resource['url']).read()
+            # Decode if main file?
+            if 'main' in resource and resource['main'] is True:
+                resource['content'] = resource['content'].decode('utf-8')
         if not 'content' in resource:
             return jsonify('MISSING_CONTENT'), 400
-    # TODO If more than one resource, must give an main file flag.
+        # Path relative to the project.
+        if 'path' in resource:
+            # Write file to workspace, if not the main file.
+            if not 'main' in resource or resource['main'] is not True:
+                # https://security.openstack.org/guidelines/dg_using-file-paths.html
+                resource['path'] = os.path.abspath(workspacePath + '/' + resource['path'])
+                print(workspacePath)
+                print(resource['path'])
+                if not is_safe_path(workspacePath, resource['path']):
+                    return jsonify('INVALID_PATH'), 400
+                print('Writing to {} ...'.format(resource['path']))
+                os.makedirs(os.path.dirname(resource['path']), exist_ok=True)
+                if not 'url' in resource:
+                    resource['content'] = resource['content'].encode('utf-8')
+                with open(resource['path'], 'wb') as f:
+                    f.write(resource['content'])
+        print(type(resource['content']))
+    # TODO If more than one resource, must give a main file flag.
     if len(payload['resources']) == 1:
         mainResource = payload['resources'][0]
     else:
         if not mainResource:
             return jsonify('MUST_SPECIFY_MAIN_RESOURCE'), 400
-    if len(payload['resources']) > 1:
-        return jsonify('NOT_IMPLEMENTED'), 500
-    # We assume an unique Latex resource.
     # TODO Try catch.
     pdf = compiler.latexToPdf(
         compilerName,
         # TODO Absolute directory.
-        './tmp/' + str(uuid.uuid4()),
+        workspacePath,
         mainResource['content']
     )
     if not pdf:
