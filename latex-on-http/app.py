@@ -4,6 +4,7 @@ import compiler
 import uuid
 import urllib.request
 import os.path
+import base64
 app = Flask(__name__)
 
 # xelatex -output-directory /root/latex/ /root/latex/sample.tex
@@ -41,7 +42,6 @@ def compiler_latex():
     # TODO Must be an array.
     # Iterate on resources.
     mainResource = None
-    print(payload)
     workspaceId = str(uuid.uuid4())
     workspacePath = os.path.abspath('./tmp/' + workspaceId)
     for resource in payload['resources']:
@@ -49,6 +49,7 @@ def compiler_latex():
         # Either data or url.
         if 'main' in resource and resource['main'] is True:
             mainResource = resource
+        # TODO Be immutable and preserve the original content payload.
         if 'url' in resource:
             # Fetch and put in resource content.
             # TODO Handle errors (404, network, etc.).
@@ -57,6 +58,8 @@ def compiler_latex():
             # Decode if main file?
             if 'main' in resource and resource['main'] is True:
                 resource['content'] = resource['content'].decode('utf-8')
+        if 'file' in resource:
+            resource['content'] = base64.b64decode(resource['file'])
         if not 'content' in resource:
             return jsonify('MISSING_CONTENT'), 400
         # Path relative to the project.
@@ -65,17 +68,14 @@ def compiler_latex():
             if not 'main' in resource or resource['main'] is not True:
                 # https://security.openstack.org/guidelines/dg_using-file-paths.html
                 resource['path'] = os.path.abspath(workspacePath + '/' + resource['path'])
-                print(workspacePath)
-                print(resource['path'])
                 if not is_safe_path(workspacePath, resource['path']):
                     return jsonify('INVALID_PATH'), 400
                 print('Writing to {} ...'.format(resource['path']))
                 os.makedirs(os.path.dirname(resource['path']), exist_ok=True)
-                if not 'url' in resource:
+                if not 'url' in resource and not 'file' in resource:
                     resource['content'] = resource['content'].encode('utf-8')
                 with open(resource['path'], 'wb') as f:
                     f.write(resource['content'])
-        print(type(resource['content']))
     # TODO If more than one resource, must give a main file flag.
     if len(payload['resources']) == 1:
         mainResource = payload['resources'][0]

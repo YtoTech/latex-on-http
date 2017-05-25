@@ -6,13 +6,14 @@ import shutil
 
 # TODO Temporary dirty work.
 
-def run_command(command):
+def run_command(directory, command):
     # TODO And if the command fails?
     # Currently it is stuck here!
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT
+        stderr=subprocess.STDOUT,
+        cwd=directory
     )
     # Always have a timeout to control max compilation time and in case the
     # process is stuck.
@@ -56,7 +57,9 @@ def latexToPdf(compilerName, directory, latex):
     # TODO I don't know what I'm doing here.
     with codecs.open(inputPath, 'wb', 'utf-8') as f:
         f.write(latex)
-    print('--output-directory=' + directory)
+    # TODO We need to use something like https://github.com/aclements/latexrun
+    # to manage multiple runs of Latex compiler for us.
+    # (Cross-references, page numbers, etc.)
     print([
         compilerName,
         '--output-format=pdf',
@@ -65,20 +68,23 @@ def latexToPdf(compilerName, directory, latex):
         '-interaction=nonstopmode',
         inputPath
     ])
-    run_command([
-        compilerName,
-        '--output-format=pdf',
-        '--output-directory=' + directory,
-        '-halt-on-error',
-        '-interaction=nonstopmode',
-        inputPath
-    ])
+    run_command(
+        directory,
+        [
+            compilerName,
+            '--output-format=pdf',
+            '--output-directory=' + directory,
+            '-halt-on-error',
+            '-interaction=nonstopmode',
+            inputPath
+        ]
+    )
     # TODO Check for compilation errors.
-    # TODO Return compile log.
+    # TODO Return compile logs.
     pdf = None
     if (os.path.isfile(outputPath)):
         with open(outputPath, 'rb') as f:
             pdf = f.read()
-        # Clean things up before returning.
-        shutil.rmtree(directory)
+    # Clean things up before returning.
+    shutil.rmtree(directory)
     return pdf
