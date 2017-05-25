@@ -70,8 +70,8 @@ def latexToPdf(compilerName, directory, latex):
         '--latex-cmd=' + compilerName,
         '-O=' + logDir,
         '-o=' + outputPath,
-        # TODO Add -halt-on-error
-        '--latex-args="--output-format=pdf  --interaction=nonstopmode"',
+        # TODO Add -halt-on-error --interaction=nonstopmode
+        '--latex-args="--output-format=pdf"',
         inputPath
     ]
     print(command)
