@@ -5,6 +5,8 @@ import os
 import shutil
 
 # TODO Temporary dirty work.
+# Lol.
+# (Like any Python script that grow indefinitely?)
 
 def run_command(directory, command):
     # TODO And if the command fails?
@@ -58,9 +60,10 @@ def latexToPdf(compilerName, directory, latex):
     # TODO I don't know what I'm doing here.
     with codecs.open(inputPath, 'wb', 'utf-8') as f:
         f.write(latex)
-    # TODO We need to use something like https://github.com/aclements/latexrun
+    # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
+    # TODO Put on pip
     command = [
         os.getcwd() + '/venv/bin/python3',
         os.getcwd() + '/latex-on-http/latexrun.py',
