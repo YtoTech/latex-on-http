@@ -49,6 +49,7 @@ def latexToPdf(compilerName, directory, latex):
     os.makedirs(directory, exist_ok=True)
     inputPath = directory + '/input.tex'
     outputPath = directory + '/input.pdf'
+    logDir = directory + '/latex.out'
     print("Writing file")
     print(inputPath)
     # TODO Force UTF-8?
@@ -60,25 +61,18 @@ def latexToPdf(compilerName, directory, latex):
     # TODO We need to use something like https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
-    print([
-        compilerName,
-        '--output-format=pdf',
-        '--output-directory=' + directory,
-        '-halt-on-error',
-        '-interaction=nonstopmode',
+    command = [
+        os.getcwd() + '/venv/bin/python3',
+        os.getcwd() + '/latex-on-http/latexrun.py',
+        '--latex-cmd=' + compilerName,
+        '-O=' + logDir,
+        '-o=' + outputPath,
+        # TODO Add -halt-on-error
+        '--latex-args="--output-format=pdf  --interaction=nonstopmode"',
         inputPath
-    ])
-    run_command(
-        directory,
-        [
-            compilerName,
-            '--output-format=pdf',
-            '--output-directory=' + directory,
-            '-halt-on-error',
-            '-interaction=nonstopmode',
-            inputPath
-        ]
-    )
+    ]
+    print(command)
+    run_command(directory, command)
     # TODO Check for compilation errors.
     # TODO Return compile logs.
     pdf = None
