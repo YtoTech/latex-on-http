@@ -11,6 +11,7 @@ import shutil
 def run_command(directory, command):
     # TODO And if the command fails?
     # Currently it is stuck here!
+    stdout = ''
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -33,11 +34,15 @@ def run_command(directory, command):
             break
         if output:
             # TODO Don't need output on the terminal.
+            stdout += output
             print(output.strip())
     rc = process.poll()
     print('Program returned with status code {}'.format(rc))
     # TODO Does it return command output?
-    return rc
+    return {
+        'return_code': rc,
+        'stdout': stdout
+    }
 
 def latexToPdf(compilerName, directory, latex):
     if compilerName not in ['latex', 'lualatex', 'xelatex', 'pdflatex']:
@@ -75,13 +80,17 @@ def latexToPdf(compilerName, directory, latex):
         inputPath
     ]
     print(command)
-    run_command(directory, command)
+    commandOutput = run_command(directory, command)
     # TODO Check for compilation errors.
-    # TODO Return compile logs.
+    # commandOutput['return_code'] is not 0
+    # Return both generated PDF and compile logs.
     pdf = None
     if (os.path.isfile(outputPath)):
         with open(outputPath, 'rb') as f:
             pdf = f.read()
     # Clean things up before returning.
     shutil.rmtree(directory)
-    return pdf
+    return {
+        'pdf': pdf,
+        'logs': commandOutput['stdout']
+    }

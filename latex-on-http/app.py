@@ -83,17 +83,25 @@ def compiler_latex():
         if not mainResource:
             return jsonify('MUST_SPECIFY_MAIN_RESOURCE'), 400
     # TODO Try catch.
-    pdf = compiler.latexToPdf(
+    latexToPdfOutput = compiler.latexToPdf(
         compilerName,
         # TODO Absolute directory.
         workspacePath,
         mainResource['content']
     )
-    if not pdf:
-        return jsonify('API_ERROR'), 500
+    if not latexToPdfOutput['pdf']:
+        return jsonify({
+            'code': 'COMPILATION_ERROR',
+            'logs': latexToPdfOutput['logs']
+        }), 400
     # TODO Specify ouput file name.
+    # TODO Also return compilation logs here.
+    # (So return a json. Include the PDF as base64 data?)
+    # (In the long term it will be better to give a static URL to download
+    # the generated PDF. We begin to talk about caching. This requires
+    # lifecycle management. With something like a Redis.)
     return Response(
-        pdf,
+        latexToPdfOutput['pdf'],
         status='201',
         headers={
             'Content-Type': 'application/pdf'
