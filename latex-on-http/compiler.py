@@ -34,7 +34,7 @@ def run_command(directory, command):
             break
         if output:
             # TODO Don't need output on the terminal.
-            stdout += str(output)
+            stdout += str(output) + '\n'
             print(output.strip())
     rc = process.poll()
     print('Program returned with status code {}'.format(rc))
