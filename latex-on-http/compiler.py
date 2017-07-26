@@ -55,7 +55,7 @@ def latexToPdf(compilerName, directory, latex):
     directory = os.path.abspath(directory)
     os.makedirs(directory, exist_ok=True)
     inputPath = directory + '/input.tex'
-    outputPath = directory + '/input.pdf'
+    outputPath = directory + '/output.pdf'
     logDir = directory + '/latex.out'
     print("Writing file")
     print(inputPath)
