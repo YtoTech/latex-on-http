@@ -34,6 +34,8 @@ TODO:
   * https://v4-alpha.getbootstrap.com/
   * Add usage examples with wget, Python (requests), Javascript, Ruby, PHP.
   * Add click-and-see example on the browser, with code snippet
+    * TODO Samples for CV, letter, invoice, etc.
+    * https://github.com/NebulousLabs/Sia/blob/master/doc/whitepaper.tex
   * Add HTML form to upload a file to compile (with the other project files?)
 
 Deploy:
