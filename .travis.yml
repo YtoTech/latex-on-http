@@ -11,7 +11,7 @@ python:
 
 install:
     # Install tests dependencies
-    - make install-dev
+    - make install-tests
 
 script:
     - make test
