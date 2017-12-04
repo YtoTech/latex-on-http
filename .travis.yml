@@ -1,0 +1,17 @@
+language: python
+python:
+    - "3.5"
+    - "3.5-dev"
+    - "3.6"
+    - "3.6-dev"
+    - "3.7-dev"
+    - "nightly"
+
+# TODO Install the Latex distribution so we can run the whole system.
+
+install:
+    # Install tests dependencies
+    - make install-dev
+
+script:
+    - make test
