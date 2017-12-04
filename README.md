@@ -4,17 +4,11 @@
 
 This is an experimental project.
 
+https://latex.ytotech.com/compilers/latex
+
 TODO:
-* Compile a raw Latex file (as file upload or as json value?)
-* Includes files to use (images, fonts) during the Latex file compilation
-  * Multi-part upload
-    * See http://flask.pocoo.org/docs/0.12/api/#flask.Request.files
-  * Create temporary folder with all files
-    * See https://github.com/sharelatex/clsi-sharelatex API
-  * Try compiles
-  * Then clean the mess
-  * Put a limit on file uploaded size and number of files
-  * Certainly not secure at all, but who cares?
+* Put a limit on file uploaded size and number of files
+* Document the Rest API
 * Create client libraries (or samples codes)
     * For the moment in my get paid project
     * So we can manage the sending of files
@@ -28,15 +22,16 @@ TODO:
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
   * As a preprocessor -> another method
-* Put live on latex.ytotech.com
-  * Create a landing page with rationale
-  * https://fonts.google.com/specimen/Droid+Serif
-  * https://v4-alpha.getbootstrap.com/
-  * Add usage examples with wget, Python (requests), Javascript, Ruby, PHP.
-  * Add click-and-see example on the browser, with code snippet
-    * TODO Samples for CV, letter, invoice, etc.
+* Find a dedicated domain-name
+    * Put API under api.domain.com, doc developer.domain.com and keep domain.com for home
+    * Create a landing page with rationale (simple, directly let play with the toy)
+    * https://fonts.google.com/specimen/Droid+Serif
+    * https://v4-alpha.getbootstrap.com/
+    * Add usage examples with wget, Python (requests), Javascript, Ruby, PHP.
+        * Add click-and-see example on the browser, with code snippet
+        * TODO Samples for CV, letter, invoice, etc.
     * https://github.com/NebulousLabs/Sia/blob/master/doc/whitepaper.tex
-  * Add HTML form to upload a file to compile (with the other project files?)
+    * Add HTML form to upload a file to compile (with the other project files?)
 
 Deploy:
 
