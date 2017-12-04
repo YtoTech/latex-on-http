@@ -1,17 +1,16 @@
 language: python
 python:
-    - "3.5"
-    - "3.5-dev"
-    - "3.6"
-    - "3.6-dev"
-    - "3.7-dev"
-    - "nightly"
-
-# TODO Install the Latex distribution so we can run the whole system.
-
+- '3.5'
+- 3.5-dev
+- '3.6'
+- 3.6-dev
+- 3.7-dev
+- nightly
 install:
-    # Install tests dependencies
-    - make install-tests
-
+- make install-tests
 script:
-    - make test
+- make test
+notifications:
+  slack:
+    rooms:
+      secure: CpZNJiI/8E3QnZrcSU7bK8e7yJ538LNggc7iRocMVqgMxANeMUZxCQZx3BwxpU3Bz1H+fOto7BUIZfhA47EQGXQ5BUcJcxqnaMbaL5uARp7n8ffc6cYgGrBuuxtgc6CJaUi6HdHb9n2WLMkrO//cBX6anDI81zZ4cCi5rzcLoc1IlEsj3AJUrUrf7l5HAjv+LCw8IbtXpFxYIdoNGi21l+/PvYEVPRlSTDLVUuKTbRGkLxbByDZZAOFBcugHSwzu1WU9U1B0hVK6NkKTkVjQGMDQ2GxjOxzXeC8bPGAWZ15EfF1oMlwRhjWPGwoTmUmLEJl8JOAfE0PS78KwdmnxFv7wItXjcOhKKkdQkLy4c/g3TWjWVmtYQT8zdpAe9MJ0OJnXerUwinAMYH9QZAzwGLc+7ej1edYzY3Ud0un5xGel5uuvHrsxgW7/d4Q63qlkuFZHExnFxC3V6w2LUVA5TdFzRFDzvRZMMbyfYIP9rML7TvwwAyNp55KKu7O4rz/PLN6iS1cUXtdTxB/RxlwOWageonL4Kc/EBiUdwa3Mh7FDST2mUq9mb/z+2AXEinyzAAn9p48I5Q0UJizsleVZsw5P9Prq1SvomFFznb9T+7SnWjRDW7/qWUS3Sa4z4gED5mqIyRFV14P9BBOaynVdjgEpfii88ZGUHTmAeUod5No=
