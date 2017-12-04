@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+    latex-on-http.app
+    ~~~~~~~~~~~~~~~~~~~~~
+    Server application for Latex On HTTP API.
+    Here are exposed the Rest API endpoints.
+
+    :copyright: (c) 2017 Yoan Tournade.
+    :license: MIT, see LICENSE for more details.
+"""
 from flask import Flask, request, jsonify, redirect, Response
 import compiler
 import uuid
