@@ -109,8 +109,11 @@ RUN \
 
 # Copy application source code.
 # (TODO Or use a mount point? Or use pip install?)
-COPY ./run.sh ./requirements.txt /home/latex-on-http/
+COPY ./Makefile ./requirements.txt /home/latex-on-http/
 COPY ./latex-on-http/ /home/latex-on-http/latex-on-http/
 
+cd /home/latex-on-http/
+make install
+
 WORKDIR /home/latex-on-http/
-CMD ["/bin/bash", "/home/latex-on-http/run.sh"]
+CMD ["make", "start"]
