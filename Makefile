@@ -15,7 +15,8 @@ install:
 	venv/bin/pip3 install -r requirements.txt
 
 start: install
-	venv/bin/python3 latex-on-http/app.py
+    # TODO use --threads=8
+	cd latex-on-http && ../venv/bin/gunicorn --workers=2 --bind=0.0.0.0:8080 app:app
 
 debug: install
 	venv/bin/python3 latex-on-http/app.py --verbose
