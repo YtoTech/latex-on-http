@@ -1,71 +1,23 @@
 # Latex On HTTP Docker container.
-#
-# Try an installation based on Alpine.
+# Vanilla Latex installation.
+
+# TODO Factorize further with the main Dockerfile: only the base image and
+# Texlive install changes.
+
+# Ensure this is a Vanilla Latex install.
+# https://tex.stackexchange.com/questions/1092/how-to-install-vanilla-texlive-on-debian-or-ubuntu
+# https://www.tug.org/texlive/debian.html
 FROM rchurchley/texlive:latest
 MAINTAINER Yoan Tournade <yoan@ytotech.com>
 
-RUN apt-get update \
-  && apt-get install -y \
-    wget \
-    python3 \
-    python3-pip \
-    # Add some fonts.
-    fonts-liberation \
-    cm-super \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+COPY ./container/install_python.sh /tmp/install_python.sh
+RUN /tmp/install_python.sh
 
-# Enable contrib for MS fonts.
-# RUN echo "deb http://deb.debian.org/debian stable contrib non-free" >> /etc/apt/sources.list
-# Then install -> ttf-mscorefonts-installer \
+# Clean APT cache.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Virtualenv
-RUN pip3 install -U \
-  pip \
-  virtualenv
-
-# TODO After Latex installation.
-# Install additionnals Latex packages from CTAN here.
-RUN tlmgr init-usertree \
-  # As we use Debian texlive package, that is the 2015 Latex, we need to specify
-  # to tlmgr to use a 2015 repository.
-  # TODO (Use Vanilla 2016 Latex instead)
-  && tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final \
-  && tlmgr install \
-    anyfontsize \
-    babel \
-    babel-french \
-    fontspec \
-    geometry \
-    ragged2e \
-    spreadtab \
-    fp \
-    xstring \
-    arydshln \
-    hhline \
-    titlesec \
-    enumitem \
-    xunicode \
-    xltxtra \
-    hyperref \
-    polyglossia \
-    wallpaper \
-    footmisc \
-    # LateX 3 support
-    # https://tex.stackexchange.com/questions/53318/how-do-i-get-expl3-from-ctan
-    expl3 \
-    l3kernel \
-    l3packages \
-    l3experimental \
-  && tlmgr update --self --all --reinstall-forcibly-removed
-
-
-# TODO Then install Flask & co? (requirements.txt)
-# See https://github.com/gliderlabs/docker-alpine/blob/master/docs/usage.md
-# RUN sh /check.sh
-
-# This is an HTTP app.
-EXPOSE 80
+COPY ./container/install_latex_packages.sh /tmp/install_latex_packages.sh
+RUN /tmp/install_latex_packages.sh
 
 # Create app directory.
 RUN \
@@ -73,8 +25,11 @@ RUN \
 
 # Copy application source code.
 # (TODO Or use a mount point? Or use pip install?)
-COPY ./run.sh ./requirements.txt /home/latex-on-http/
+COPY ./Makefile ./requirements.txt /home/latex-on-http/
 COPY ./latex-on-http/ /home/latex-on-http/latex-on-http/
 
 WORKDIR /home/latex-on-http/
-CMD ["/bin/bash", "/home/latex-on-http/run.sh"]
+RUN make install
+
+EXPOSE 8080
+CMD ["make", "start"]
