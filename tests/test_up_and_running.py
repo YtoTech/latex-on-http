@@ -9,8 +9,9 @@
 """
 import pytest
 
-def test_answer():
-    assert 42 == 42
+def test_simple_compilation_body(latex_on_http_api_url):
+    print(latex_on_http_api_url)
+    assert 42 == 41
 
 # TODO API ping
 

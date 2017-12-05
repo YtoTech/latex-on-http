@@ -6,6 +6,8 @@ before_install:
 # TODO Use a Docker pre-built image for running tests https://docs.travis-ci.com/user/docker/
 # This won't let us test different version of Python (although easily) but should
 # make the tests faster to run.
+# We may even pre-built the image in a stage, but if we do that each time it
+# won't be faster at all https://docs.travis-ci.com/user/build-stages/share-docker-image/
 - sudo ./container/install_texlive.sh
 - sudo ./container/install_latex_packages.sh
 dist: trusty

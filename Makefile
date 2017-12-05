@@ -24,7 +24,7 @@ debug: install
 	venv/bin/python3 latex-on-http/app.py --verbose
 
 ## Tests ##
-test: install-tests
+test:
 	venv_tests/bin/pytest
 
 install-tests:
