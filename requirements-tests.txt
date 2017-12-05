@@ -1,1 +1,2 @@
 pytest>=3
+requests>=2

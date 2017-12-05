@@ -8,10 +8,15 @@
     :license: MIT, see LICENSE for more details.
 """
 import pytest
+import requests
+
+def test_api_index(latex_on_http_api_url):
+    r = requests.get(latex_on_http_api_url, allow_redirects=False)
+    assert r.status_code == 302
 
 def test_simple_compilation_body(latex_on_http_api_url):
     print(latex_on_http_api_url)
-    assert 42 == 41
+    assert 42 == 42
 
 # TODO API ping
 
