@@ -1,4 +1,10 @@
 language: python
+sudo: required
+before_install:
+# - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-fonts-recommended
+#   texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended
+- sudo ./container/install_texlive.sh
+dist: trusty
 python:
 - '3.5'
 - 3.5-dev
