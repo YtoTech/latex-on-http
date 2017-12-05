@@ -11,5 +11,5 @@ import pytest
 
 @pytest.fixture(scope="function")
 def latex_on_http_api_url():
-    return 'http://localhost:8080/'
-    # TODO How to teardown? Yielf?
+    yield 'http://localhost:8080/'
+    print("teardown latex_on_http_api")
