@@ -1,7 +1,7 @@
 apt-get update
+# TODO How do we select the list of Latex packages to install?
+# (texlive-full is heavy!)
 apt-get install -y \
-    # TODO How do we select the list of Latex packages to install?
-    # (texlive-full is heavy!)
     biber \
     wget \
     xzdec \
