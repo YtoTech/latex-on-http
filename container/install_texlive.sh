@@ -1,6 +1,7 @@
 apt-get update
 # TODO How do we select the list of Latex packages to install?
 # (texlive-full is heavy!)
+# texlive-lang-all: Heavy one, but we got all languages.
 apt-get install -y \
     biber \
     wget \
@@ -11,7 +12,6 @@ apt-get install -y \
     texlive-bibtex-extra \
     texlive-fonts-extra \
     texlive-generic-extra \
-    # Heavy one, but we got all languages.
     texlive-lang-all \
     texlive-latex-base \
     texlive-latex-extra \
