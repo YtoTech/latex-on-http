@@ -19,7 +19,7 @@ python:
 - 3.7-dev
 - nightly
 install:
-- make install-tests
+- make install-dev
 script:
 - make test
 notifications:

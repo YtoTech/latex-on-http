@@ -11,24 +11,19 @@ docker-start:
 
 ## Running Python app ##
 install:
-	if [ ! -d "venv" ]; then \
-		virtualenv -p python3 venv; \
-	fi
-	venv/bin/pip3 install -r requirements.txt
+	pipenv install
 
-start: install
+start:
     # TODO use --threads=8
-	cd latex-on-http && ../venv/bin/gunicorn --workers=2 --bind=0.0.0.0:8080 app:app
+	# pipenv shell && cd latex-on-http && gunicorn --workers=2 --bind=0.0.0.0:8080 app:app
+	pipenv run gunicorn --workers=2 --bind=0.0.0.0:8080 latex-on-http.app:app
 
-debug: install
-	venv/bin/python3 latex-on-http/app.py --verbose
+debug:
+	pipenv run python latex-on-http/app.py --verbose
 
 ## Tests ##
 test:
-	venv_tests/bin/pytest
+	pipenv run pytest
 
-install-tests:
-	if [ ! -d "venv_tests" ]; then \
-		virtualenv -p python3 venv_tests; \
-	fi
-	venv_tests/bin/pip3 install -r requirements-tests.txt
+install-dev:
+	pipenv install --dev

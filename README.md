@@ -6,6 +6,24 @@ This is an experimental project.
 
 https://latex.ytotech.com/compilers/latex
 
+Run tests:
+```
+make install-dev
+make test
+```
+
+Run directly in host:
+```
+make install
+make start
+```
+
+Using Docker:
+```
+make docker-build
+make docker-start
+```
+
 TODO:
 * Put a limit on file uploaded size and number of files
 * Document the Rest API

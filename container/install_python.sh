@@ -9,4 +9,5 @@ apt-get install -y \
 # Update pip and install virtualenv.
 pip3 install -U \
   pip \
-  virtualenv
+  virtualenv \
+  pipenv

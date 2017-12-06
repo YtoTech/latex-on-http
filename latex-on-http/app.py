@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from flask import Flask, request, jsonify, redirect, Response
-import compiler
+from . import compiler
 import uuid
 import urllib.request
 import os.path
