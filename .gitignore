@@ -1,7 +1,4 @@
 # Latex
-*.aux
-*.out
-*.pdf
 tmp/*
 !tmp/.commitflag
 
