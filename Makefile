@@ -14,12 +14,11 @@ install:
 	pipenv install
 
 start:
-    # TODO use --threads=8
-	# pipenv shell && cd latex-on-http && gunicorn --workers=2 --bind=0.0.0.0:8080 app:app
-	pipenv run gunicorn --workers=2 --bind=0.0.0.0:8080 latex-on-http.app:app
+    # TODO use --workers=2 --threads=8
+	pipenv run gunicorn --workers=1 --bind=0.0.0.0:8080 app:app
 
 debug:
-	pipenv run python latex-on-http/app.py --verbose
+	pipenv run python app.py --verbose
 
 ## Tests ##
 test:

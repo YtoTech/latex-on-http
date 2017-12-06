@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from flask import Flask, request, jsonify, redirect, Response
-from . import compiler
+from latexonhttp.compiler import latexToPdf
 import uuid
 import urllib.request
 import os.path
@@ -92,7 +92,7 @@ def compiler_latex():
         if not mainResource:
             return jsonify('MUST_SPECIFY_MAIN_RESOURCE'), 400
     # TODO Try catch.
-    latexToPdfOutput = compiler.latexToPdf(
+    latexToPdfOutput = latexToPdf(
         compilerName,
         # TODO Absolute directory.
         workspacePath,
@@ -116,10 +116,3 @@ def compiler_latex():
             'Content-Type': 'application/pdf'
         }
     )
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='Latex on HTTP.')
-    parser.add_argument('--verbose', action='store_true', help='Print verbose logging to stdout', default=False)
-    args = parser.parse_args()
-    app.run(host='0.0.0.0', port=8080, debug=args.verbose, threaded=True)
