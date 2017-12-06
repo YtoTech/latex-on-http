@@ -48,7 +48,7 @@ def test_simple_compilation_body(latex_on_http_api_url):
     compareToSample(r, PDF_HELLO_WORLD)
 
 def test_concurrent_compilations(latex_on_http_api_url):
-    concurrentSessions = 10
+    concurrentSessions = 16
     session = FuturesSession(executor=ThreadPoolExecutor(max_workers=concurrentSessions))
     requestsList = []
     # Spam all requests concurrently.
