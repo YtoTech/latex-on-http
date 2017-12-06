@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    latex-on-http.compiler
+    latexonhttp.compiler
     ~~~~~~~~~~~~~~~~~~~~~
     The Latex compiler abstraction.
     Get a compilation order (dict task spec) and compiles the order.
@@ -78,9 +78,12 @@ def latexToPdf(compilerName, directory, latex):
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
     # TODO Put on pip
+    # TODO Fix this lame subprocessing with parh orgy.
     command = [
-        os.getcwd() + '/venv/bin/python3',
-        os.getcwd() + '/latex-on-http/latexrun.py',
+        '/usr/local/bin/pipenv',
+        'run',
+        'python',
+        os.getcwd() + '/latexonhttp/latexrun.py',
         '--latex-cmd=' + compilerName,
         '-O=' + logDir,
         '-o=' + outputPath,

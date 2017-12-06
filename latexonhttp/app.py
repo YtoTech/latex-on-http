@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    latex-on-http.app
+    latexonhttp.app
     ~~~~~~~~~~~~~~~~~~~~~
     Server application for Latex On HTTP API.
     Here are exposed the Rest API endpoints.
