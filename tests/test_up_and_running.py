@@ -25,11 +25,10 @@ def test_api_index_redirect(latex_on_http_api_url):
     assert r.headers['location'] == 'https://github.com/YtoTech/latex-on-http'
 
 def test_simple_compilation_body(latex_on_http_api_url):
-    assert 1 == 1
-    # r = requests.post(
-    #     latex_on_http_api_url, json=COMPIL_HELLO_WORLD
-    # )
-    # assert r.status_code == 302
+    r = requests.post(
+        latex_on_http_api_url + '/compilers/latex', json=COMPIL_HELLO_WORLD
+    )
+    assert r.status_code == 200
 
 # TODO API ping
 

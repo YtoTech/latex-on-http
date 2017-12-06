@@ -27,8 +27,8 @@ def latex_on_http_api_url():
     # we have concurrent requrests.
     appProcess = subprocess.Popen(['make', 'start'])
     # appProcess = subprocess.Popen(['make', 'debug'])
-    time.sleep(0.5)
-    yield 'http://localhost:8080/'
+    time.sleep(1)
+    yield 'http://localhost:8080'
     print("teardown latex_on_http_api")
     appProcess.terminate()
     print("teardowned")
