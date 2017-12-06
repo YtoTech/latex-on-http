@@ -14,8 +14,7 @@ install:
 	pipenv install
 
 start:
-    # TODO use --workers=2 --threads=8
-	pipenv run gunicorn --workers=1 --bind=0.0.0.0:8080 app:app
+	pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
 	pipenv run python app.py --verbose
