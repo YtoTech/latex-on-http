@@ -80,8 +80,6 @@ def latexToPdf(compilerName, directory, latex):
     # TODO Put on pip
     # TODO Fix this lame subprocessing with parh orgy.
     command = [
-        '/usr/local/bin/pipenv',
-        'run',
         'python',
         os.getcwd() + '/latexonhttp/latexrun.py',
         '--latex-cmd=' + compilerName,
