@@ -10,6 +10,8 @@
 import pytest
 import requests
 import os
+from concurrent.futures import ThreadPoolExecutor
+from requests_futures.sessions import FuturesSession
 
 SAMPLE_DIR = os.getcwd() + '/tests/samples/'
 
@@ -44,6 +46,25 @@ def test_simple_compilation_body(latex_on_http_api_url):
     )
     assert r.status_code == 201
     compareToSample(r, PDF_HELLO_WORLD)
+
+def test_concurrent_compilations(latex_on_http_api_url):
+    concurrentSessions = 10
+    session = FuturesSession(executor=ThreadPoolExecutor(max_workers=concurrentSessions))
+    requestsList = []
+    # Spam all requests concurrently.
+    for i in range(0, concurrentSessions):
+        requestsList.append(session.post(
+            latex_on_http_api_url + '/compilers/latex', json=COMPIL_HELLO_WORLD
+        ))
+    # Check the API ping during load.
+    r = requests.get(latex_on_http_api_url, allow_redirects=False)
+    assert r.status_code == 302
+    # Check all results.
+    for requestFuture in requestsList:
+        r = requestFuture.result()
+        assert r.status_code == 201
+        compareToSample(r, PDF_HELLO_WORLD)
+
 
 # TODO API ping
 
