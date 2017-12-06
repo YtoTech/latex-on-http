@@ -36,11 +36,18 @@ def compareToSample(r, samplePath):
         # compilation and compare all but that.
 
 def test_api_index_redirect(latex_on_http_api_url):
+    """
+    The API index currently redirect to the GitHub repository.
+    """
     r = requests.get(latex_on_http_api_url, allow_redirects=False)
     assert r.status_code == 302
     assert r.headers['location'] == 'https://github.com/YtoTech/latex-on-http'
 
 def test_simple_compilation_body(latex_on_http_api_url):
+    """
+    Compile a simple Latex document, text-only, passed directly in document
+    definition content entry.
+    """
     r = requests.post(
         latex_on_http_api_url + '/compilers/latex', json=COMPIL_HELLO_WORLD
     )
@@ -48,6 +55,9 @@ def test_simple_compilation_body(latex_on_http_api_url):
     compareToSample(r, PDF_HELLO_WORLD)
 
 def test_concurrent_compilations(latex_on_http_api_url):
+    """
+    We can launch multiple compilation jobs concurrently.
+    """
     concurrentSessions = 16
     session = FuturesSession(executor=ThreadPoolExecutor(max_workers=concurrentSessions))
     requestsList = []
@@ -70,7 +80,3 @@ def test_concurrent_compilations(latex_on_http_api_url):
 
 # with open('hello_world.pdf', 'wb') as f:
 #     f.write(r.content)
-
-# TODO We can compile concurrently
-# when one compilation is running the API still respond
-# we can have at least 5 compilations at the same time
