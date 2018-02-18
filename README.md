@@ -40,6 +40,7 @@ TODO:
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
   * As a preprocessor -> another method
+  * https://github.com/jez/pandoc-starter
 * Find a dedicated domain-name
     * Put API under api.domain.com, doc developer.domain.com and keep domain.com for home
     * Create a landing page with rationale (simple, directly let play with the toy)
