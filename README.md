@@ -1,4 +1,6 @@
 # Latex-On-Http
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FYtoTech%2Flatex-on-http.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FYtoTech%2Flatex-on-http?ref=badge_shield)
+
 
 > Compiles Latex documents through an HTTP API.
 
@@ -93,3 +95,7 @@ Inspired by:
 * https://github.com/aslushnikov/latex-online
 * https://github.com/sharelatex/clsi-sharelatex
 * http://mrzool.cc/writing/typesetting-automation/
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FYtoTech%2Flatex-on-http.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FYtoTech%2Flatex-on-http?ref=badge_large)
