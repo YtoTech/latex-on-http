@@ -51,6 +51,7 @@ TODO:
         * TODO Samples for CV, letter, invoice, etc.
     * https://github.com/NebulousLabs/Sia/blob/master/doc/whitepaper.tex
     * Add HTML form to upload a file to compile (with the other project files?)
+    * Tech-API oriented landing page (inspiration https://fixer.io/)
 
 Deploy:
 
