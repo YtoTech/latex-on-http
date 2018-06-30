@@ -1,7 +1,8 @@
 # Latex On HTTP Docker container.
 # TODO Build base Texlive package to https://hub.docker.com/,
 # so we can speed up installation (just pulling lots of Gb).
-FROM debian:stretch
+# Use buster so we have Python 3.6+.
+FROM debian:buster
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 # Install Texlive: latest release.

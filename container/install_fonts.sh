@@ -27,6 +27,4 @@ apt-get update -qq && apt-get install -y \
     fonts-lato \
     fonts-linuxlibertine \
     fonts-noto \
-    fonts-roboto \
-    octicons
-
+    fonts-roboto
