@@ -21,7 +21,7 @@ debug:
 
 ## Tests ##
 test:
-	pipenv run pytest
+	pipenv run pytest -vv
 
 install-dev:
 	pipenv install --dev
