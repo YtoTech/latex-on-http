@@ -27,7 +27,10 @@ def is_safe_path(basedir, path, follow_symlinks=False):
 @app.route('/')
 def hello():
     # TODO Distribute documentation. (HTML)
-    return redirect("https://github.com/YtoTech/latex-on-http", code=302)
+    return jsonify({
+        "message": "Welcome to the Latex on HTTP API",
+        "source": "https://github.com/YtoTech/latex-on-http",
+    }), 200
 
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?

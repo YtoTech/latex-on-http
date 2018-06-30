@@ -17,7 +17,7 @@ start:
 	pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
-	pipenv run python app.py --verbose
+	pipenv run python app.py --verbose --debug
 
 ## Tests ##
 test:
