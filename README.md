@@ -29,6 +29,8 @@ TODO:
 * Document the Rest API
 * Font discovery endpoint
     * List all available fonts
+    * Use fclist
+* Add Tectonic engine https://github.com/tectonic-typesetting/tectonic
 * Create client libraries (or samples codes)
     * For the moment in my get paid project
     * So we can manage the sending of files
