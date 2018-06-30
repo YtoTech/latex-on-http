@@ -27,6 +27,8 @@ make docker-start
 TODO:
 * Put a limit on file uploaded size and number of files
 * Document the Rest API
+* Font discovery endpoint
+    * List all available fonts
 * Create client libraries (or samples codes)
     * For the moment in my get paid project
     * So we can manage the sending of files
