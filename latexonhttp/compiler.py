@@ -17,15 +17,13 @@ import shutil
 # Lol.
 # (Like any Python script that grow indefinitely?)
 
+
 def run_command(directory, command):
     # TODO And if the command fails?
     # Currently it is stuck here!
-    stdout = ''
+    stdout = ""
     process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        cwd=directory
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=directory
     )
     # Always have a timeout to control max compilation time and in case the
     # process is stuck.
@@ -43,19 +41,17 @@ def run_command(directory, command):
             break
         if output:
             # TODO Don't need output on the terminal.
-            stdout += str(output) + '\n'
+            stdout += str(output) + "\n"
             print(output.strip())
     rc = process.poll()
-    print('Program returned with status code {}'.format(rc))
+    print("Program returned with status code {}".format(rc))
     # TODO Does it return command output?
-    return {
-        'return_code': rc,
-        'stdout': stdout
-    }
+    return {"return_code": rc, "stdout": stdout}
+
 
 def latexToPdf(compilerName, directory, latex):
-    if compilerName not in ['latex', 'lualatex', 'xelatex', 'pdflatex']:
-        raise ValueError('Invalid compiler')
+    if compilerName not in ["latex", "lualatex", "xelatex", "pdflatex"]:
+        raise ValueError("Invalid compiler")
     print("Compiling")
     # print(latex)
     # TODO Choose appropriate options following the compiler.
@@ -63,16 +59,16 @@ def latexToPdf(compilerName, directory, latex):
     # TODO Handle filesystem in another part. Check path.
     directory = os.path.abspath(directory)
     os.makedirs(directory, exist_ok=True)
-    inputPath = directory + '/input.tex'
-    outputPath = directory + '/output.pdf'
-    logDir = directory + '/latex.out'
+    inputPath = directory + "/input.tex"
+    outputPath = directory + "/output.pdf"
+    logDir = directory + "/latex.out"
     print("Writing file")
     print(inputPath)
     # TODO Force UTF-8?
     # with open(inputPath, 'w') as f:
     #     f.write(latex)
     # TODO I don't know what I'm doing here.
-    with codecs.open(inputPath, 'wb', 'utf-8') as f:
+    with codecs.open(inputPath, "wb", "utf-8") as f:
         f.write(latex)
     # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
@@ -80,16 +76,16 @@ def latexToPdf(compilerName, directory, latex):
     # TODO Put on pip
     # TODO Fix this lame subprocessing with parh orgy.
     command = [
-        'python',
-        os.getcwd() + '/latexonhttp/latexrun.py',
-        '--latex-cmd=' + compilerName,
-        '-O=' + logDir,
-        '-o=' + outputPath,
+        "python",
+        os.getcwd() + "/latexonhttp/latexrun.py",
+        "--latex-cmd=" + compilerName,
+        "-O=" + logDir,
+        "-o=" + outputPath,
         # Return all logs.
-        '-W=all'
+        "-W=all"
         # TODO Add -halt-on-error --interaction=nonstopmode
         '--latex-args="--output-format=pdf"',
-        inputPath
+        inputPath,
     ]
     print(command)
     commandOutput = run_command(directory, command)
@@ -97,12 +93,9 @@ def latexToPdf(compilerName, directory, latex):
     # commandOutput['return_code'] is not 0
     # Return both generated PDF and compile logs.
     pdf = None
-    if (os.path.isfile(outputPath)):
-        with open(outputPath, 'rb') as f:
+    if os.path.isfile(outputPath):
+        with open(outputPath, "rb") as f:
             pdf = f.read()
     # Clean things up before returning.
     shutil.rmtree(directory)
-    return {
-        'pdf': pdf,
-        'logs': commandOutput['stdout']
-    }
+    return {"pdf": pdf, "logs": commandOutput["stdout"]}

@@ -1,14 +1,3 @@
-## Installing all environment through Docker ##
-docker-build:
-	docker build -t latex-on-http .
-
-docker-delete:
-	docker stop latex-on-http
-	docker rm latex-on-http
-
-docker-start:
-	docker run -d -p 127.0.0.1:80:8080 --name latex-on-http latex-on-http
-
 ## Running Python app ##
 install:
 	pipenv install
@@ -25,3 +14,7 @@ test:
 
 install-dev:
 	pipenv install --dev
+
+## Code conventions and formatting ##
+format:
+	pipenv run black .

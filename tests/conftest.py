@@ -11,6 +11,7 @@ import pytest
 import subprocess
 import time
 
+
 @pytest.fixture(scope="function")
 def latex_on_http_api_url():
     # TODO Here we could run a docker container of the app.
@@ -25,10 +26,10 @@ def latex_on_http_api_url():
     # the current test requests before allowing to pass to the next one.
     # Even in this case, no much state should be shared in webserver if
     # we have concurrent requrests.
-    appProcess = subprocess.Popen(['make', 'start'])
+    appProcess = subprocess.Popen(["make", "start"])
     # appProcess = subprocess.Popen(['make', 'debug'])
     time.sleep(1)
-    yield 'http://localhost:8080'
+    yield "http://localhost:8080"
     print("teardown latex_on_http_api")
     appProcess.terminate()
     print("teardowned")
