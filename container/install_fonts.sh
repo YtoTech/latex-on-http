@@ -4,8 +4,8 @@ set -e
 # For MS fonts.
 echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list
 
-# RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula \
-#     select true | debconf-set-selections
+# Accepts Microsoft EULA.
+echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections
 
 # Could install any from https://packages.debian.org/stable/fonts/
 # TODO Pull them all?
