@@ -1,4 +1,6 @@
 # Latex On HTTP Docker container.
+# TODO Build base Texlive package to https://hub.docker.com/,
+# so we can speed up installation (just pulling lots of Gb).
 FROM debian:stretch
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
@@ -26,14 +28,18 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY ./container/install_latex_packages.sh /tmp/
 RUN /tmp/install_latex_packages.sh
 
+# Set locales.
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
 # Create app directory.
 RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
 # (TODO Or use a mount point? Or use pip install?)
-COPY ./Makefile ./requirements.txt /app/latex-on-http/
-COPY ./latex-on-http/ /app/latex-on-http/latex-on-http/
+COPY ./Makefile ./Pipfile ./Pipfile.lock /app/latex-on-http/
+COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 RUN make install
 
