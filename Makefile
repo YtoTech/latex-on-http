@@ -1,20 +1,20 @@
 ## Running Python app ##
 install:
-	pipenv install
+	PIPENV_VENV_IN_PROJECT=true pipenv install
 
 start:
-	pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
+	PIPENV_VENV_IN_PROJECT=true pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
-	pipenv run python app.py --verbose --debug
+	PIPENV_VENV_IN_PROJECT=true pipenv run python app.py --verbose --debug
 
 ## Tests ##
 test:
-	pipenv run pytest -vv
+	PIPENV_VENV_IN_PROJECT=true pipenv run pytest -vv
 
 install-dev:
-	pipenv install --dev
+	PIPENV_VENV_IN_PROJECT=true pipenv install --dev
 
 ## Code conventions and formatting ##
 format:
-	pipenv run black .
+	PIPENV_VENV_IN_PROJECT=true pipenv run black .
