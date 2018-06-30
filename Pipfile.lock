@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "43ccd78d37f1dfd6270b2a5af5011ac576e3cccfcd84cb2555b35d812363faf0"
+            "sha256": "4e4a321cc41d7c40633da5077777054fe693c3f00f3c45c35912f6168352c60f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,6 +22,9 @@
                 "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
             ],
             "version": "==6.7"
+        },
+        "fclist": {
+            "git": "https://github.com/MonsieurV/python-fclist.git"
         },
         "flask": {
             "hashes": [

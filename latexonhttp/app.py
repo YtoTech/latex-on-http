@@ -8,12 +8,13 @@
     :copyright: (c) 2017-2018 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-from flask import Flask, request, jsonify, redirect, Response
-from latexonhttp.compiler import latexToPdf
 import uuid
 import urllib.request
 import os.path
 import base64
+from fclist import fclist
+from flask import Flask, request, jsonify, redirect, Response
+from latexonhttp.compiler import latexToPdf
 
 app = Flask(__name__)
 
@@ -129,3 +130,16 @@ def compiler_latex():
         status="201",
         headers={"Content-Type": "application/pdf"},
     )
+
+
+@app.route("/fonts", methods=["GET"])
+def fonts_list():
+    fonts = []
+    for font in fclist():
+        fonts.append({
+            "family": font.family,
+            "name": font.fullname,
+            "styles": list(font.style)
+        })
+    # TODO Group by families?
+    return (jsonify({ "fonts": fonts }), 200)
