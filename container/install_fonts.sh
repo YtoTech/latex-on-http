@@ -14,8 +14,8 @@ echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sou
 
 apt-get update -qq && apt-get install -y \
     fontconfig \
+    fonts-cmu \
     fonts-liberation \
-    cm-super \
     ttf-mscorefonts-installer \
     fonts-dejavu \
     fonts-ebgaramond \
