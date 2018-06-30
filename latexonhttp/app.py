@@ -5,8 +5,8 @@
     Server application for Latex On HTTP API.
     Here are exposed the Rest API endpoints.
 
-    :copyright: (c) 2017 Yoan Tournade.
-    :license: MIT, see LICENSE for more details.
+    :copyright: (c) 2017-2018 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
 """
 from flask import Flask, request, jsonify, redirect, Response
 from latexonhttp.compiler import latexToPdf

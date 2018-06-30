@@ -5,8 +5,8 @@
     The Latex compiler abstraction.
     Get a compilation order (dict task spec) and compiles the order.
 
-    :copyright: (c) 2017 Yoan Tournade.
-    :license: MIT, see LICENSE for more details.
+    :copyright: (c) 2017-2018 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
 """
 import subprocess
 import codecs

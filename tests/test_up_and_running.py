@@ -4,8 +4,8 @@
     ~~~~~~~~~~~~~~~~~~~~~
     Ensures the service is running and test basic functions.
 
-    :copyright: (c) 2017 Yoan Tournade.
-    :license: MIT, see LICENSE for more details.
+    :copyright: (c) 2017-2018 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
 """
 import pytest
 import requests
