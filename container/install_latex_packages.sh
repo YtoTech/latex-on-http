@@ -26,7 +26,6 @@ tlmgr install \
     fp \
     xstring \
     arydshln \
-    latex-tools \
     titlesec \
     enumitem \
     xunicode \
@@ -35,7 +34,6 @@ tlmgr install \
     polyglossia \
     wallpaper \
     footmisc \
-    ragged \
     l3kernel \
     l3packages \
     l3experimental
