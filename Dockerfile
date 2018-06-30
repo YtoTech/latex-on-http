@@ -5,7 +5,10 @@ LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 # Install Texlive: latest release.
 COPY ./container/texlive.profile /tmp/
 COPY ./container/install_texlive.sh /tmp/
+# TODO Make textlive.profile a template, so we can configure the installation path.
 RUN /tmp/install_texlive.sh /tmp/texlive.profile
+# Add Texlive binaries to path.
+ENV PATH="/usr/local/texlive/bin/x86_64-linux:${PATH}"
 
 # Install fonts.
 COPY ./container/install_fonts.sh /tmp/
