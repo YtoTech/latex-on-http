@@ -1,31 +1,37 @@
 # Latex On HTTP Docker container.
-#
-# TODO Try an installation based on Alpine.
-FROM debian:jessie
-MAINTAINER Yoan Tournade <yoan@ytotech.com>
+FROM debian:stretch
+LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
-COPY ./container/install_texlive.sh /tmp/install_texlive.sh
-RUN /tmp/install_texlive.sh
+# Install Texlive: latest release.
+COPY ./container/texlive.profile /tmp/
+COPY ./container/install_texlive.sh /tmp/
+RUN /tmp/install_texlive.sh /tmp/texlive.profile
 
-COPY ./container/install_python.sh /tmp/install_python.sh
+# Install fonts.
+COPY ./container/install_fonts.sh /tmp/
+RUN /tmp/install_fonts.sh
+
+# Install Python 3.
+COPY ./container/install_python.sh /tmp/
 RUN /tmp/install_python.sh
 
 # Clean APT cache.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY ./container/install_latex_packages.sh /tmp/install_latex_packages.sh
+# Install Latext packages.
+# TODO Make this process dynamic with 
+COPY ./container/install_latex_packages.sh /tmp/
 RUN /tmp/install_latex_packages.sh
 
 # Create app directory.
-RUN \
-    mkdir -p /home/latex-on-http
+RUN mkdir -p /app/latex-on-http
+WORKDIR /app/latex-on-http/
 
 # Copy application source code.
 # (TODO Or use a mount point? Or use pip install?)
-COPY ./Makefile ./requirements.txt /home/latex-on-http/
-COPY ./latex-on-http/ /home/latex-on-http/latex-on-http/
+COPY ./Makefile ./requirements.txt /app/latex-on-http/
+COPY ./latex-on-http/ /app/latex-on-http/latex-on-http/
 
-WORKDIR /home/latex-on-http/
 RUN make install
 
 EXPOSE 8080
