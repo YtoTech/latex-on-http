@@ -1,16 +1,16 @@
 ## Running Python app ##
 install:
-	PIPENV_VENV_IN_PROJECT=true pipenv install
+	pipenv install
 
 start:
-	PIPENV_VENV_IN_PROJECT=true pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
+	pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
-	PIPENV_VENV_IN_PROJECT=true pipenv run python app.py --verbose --debug
+	pipenv run python app.py --verbose --debug
 
 ## Dev tools ##
 install-dev:
-	PIPENV_VENV_IN_PROJECT=true pipenv install --dev
+	pipenv install --dev
 
 ## Docker Compose for dev ##
 dev:
@@ -18,7 +18,7 @@ dev:
 
 ## Tests ##
 test:
-	PIPENV_VENV_IN_PROJECT=true pipenv run pytest -vv
+	pipenv run pytest -vv
 
 test-docker-compose: test-docker-compose-start
 	make test
@@ -35,4 +35,4 @@ test-docker-compose-stop:
 
 ## Code conventions and formatting ##
 format:
-	PIPENV_VENV_IN_PROJECT=true pipenv run black .
+	pipenv run black .
