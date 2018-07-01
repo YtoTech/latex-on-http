@@ -1,6 +1,10 @@
 language: python
 sudo: required
+dist: trusty
+services:
+  - docker
 before_install:
+  - sudo ./container/install_tests.sh
     # - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-fonts-recommended
     #   texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended
     # TODO Use a Docker pre-built image for running tests https://docs.travis-ci.com/user/docker/
@@ -8,17 +12,15 @@ before_install:
     # make the tests faster to run.
     # We may even pre-built the image in a stage, but if we do that each time it
     # won't be faster at all https://docs.travis-ci.com/user/build-stages/share-docker-image/
-    - sudo ./container/install_texlive.sh
-    - sudo ./container/install_latex_packages.sh
-dist: trusty
+    # - sudo ./container/install_texlive.sh
+    # - sudo ./container/install_latex_packages.sh
 python:
-    - '3.5'
     - '3.6'
 install:
     - pip install pipenv
     - make install-dev
 script:
-    - make test
+    - make test-docker-compose
 notifications:
   slack:
     rooms:
