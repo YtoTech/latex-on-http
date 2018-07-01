@@ -1,6 +1,9 @@
 import os
 import re
-# from pdf2image import convert_from_bytes
+import pytest
+from pdf2image import convert_from_bytes
+from PIL import Image
+from PIL.ImageChops import difference
 
 SAMPLE_DIR = os.getcwd() + "/tests/samples/"
 REGEX_CLEAN = r"<</Producer.+>>"
@@ -32,12 +35,25 @@ def snapshot_pdf_bytes(pdf, sample_dir, update_snapshot):
 
 def snapshot_pdf_text(pdf, sample_dir, update_snapshot):
     pass
-    # TODO Use https://github.com/euske/pdfminer to compare?
+    # TODO Use https://github.com/euske/pdfminer to extract and compare texts?
+    # Seems overkill as we already compares bytes.
 
 def snapshot_pdf_images(pdf, sample_dir, update_snapshot):
     # https://github.com/Belval/pdf2image
     # https://gist.github.com/santiago-kai/9a18ffabbc49bc2518c695cc140e0214
-    pass
+    sample_path_pattern = "{}sample_page_{}.jpg"
+    generated_path_pattern = "{}generated_page_{}.jpg"
+    images = convert_from_bytes(pdf)
+    if update_snapshot:
+        for i, image in enumerate(images):
+            image.save(sample_path_pattern.format(sample_dir, i+1))
+    for i, image in enumerate(images):
+        image.save(generated_path_pattern.format(sample_dir, i+1))
+        sample_image = Image.open(sample_path_pattern.format(sample_dir, i+1))
+        # Reopen to have consistent data bytes to bytes (depends of compression used when saving to file).
+        generated_image = Image.open(generated_path_pattern.format(sample_dir, i+1))
+        assert sample_image.histogram() == generated_image.histogram()
+        assert sample_image.tobytes() == generated_image.tobytes()
 
 def snapshot_pdf(pdf, sample, update_snapshot=False):
     sample_dir = "{}{}/".format(SAMPLE_DIR, sample)

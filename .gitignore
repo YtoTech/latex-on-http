@@ -97,3 +97,4 @@ ENV/
 
 .vscode
 tests/samples/**/generated.pdf
+tests/samples/**/generated*.jpg

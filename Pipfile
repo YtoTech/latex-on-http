@@ -8,6 +8,7 @@ pytest = "*"
 requests = "*"
 requests-futures = "*"
 black = "*"
+"pdf2image" = "*"
 
 [packages]
 flask = "*"
