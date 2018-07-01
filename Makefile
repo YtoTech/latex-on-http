@@ -21,15 +21,16 @@ test:
 	pipenv run pytest -vv
 
 test-docker-compose: test-docker-compose-start
-	sleep 2
+	sleep 3
 	make test
-	sleep 1
+	sleep 2
 	make test-docker-compose-stop
 
 test-docker-compose-up:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test up
 
 test-docker-compose-start:
+	docker-compose -f docker-compose.test.yml -p latex-on-http-test up --no-start
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test start
 
 test-docker-compose-stop:
