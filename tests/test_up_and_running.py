@@ -31,7 +31,7 @@ def test_api_index(latex_on_http_api_url):
     assert r.status_code == 200
     assert r.json() == {
         "message": "Welcome to the Latex on HTTP API",
-        "source": "https://github.com/YtoTech/latex-on-http"
+        "source": "https://github.com/YtoTech/latex-on-http",
     }
 
 
@@ -47,7 +47,6 @@ def test_simple_compilation_body(latex_on_http_api_url):
     snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
 
 
-@pytest.mark.skip(reason="fix it")
 def test_concurrent_compilations(latex_on_http_api_url):
     """
     We can launch multiple compilation jobs concurrently.
@@ -66,7 +65,7 @@ def test_concurrent_compilations(latex_on_http_api_url):
         )
     # Check the API ping during load.
     r = requests.get(latex_on_http_api_url, allow_redirects=False, timeout=0.1)
-    assert r.status_code == 302
+    assert r.status_code == 200
     # Check all results.
     for requestFuture in requestsList:
         r = requestFuture.result()

@@ -3,7 +3,7 @@ version: '3'
 services:
   latex:
     build: .
-    command: make start
+    command: make debug
     ports:
      - "8080:8080"
     volumes:

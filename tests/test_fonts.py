@@ -1,4 +1,13 @@
+"""
+    tests.test_fonts
+    ~~~~~~~~~~~~~~~~~~~~~
+    Test fonts API.
+
+    :copyright: (c) 2018 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
+"""
 import requests
+
 
 def test_api_fonts_list(latex_on_http_api_url):
     """

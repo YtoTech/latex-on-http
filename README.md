@@ -56,6 +56,10 @@ TODO:
     * https://github.com/NebulousLabs/Sia/blob/master/doc/whitepaper.tex
     * Add HTML form to upload a file to compile (with the other project files?)
     * Tech-API oriented landing page (inspiration https://fixer.io/)
+* Fire Latex
+    * Templates
+    * Automate invoicing
+        * https://help.shopify.com/manual/apps/apps-by-shopify/order-printer
 
 Deploy:
 

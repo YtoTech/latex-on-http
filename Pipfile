@@ -12,8 +12,8 @@ black = "*"
 
 [packages]
 flask = "*"
-gunicorn = "*"
 fclist = {git = "https://github.com/MonsieurV/python-fclist.git"}
+gunicorn = "*"
 
 [requires]
 python_version = "3"

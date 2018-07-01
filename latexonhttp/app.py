@@ -32,6 +32,8 @@ def is_safe_path(basedir, path, follow_symlinks=False):
 def hello():
     # TODO Distribute documentation. (HTML)
     # TODO Add endpoints links / HATEOAS.
+    # TODO Return an OpenAPI specification
+    # https://github.com/OAI/OpenAPI-Specification
     return (
         jsonify(
             {
@@ -136,10 +138,8 @@ def compiler_latex():
 def fonts_list():
     fonts = []
     for font in fclist():
-        fonts.append({
-            "family": font.family,
-            "name": font.fullname,
-            "styles": list(font.style)
-        })
+        fonts.append(
+            {"family": font.family, "name": font.fullname, "styles": list(font.style)}
+        )
     # TODO Group by families?
-    return (jsonify({ "fonts": fonts }), 200)
+    return (jsonify({"fonts": fonts}), 200)
