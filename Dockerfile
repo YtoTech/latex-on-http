@@ -1,17 +1,7 @@
 # Latex On HTTP Docker container.
-# TODO Build base Texlive package to https://hub.docker.com/,
-# so we can speed up installation (just pulling lots of Gb).
-# Use buster so we have Python 3.6+.
-FROM debian:buster
+# https://hub.docker.com/r/yoant/docker-texlive
+FROM yoant/docker-texlive
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
-
-# Install Texlive: latest release.
-COPY ./container/texlive.profile /tmp/
-COPY ./container/install_texlive.sh /tmp/
-# TODO Make textlive.profile a template, so we can configure the installation path.
-RUN /tmp/install_texlive.sh /tmp/texlive.profile
-# Add Texlive binaries to path.
-ENV PATH="/usr/local/texlive/bin/x86_64-linux:${PATH}"
 
 # Install fonts.
 COPY ./container/install_fonts.sh /tmp/
@@ -25,7 +15,7 @@ RUN /tmp/install_python.sh
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Latext packages.
-# TODO Make this process dynamic with 
+# TODO Make this process dynamic with a list of packages.
 COPY ./container/install_latex_packages.sh /tmp/
 RUN /tmp/install_latex_packages.sh
 
