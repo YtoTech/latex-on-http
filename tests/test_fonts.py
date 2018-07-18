@@ -13,7 +13,7 @@ def test_api_fonts_list(latex_on_http_api_url):
     """
     The API list available fonts.
     """
-    r = requests.get("{}/fonts".format(latex_on_http_api_url), allow_redirects=False)
+    r = requests.get("{}/fonts/".format(latex_on_http_api_url), allow_redirects=False)
     assert r.status_code == 200
     payload = r.json()
     assert "fonts" in payload

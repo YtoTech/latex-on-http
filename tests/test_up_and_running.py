@@ -40,9 +40,7 @@ def test_simple_compilation_body(latex_on_http_api_url):
     Compile a simple Latex document, text-only, passed directly in document
     definition content entry.
     """
-    r = requests.post(
-        latex_on_http_api_url + "/compilers/latex", json=COMPIL_HELLO_WORLD
-    )
+    r = requests.post(latex_on_http_api_url + "/builds/latex", json=COMPIL_HELLO_WORLD)
     assert r.status_code == 201
     snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
 
@@ -60,7 +58,7 @@ def test_concurrent_compilations(latex_on_http_api_url):
     for i in range(0, concurrentSessions):
         requestsList.append(
             session.post(
-                latex_on_http_api_url + "/compilers/latex", json=COMPIL_HELLO_WORLD
+                latex_on_http_api_url + "/builds/latex", json=COMPIL_HELLO_WORLD
             )
         )
     # Check the API ping during load.
