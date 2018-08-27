@@ -3,6 +3,7 @@ version: '3'
 services:
   latex:
     build: .
+    restart: always
     command: make start
     ports:
      - "127.0.0.1:2345:8080"
