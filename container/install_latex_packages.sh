@@ -1,5 +1,8 @@
 set -e
 
+# Update tlmgr first, else an out-of-date version can cause a failure.
+tlmgr update --self --all --reinstall-forcibly-removed
+
 # Install additionnals Latex packages from CTAN.
 tlmgr init-usertree
 
@@ -38,4 +41,3 @@ tlmgr install \
     l3packages \
     l3experimental
 
-tlmgr update --self --all --reinstall-forcibly-removed
