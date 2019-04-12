@@ -12,11 +12,13 @@ from flask import Flask, request, jsonify
 from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.projects import projects_app
+from latexonhttp.api.packages import packages_app
 
 app = Flask(__name__)
 app.register_blueprint(builds_app, url_prefix="/builds")
 app.register_blueprint(fonts_app, url_prefix="/fonts")
 app.register_blueprint(projects_app, url_prefix="/projects")
+app.register_blueprint(packages_app, url_prefix="/packages")
 
 
 @app.route("/")
