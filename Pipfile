@@ -14,7 +14,7 @@ black = "*"
 flask = "*"
 fclist = {git = "https://github.com/MonsieurV/python-fclist.git"}
 gunicorn = "*"
-texlivemetadata = "*"
+texlivemetadata = ">=0.1.2"
 
 [requires]
 python_version = "3"

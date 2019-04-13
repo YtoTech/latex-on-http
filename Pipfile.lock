@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1a952424bc2e623c66b55d13e5ac5c0a7d3108b4493e43183ae134e550abac3b"
+            "sha256": "ced42fa1910083d0590f616ccfb36aad13e2a277534809bf93b0999f5c9bee15"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -92,11 +92,11 @@
         },
         "texlivemetadata": {
             "hashes": [
-                "sha256:3ea338e0fa0a2b26855dc13629da81976107b1b47853f7ddfac879036d5ef7bc",
-                "sha256:f628748e39f75c511b26760e837dd0e24b35e85da15d4a67e015d89930a73092"
+                "sha256:0f28510667d874ec05ecbf4620d51e63865e5783ba9a0b8896f8d472adb0d527",
+                "sha256:cc4d6b093610736270eb351bd360d687779b251555bda1421cb7bfdf2c43a9bc"
             ],
             "index": "pypi",
-            "version": "==0.1.0"
+            "version": "==0.1.2"
         },
         "werkzeug": {
             "hashes": [

@@ -35,7 +35,8 @@ def packages_info(package_name):
         return (jsonify("Package not found"), 404)
     package_info = {
         **package_info,
-        "cat-date": package_info["cat-date"].isoformat(),
         "url_ctan": get_ctan_link(package_info["package"]),
     }
+    if "cat-date" in package_info:
+        package_info["cat-date"] = package_info["cat-date"].isoformat(),
     return (jsonify({"package": package_info}), 200)
