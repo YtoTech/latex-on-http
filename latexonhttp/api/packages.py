@@ -1,11 +1,17 @@
 from flask import Blueprint, jsonify, url_for
-from latexonhttp.tlmgr_packages import (
+from texlivemetadata import (
     list_installed_packages,
     get_package_info,
     get_ctan_link,
 )
 
 packages_app = Blueprint("packages", __name__)
+
+# TODO Add a cache.
+# The tlmgr_packages calls take a lot of time.
+# As the result should (must?) remains the same after
+# an instance as been launched, we could cache each results
+# (list and package info) in memory.
 
 
 @packages_app.route("", methods=["GET"])
