@@ -1,9 +1,5 @@
 from flask import Blueprint, jsonify, url_for
-from texlivemetadata import (
-    list_installed_packages,
-    get_package_info,
-    get_ctan_link,
-)
+from texlivemetadata import list_installed_packages, get_package_info, get_ctan_link
 
 packages_app = Blueprint("packages", __name__)
 
@@ -33,10 +29,7 @@ def packages_info(package_name):
     package_info = get_package_info(package_name)
     if not package_info:
         return (jsonify("Package not found"), 404)
-    package_info = {
-        **package_info,
-        "url_ctan": get_ctan_link(package_info["package"]),
-    }
+    package_info = {**package_info, "url_ctan": get_ctan_link(package_info["package"])}
     if "cat-date" in package_info:
-        package_info["cat-date"] = package_info["cat-date"].isoformat(),
+        package_info["cat-date"] = (package_info["cat-date"].isoformat(),)
     return (jsonify({"package": package_info}), 200)

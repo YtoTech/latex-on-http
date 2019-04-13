@@ -28,27 +28,43 @@ def test_api_packages_list(latex_on_http_api_url):
         assert package["installed"] is True
     assert len(packages) == 3761
 
+
 PACKAGE_INFO_MANDATORIES_PROPERTIES = [
-    "package", "cat-date", "cat-license",
-    "cat-topics", "cat-version", "category", "collection", "installed",
-    "longdesc", "relocatable", "revision", "shortdesc", "sizes",
-    "url_ctan"
+    "package",
+    "cat-date",
+    "cat-license",
+    "cat-topics",
+    "cat-version",
+    "category",
+    "collection",
+    "installed",
+    "longdesc",
+    "relocatable",
+    "revision",
+    "shortdesc",
+    "sizes",
+    "url_ctan",
 ]
-PACKAGE_INFO_OPTIONAL_PROPERTIES = [
-    "cat-contact-repository", "cat-related"
-]
+PACKAGE_INFO_OPTIONAL_PROPERTIES = ["cat-contact-repository", "cat-related"]
+
 
 def check_info_properties(package):
     for property_name in PACKAGE_INFO_MANDATORIES_PROPERTIES:
-            assert property_name in package
+        assert property_name in package
     for key in package.keys():
-        assert key in PACKAGE_INFO_MANDATORIES_PROPERTIES or key in PACKAGE_INFO_OPTIONAL_PROPERTIES
+        assert (
+            key in PACKAGE_INFO_MANDATORIES_PROPERTIES
+            or key in PACKAGE_INFO_OPTIONAL_PROPERTIES
+        )
+
 
 def test_api_packages_info_installed_xmltex(latex_on_http_api_url):
     """
     The API allow to get info on an installed package.
     """
-    r = requests.get("{}/packages/xmltex".format(latex_on_http_api_url), allow_redirects=False)
+    r = requests.get(
+        "{}/packages/xmltex".format(latex_on_http_api_url), allow_redirects=False
+    )
     assert r.status_code == 200
     payload = r.json()
     assert "package" in payload
@@ -62,11 +78,14 @@ def test_api_packages_info_installed_xmltex(latex_on_http_api_url):
     assert package["package"] == "xmltex"
     assert package["installed"] is True
 
+
 def test_api_packages_info_installed_xpiano(latex_on_http_api_url):
     """
     The API allow to get info on an installed package.
     """
-    r = requests.get("{}/packages/xpiano".format(latex_on_http_api_url), allow_redirects=False)
+    r = requests.get(
+        "{}/packages/xpiano".format(latex_on_http_api_url), allow_redirects=False
+    )
     assert r.status_code == 200
     payload = r.json()
     assert "package" in payload
@@ -80,11 +99,15 @@ def test_api_packages_info_installed_xpiano(latex_on_http_api_url):
     assert package["package"] == "xpiano"
     assert package["installed"] is True
 
+
 def test_api_packages_info_not_installed(latex_on_http_api_url):
     """
     The API allow to get info on an not installed package.
     """
-    r = requests.get("{}/packages/texworks.win32".format(latex_on_http_api_url), allow_redirects=False)
+    r = requests.get(
+        "{}/packages/texworks.win32".format(latex_on_http_api_url),
+        allow_redirects=False,
+    )
     assert r.status_code == 200
     payload = r.json()
     assert "package" in payload
