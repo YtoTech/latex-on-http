@@ -1,4 +1,4 @@
-# Latex-on-HTTP Docker container.
+# Latex-on-HTTP final Docker container.
 # 
 # This is:
 # - a Texlive distribution;
@@ -23,12 +23,8 @@ RUN /tmp/install_fonts.sh
 # TODO Make this process more dynamic with a list of packages?
 COPY ./container/install_latex_packages.sh /tmp/
 RUN /tmp/install_latex_packages.sh
-
-# Remove tl-install and tlmgr dependencies.
-RUN apt-get remove --purge -y \
-    wget \
-    libswitch-perl \
-    && apt-get autoremove --purge -y
+# Notes: we need tlmgr dependencies installed, because we use it at runtime
+# (for listing packages, etc.)
 
 # Install Python 3.
 # TODO Uses a FROM Layer? (to avoid apt-get install)
@@ -36,7 +32,7 @@ COPY ./container/install_python.sh /tmp/
 RUN /tmp/install_python.sh
 
 # Clean APT cache.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set locales.
 ENV LC_ALL C.UTF-8
