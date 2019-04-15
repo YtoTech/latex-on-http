@@ -12,7 +12,7 @@
 
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:debian
+FROM yoant/docker-texlive:alpine
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 # Install fonts.
@@ -32,7 +32,7 @@ COPY ./container/install_python.sh /tmp/
 RUN /tmp/install_python.sh
 
 # Clean APT cache.
-RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+# RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set locales.
 ENV LC_ALL C.UTF-8
