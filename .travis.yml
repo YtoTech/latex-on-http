@@ -6,12 +6,14 @@ services:
 before_install:
   - sudo ./container/install_tests.sh
 python:
-    - '3.6'
+  - '3.6'
 install:
-    - pip install pipenv
-    - make install-dev
+  - pip install pipenv
+  - make install-dev
 script:
-    - make test-docker-compose
+  - make docker-build-all
+  - make test-docker-compose
+  # - Publish images to Docker hub
 notifications:
   slack:
     rooms:
