@@ -29,6 +29,8 @@ RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula sele
 
 # TODO Dynamically pull fonts from https://fonts.google.com/?
 
+# https://github.com/potyt/fonts/tree/master/macfonts
+
 RUN apt-get update -qq && apt-get install -y \
     fontconfig \
     fonts-cmu \
