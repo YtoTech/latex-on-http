@@ -12,27 +12,16 @@
 
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:alpine
+FROM yoant/latexonhttp-tl-distrib:debian
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
-# Install fonts.
-COPY ./container/install_fonts.sh /tmp/
-RUN /tmp/install_fonts.sh
-
-# Install Latex packages.
-# TODO Make this process more dynamic with a list of packages?
-COPY ./container/install_latex_packages.sh /tmp/
-RUN /tmp/install_latex_packages.sh
-# Notes: we need tlmgr dependencies installed, because we use it at runtime
-# (for listing packages, etc.)
-
 # Install Python 3.
-# TODO Uses a FROM Layer? (to avoid apt-get install)
+# --> TODO Create another image adding python (Debian & Alpine)
 COPY ./container/install_python.sh /tmp/
 RUN /tmp/install_python.sh
 
 # Clean APT cache.
-# RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set locales.
 ENV LC_ALL C.UTF-8
