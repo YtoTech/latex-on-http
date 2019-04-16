@@ -2,7 +2,7 @@
 """
     latexonhttp.app
     ~~~~~~~~~~~~~~~~~~~~~
-    Server application for Latex On HTTP API.
+    Server application for Latex-On-HTTP API.
     Here are exposed the Rest API endpoints.
 
     :copyright: (c) 2017-2018 Yoan Tournade.
@@ -13,6 +13,7 @@ from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.projects import projects_app
 from latexonhttp.api.packages import packages_app
+from latexonhttp.utils.misc import get_api_version
 
 app = Flask(__name__)
 app.register_blueprint(builds_app, url_prefix="/builds")
@@ -30,7 +31,8 @@ def hello():
     return (
         jsonify(
             {
-                "message": "Welcome to the Latex on HTTP API",
+                "message": "Welcome to the Latex-On-HTTP API",
+                "version": get_api_version(),
                 "source": "https://github.com/YtoTech/latex-on-http",
             }
         ),
