@@ -62,7 +62,7 @@ def test_concurrent_compilations(latex_on_http_api_url):
             )
         )
     # Check the API ping during load.
-    r = requests.get(latex_on_http_api_url, allow_redirects=False, timeout=3)
+    r = requests.get(latex_on_http_api_url, allow_redirects=False, timeout=4)
     assert r.status_code == 200
     # Check all results.
     for requestFuture in requestsList:
