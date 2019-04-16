@@ -15,18 +15,30 @@ def is_safe_path(basedir, path, follow_symlinks=False):
     return os.path.abspath(path).startswith(basedir)
 
 
+# TODO Extract the filesystem management in a module:
+# - determine of fs/files actions to get to construct the filesystem;
+# - hash and make a (deterministic) signature of files uploaded;
+# - from the list of actions, prepare the file system (giving only a root directory);
+# (- add a cache management on the file system preparation subpart).
+#
+# The compiler only uses:
+# - the hash for an eventual output cache
+# (if entire input signature match a cached output file, just return this file);
+# - the prepared directory of files where the build happens.
+
+
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?
 # Allows the two? (async, sync)
-@builds_app.route("/latex", methods=["POST"])
+@builds_app.route("/sync", methods=["POST"])
 def compiler_latex():
     # TODO Distribute documentation. (HTML)
     payload = request.get_json()
     if not payload:
         return jsonify("MISSING_PAYLOAD"), 400
     # Choose compiler: latex, pdflatex, xelatex or lualatex
-    # We default to lualatex.
-    compilerName = "lualatex"
+    # We default to pdflatex.
+    compilerName = "pdflatex"
     # TODO Choose them directly from the method?
     if "compiler" in payload:
         if payload["compiler"] not in ["latex", "lualatex", "xelatex", "pdflatex"]:
