@@ -10,6 +10,7 @@
 import pytest
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from latexonhttp.utils.misc import get_api_version
 from requests_futures.sessions import FuturesSession
 from .utils.pdf import snapshot_pdf
 
@@ -30,8 +31,9 @@ def test_api_index(latex_on_http_api_url):
     r = requests.get(latex_on_http_api_url, allow_redirects=False)
     assert r.status_code == 200
     assert r.json() == {
-        "message": "Welcome to the Latex on HTTP API",
+        "message": "Welcome to the Latex-On-HTTP API",
         "source": "https://github.com/YtoTech/latex-on-http",
+        "version": get_api_version(),
     }
 
 
@@ -49,7 +51,7 @@ def test_concurrent_compilations(latex_on_http_api_url):
     """
     We can launch multiple compilation jobs concurrently.
     """
-    concurrentSessions = 16
+    concurrentSessions = 10
     session = FuturesSession(
         executor=ThreadPoolExecutor(max_workers=concurrentSessions)
     )
