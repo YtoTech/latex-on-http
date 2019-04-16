@@ -77,7 +77,7 @@ Sample
         "Regular"
       ]
     },
-    ...
+    ["..."]
 }
 ```
 
@@ -104,7 +104,7 @@ Sample
       "url_ctan": "https://ctan.org/pkg/12many", 
       "url_info": "/packages/12many"
     }, 
-    ...
+    ["..."]
 }
 ```
 
