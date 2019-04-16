@@ -38,6 +38,17 @@ docker-build-main:
 
 docker-build-all: docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
 
+
+## -------------------------------
+## Docker push/images ##
+## -------------------------------
+docker-push-tl-distrib-debian:
+	docker push yoant/latexonhttp-tl-distrib:debian
+
+docker-push-python-debian:
+	docker push yoant/latexonhttp-python:debian
+
+
 ## -------------------------------
 ## Docker Compose for dev ##
 ## -------------------------------

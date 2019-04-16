@@ -2,19 +2,31 @@ language: python
 sudo: required
 dist: trusty
 services:
-  - docker
+- docker
 before_install:
-  - sudo ./container/install_tests.sh
+- sudo ./container/install_tests.sh
 python:
-  - '3.6'
+- '3.6'
 install:
-  - pip install pipenv
-  - make install-dev
+- pip install pipenv
+- make install-dev
 script:
-  - make docker-build-all
-  - make test-docker-compose
-  # - Publish images to Docker hub
+# Build Docker images.
+- make docker-build-all
+
+# Run tests (using locally built Docker images).
+- make test-docker-compose
+
+# - Publish images to Docker hub.
+# https://docs.travis-ci.com/user/docker/#pushing-a-docker-image-to-a-registry
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- make docker-push-tl-distrib-debian
+- make docker-push-python-debian
 notifications:
   slack:
     rooms:
       secure: CpZNJiI/8E3QnZrcSU7bK8e7yJ538LNggc7iRocMVqgMxANeMUZxCQZx3BwxpU3Bz1H+fOto7BUIZfhA47EQGXQ5BUcJcxqnaMbaL5uARp7n8ffc6cYgGrBuuxtgc6CJaUi6HdHb9n2WLMkrO//cBX6anDI81zZ4cCi5rzcLoc1IlEsj3AJUrUrf7l5HAjv+LCw8IbtXpFxYIdoNGi21l+/PvYEVPRlSTDLVUuKTbRGkLxbByDZZAOFBcugHSwzu1WU9U1B0hVK6NkKTkVjQGMDQ2GxjOxzXeC8bPGAWZ15EfF1oMlwRhjWPGwoTmUmLEJl8JOAfE0PS78KwdmnxFv7wItXjcOhKKkdQkLy4c/g3TWjWVmtYQT8zdpAe9MJ0OJnXerUwinAMYH9QZAzwGLc+7ej1edYzY3Ud0un5xGel5uuvHrsxgW7/d4Q63qlkuFZHExnFxC3V6w2LUVA5TdFzRFDzvRZMMbyfYIP9rML7TvwwAyNp55KKu7O4rz/PLN6iS1cUXtdTxB/RxlwOWageonL4Kc/EBiUdwa3Mh7FDST2mUq9mb/z+2AXEinyzAAn9p48I5Q0UJizsleVZsw5P9Prq1SvomFFznb9T+7SnWjRDW7/qWUS3Sa4z4gED5mqIyRFV14P9BBOaynVdjgEpfii88ZGUHTmAeUod5No=
+env:
+  global:
+  - secure: Ns4N8B9u/RYgpKpPplAVswJTb9JMtOSv0qTL3yJABc7BplCMLJqAmK+SbSqLJQmWFMxlgR6cFQwQjM59n54TEh1gOJlReFqUB5f9R8lMlZepj+90peH+Gv3Q6KpS/hYoPLBcJ30wxGGrPUneBnfPI1dccLz0nRe9szw61fYpBS1h+80ySeeYDFQHzNAtVva6dSiGcAEpX1kwPowkDxKIp6hxISqJDamqDBx4JQP3IJ5MAn6aadCZnN8TzmwPT6GkS4U36Z2WXcrr73qQZy6Qu0Ek/zZ/vOdO7cwepkG/v5ymSTqFYKAdQkILVyZwC/G7OumbkzcmV9YAR3k20HcqK9JhL9qcM6WM/eiaw/B07ZWMVNSSqNNIRZz7Rt3CnYfBwBMkGfwcTAEFO9eoggaaM63KlIvJ5C2mwkLQ5JAfCQbwgWoDshx72PO/19obKdT7XmcnY7DWhzgS6S1rqBhiasqd6zZwjoVu8WR0zvFARkdPU2FhebbuGuIwwws5bIQFWqn5kF9KAiOEMV9v2jfX611bLpsUMh2GuyyAoab3tNIqU344M3FYwgcRpgBJuZWLfO3UyL5V6CvnxwrqGZPF6Y+AJ+LfW7ITy5z6WfcUqSJnDetvOTV5ZbXMuk0yewkO0ss2ml9phYb+kGi6XWvEKFYaB9kkMEOj2RxWKQAVZ4Q=
+  - secure: s7lN1DJ6jKgpXaD27EkuGDYwSn/TsnR1EFNzLiK22WRhfnPN54Jzc1JAI+QWnYG1Z22p8Ns/Dqps2P0UuVBaE/Rmumjvlzvc7NMRCxtEWqBn1vIOyq4kb3QUXaM+/oUmgxf6q0WiN4JYlYN0NEtYxM203MiMl6j01ZzQ9dpxx0+kW7hjr7gvAUcBVPlCA9Upu2r3cHaW1ZosezYuTxoWNHTmKIcMdQrAR2paG1jS2L1YtTXaQFWEdJWKRuJAvvi5kEAT7Xcs7IQnw5lTTdRe+HK4wJJ+drWL+8+J9KUhKba3mSwcsaj+EjA7BMSelJuMJ5dvea4AY5cd6e38e0srk3yKpsCVoDQrcOLRp31FM7eXShbBii+gxQKABo6OQ24Cy+9Jb3kWJ5nod91hjV31kpVx4GRduwlMAE2LlWWgt/UbRgji0n7N5k2H6Pl3g/Q4u8GLOtK2rR1kB6FHePmTYiXeQCH7myV85u99AupH3aFH8wyWeRAkYcsz2L0EVb3MnCPYbvpwE9kKIcDUBrMuNtwET7qi+712jR60162iF5KRxe3lFQbVzxOp0eXqcgtHm7kG1MpNsGM5cc/tDnTYpGLz6wyAwxcak6X7/LIdQKQ9fL5oY4C0TDvMXaxuxso0A88Ygb3VQ7APvASlwOzqnbupx/fs0RjZS1UT2cKhROQ=
