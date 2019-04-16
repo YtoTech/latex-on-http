@@ -174,7 +174,7 @@ Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/mas
 
 With Curl:
 
-```
+```sh
 curl -v -X POST https://latex.ytotech.com/builds/sync \
     -H "Content-Type:application/json" \
     -d '{
@@ -203,7 +203,6 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
 
 ## TODOs
 
-* Document the Rest API
 * Build sync/async API
     * Main endpoint: create compilation tasks/builds in async POST:/builds
     * Add an  emdpoint for waiting on a compilation task/build GET/POST:/builds/wait
