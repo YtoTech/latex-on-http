@@ -26,6 +26,7 @@ script:
 deploy:
   provider: script
   script:
+    - echo "$DOCKER_USERNAME"
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - make docker-push-tl-distrib-debian
     - make docker-push-python-debian
