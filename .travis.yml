@@ -25,11 +25,7 @@ script:
 # Could also be done in an after_success, see https://ops.tips/blog/travis-ci-push-docker-image/
 deploy:
   provider: script
-  script:
-    - echo "$DOCKER_USERNAME"
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - make docker-push-tl-distrib-debian
-    - make docker-push-python-debian
+  script: bash container/docker_push.sh
   on:
     branch: master
 
