@@ -7,9 +7,6 @@
 # - a Python runtime/distribution;
 # - the Latex-on-HTTP application, with its dependencies.
 
-
-# TODO Publish to Docker Hub. (all less the Python app?)
-
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
 FROM yoant/latexonhttp-python:debian

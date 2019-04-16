@@ -6,8 +6,6 @@
 # - a selection of fonts;
 # - a selection of TexLive packages.
 
-# TODO Publish to Docker Hub. (all less the Python app?)
-
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
