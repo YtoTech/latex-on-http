@@ -27,10 +27,16 @@ docker-build-tl-distrib-debian:
 docker-build-tl-distrib-alpine:
 	docker build -f container/tl-distrib-alpine.Dockerfile -t yoant/latexonhttp-tl-distrib:alpine .
 
+docker-build-python-debian:
+	docker build -f container/python-debian.Dockerfile -t yoant/latexonhttp-python:debian .
+
+docker-build-python-alpine:
+	docker build -f container/python-alpine.Dockerfile -t yoant/latexonhttp-python:alpine .
+
 docker-build-main:
 	docker build -f Dockerfile .
 
-docker-build-all: docker-build-tl-distrib-debian docker-build-main
+docker-build-all: docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
 
 ## -------------------------------
 ## Docker Compose for dev ##

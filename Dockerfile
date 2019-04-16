@@ -12,16 +12,8 @@
 
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/latexonhttp-tl-distrib:debian
+FROM yoant/latexonhttp-python:debian
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
-
-# Install Python 3.
-# --> TODO Create another image adding python (Debian & Alpine)
-COPY ./container/install_python.sh /tmp/
-RUN /tmp/install_python.sh
-
-# Clean APT cache.
-RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set locales.
 ENV LC_ALL C.UTF-8
@@ -32,10 +24,10 @@ RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
-# (TODO Or use a mount point? Or use pip install?)
 COPY ./Makefile ./Pipfile ./Pipfile.lock /app/latex-on-http/
 COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
+# Install app dependencies.
 RUN make install
 
 EXPOSE 8080
