@@ -2,30 +2,37 @@ language: python
 sudo: required
 dist: trusty
 services:
-- docker
+  - docker
 before_install:
-- sudo ./container/install_tests.sh
+  - sudo ./container/install_tests.sh
 python:
-- '3.6'
+  - '3.7'
+
 install:
-- pip install pipenv
-- make install-dev
+  - pip install pipenv
+  - make install-dev
+
 script:
-# Build Docker images.
-- make docker-build-all
+  # Build Docker images.
+  - make docker-build-all
 
-# Run tests (using locally built Docker images).
-- make test-docker-compose
+  # Run tests (using locally built Docker images).
+  - make test-docker-compose
 
-# - Publish images to Docker hub.
+# Publish images to Docker hub.
+# Only in master branch commits.
 # https://docs.travis-ci.com/user/docker/#pushing-a-docker-image-to-a-registry
 # Could also be done in an after_success, see https://ops.tips/blog/travis-ci-push-docker-image/
-# Only in master branch commits.
-- if [[ "$TRAVIS_BRANCH" == "master" ]]; then
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    make docker-push-tl-distrib-debian
-    make docker-push-python-debian
-  fi
+deploy:
+  provider: script
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - make docker-push-tl-distrib-debian
+    - make docker-push-python-debian
+  on:
+    branch: master
+
+
 notifications:
   slack:
     rooms:
