@@ -7,12 +7,17 @@
     :copyright: (c) 2017-2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+import logging
 import uuid
 import urllib.request
 import os.path
 import base64
 from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import latexToPdf
+from latexonhttp.resources.normalization import normalize_resources_input
+
+from pprint import pformat
+logger = logging.getLogger(__name__)
 
 builds_app = Blueprint("builds", __name__)
 
@@ -24,21 +29,10 @@ def is_safe_path(basedir, path, follow_symlinks=False):
     return os.path.abspath(path).startswith(basedir)
 
 
-# TODO Extract the filesystem management in a module:
-# - determine of fs/files actions to get to construct the filesystem;
-# - hash and make a (deterministic) signature of files uploaded;
-# - from the list of actions, prepare the file system (giving only a root directory);
-# (- add a cache management on the file system preparation subpart).
-#
-# The compiler only uses:
-# - the hash for an eventual output cache
-# (if entire input signature match a cached output file, just return this file);
-# - the prepared directory of files where the build happens.
-
 
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?
-# Allows the two? (async, sync)
+# Allows the two: (async, sync)
 @builds_app.route("/sync", methods=["POST"])
 def compiler_latex():
     # TODO Distribute documentation. (HTML)
@@ -57,6 +51,16 @@ def compiler_latex():
         return jsonify("MISSING_RESOURCES"), 400
     # TODO Must be an array.
     # Iterate on resources.
+
+    normalized_resources = normalize_resources_input(payload["resources"])
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(pformat(normalized_resources))
+    # TODO
+    # - Prefetch checks (paths, main document, ...);
+    # - Fetch input body/data; (checks for fetching; caching)
+    # -˙Hash and normalize fetched inputs;
+    # - Process build global signature/hash (compiler, resource hashes, other options...)
+
     mainResource = None
     workspaceId = str(uuid.uuid4())
     workspacePath = os.path.abspath("./tmp/" + workspaceId)
@@ -118,6 +122,9 @@ def compiler_latex():
     # (In the long term it will be better to give a static URL to download
     # the generated PDF. We begin to talk about caching. This requires
     # lifecycle management. With something like a Redis.)
+    # TODO In async / build status endpoint, returns:
+    # - Normalized inputs;
+    # - 
     return Response(
         latexToPdfOutput["pdf"],
         status="201",
