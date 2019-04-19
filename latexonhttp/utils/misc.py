@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    latexonhttp.utils.misc
+    ~~~~~~~~~~~~~~~~~~~~~
+    Latex-On-HTTP miscellaneous utils.
+
+    :copyright: (c) 2019 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
+"""
 import subprocess
 
 CURRENT_API_VERSION = None

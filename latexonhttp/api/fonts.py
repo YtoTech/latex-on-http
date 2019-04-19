@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    latexonhttp.api.fonts
+    ~~~~~~~~~~~~~~~~~~~~~
+    Manage Latex-On-HTTP fonts.
+
+    :copyright: (c) 2019 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
+"""
 from flask import Blueprint, jsonify
 from fclist import fclist
 

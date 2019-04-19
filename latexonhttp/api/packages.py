@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    latexonhttp.api.packages
+    ~~~~~~~~~~~~~~~~~~~~~
+    Manage Latex-On-HTTP Latex packages.
+
+    :copyright: (c) 2019 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
+"""
 from flask import Blueprint, jsonify, url_for
 from texlivemetadata import list_installed_packages, get_package_info, get_ctan_link
 
