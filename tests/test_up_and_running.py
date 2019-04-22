@@ -20,7 +20,7 @@ COMPIL_HELLO_WORLD = {
         {
             "content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
         }
-    ]
+    ],
 }
 SAMPLE_HELLO_WORLD = "hello_world"
 

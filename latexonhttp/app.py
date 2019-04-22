@@ -17,22 +17,17 @@ from latexonhttp.api.packages import packages_app
 from latexonhttp.utils.misc import get_api_version
 
 # Logging.
-logging.config.dictConfig({
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {"format": "[%(levelname)s %(module)s] %(message)s"},
-    },
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "default"},
-    },
-    "loggers": {
-        "latexonhttp": {
-            "handlers": ["console"],
-            "level": "DEBUG",
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {"default": {"format": "[%(levelname)s %(module)s] %(message)s"}},
+        "handlers": {
+            "console": {"class": "logging.StreamHandler", "formatter": "default"}
         },
-    },
-})
+        "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
+    }
+)
 
 app = Flask(__name__)
 app.register_blueprint(builds_app, url_prefix="/builds")
