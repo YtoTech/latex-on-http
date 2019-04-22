@@ -16,6 +16,7 @@ from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
+from latexonhttp.resources.fetching import fetch_resources
 
 from pprint import pformat
 
@@ -30,6 +31,22 @@ def is_safe_path(basedir, path, follow_symlinks=False):
         return os.path.realpath(path).startswith(basedir)
     return os.path.abspath(path).startswith(basedir)
 
+
+# TODO Extract the filesystem management in a module:
+# - determine of fs/files actions to get to construct the filesystem;
+# - support content/string, base64/file, url/file, url/git, url/tar, post-data/tar
+# - hash and make a (deterministic) signature of files uploaded;
+# - from the list of actions, prepare the file system (giving only a root directory);
+# (- add a cache management on the file system preparation subpart).
+#
+# The compiler only uses:
+# - the hash for an eventual output cache
+# (if entire input signature match a cached output file, just return this file);
+# - the prepared directory of files where the build happens.
+
+# Persist cached files.
+# Endpoint for checking if inputs (or output) are cached,
+# for smart client use.
 
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?
@@ -60,12 +77,18 @@ def compiler_latex():
     errors = check_resources_prefetch(normalized_resources)
     if errors:
         return jsonify(errors[0]), 400
+
+    def on_fetched(resource, data):
+        # TODO Persist to filesystem;
+        # TODO Hash and normalize fetched inputs;
+        # TODO Input cache forwarding.
+        logger.debug("Fetched %s: %s bytes", resource["build-path"], len(data))
+
+    # TODO Input cache provider.
+    error = fetch_resources(normalized_resources, on_fetched)
+    if error:
+        return jsonify(error), 400
     # TODO
-    # - Fetch input body/data; (checks for fetching; caching)
-    # (All in memory, then process? Or pass a filesystem writter function and flush on the fly to build storage?)
-    # -> Memory: good if we cached output; hard for git; problematic if huge input volume;
-    # -> DIsk on-the-fly: uncesserary (slow/operations) if cached output; but else simpler.
-    # -˙Hash and normalize fetched inputs;
     # - Process build global signature/hash (compiler, resource hashes, other options...)
 
     mainResource = None

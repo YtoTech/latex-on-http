@@ -1,11 +1,8 @@
 #! /usr/bin/env hy
 """
-    latexonhttp.filesystem.resources
+    latexonhttp.resources.validation
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP filesystem resources management:
-    process normalized resource input representation,
-    to be used in actual filesystem implementation
-    and caching mechanisms.
+    Latex-On-HTTP input resource validation.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
@@ -23,6 +20,21 @@
 (defn add-error [errors error-name]
     (.append errors error-name)
     errors)
+
+; TODO Function to allows to compose validation.
+; (defn apply-checks [resources checks &optional [fail-fast True]]
+;     ; TODO Apply sequentially all check functions;
+;     ; TODO Allows for "shared" variables (eg. main-documents-occ): macro?
+;     ; TODO On fail-fast, stop and return on first check failure.
+;     )
+
+; (apply-checks
+;     resources
+;     [
+;         (setv main-documents-occ (count-main-documents resources))
+;         (fn [] (if (< main-documents-occ 1)
+;             (add-error errors "MUST_SPECIFY_MAIN_DOCUMENT")))
+;     ])
 
 (defn check-resources-prefetch [resources]
     (setv errors [])
