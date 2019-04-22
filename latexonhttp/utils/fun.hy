@@ -16,10 +16,20 @@
 
 
 (defn fun-count-pred [collection pred-fn]
-    (reduce
-        (fn [acc value] (if (pred-fn value) (+ acc 1) acc))
-        collection
-        0))
+    ; As map returns an iterable, this don't iterate twice (from my understanding).
+    ; https://docs.python.org/3/library/itertools.html
+    (sum
+        (map
+            (fn [value] (if (pred-fn value) 1 0))
+            collection)))
+
+
+(defn all-pred [collection pred-fn]
+    (all (map pred-fn collection)))
+
+
+(defn any-pred [collection pred-fn]
+    (any (map pred-fn collection)))
 
 
 (defn get-default [value key default]
