@@ -1,8 +1,8 @@
 #! /usr/bin/env hy
 """
-    latexonhttp.filesystem.resources
+    latexonhttp.resources.normalization
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP filesystem resources management:
+    Latex-On-HTTP resources input normalization:
     process normalized resource input representation,
     to be used in actual filesystem implementation
     and caching mechanisms.
@@ -13,7 +13,6 @@
 (import [
     latexonhttp.utils.fun [fun-sort get-default]
 ])
-; (require [latexonhttp.utils.fun [fun-sort]])
 
 ; # TODO Extract the filesystem management in a module:
 ; # - determine of fs/files actions to get to construct the filesystem;
@@ -82,6 +81,22 @@
 (defn normalize-resources-input [resources]
     (sort-resources (list (map normalize-resource-input resources))))
 
+(defn normalize-resource-input [resource]
+    """
+    Normalize the resource input, without performing any operation
+    or checks.
+    """
+    ; TODO Do not use setv, but make intermediate normalized "passes"?
+    (setv resource-type (get-resource-type resource))
+    (setv is-main-document (is-resource-main-document resource))
+    {
+        "type" resource-type
+        ; TODO Under build key? (for is-main-document, build-path)
+        "is-main-document" is-main-document
+        "build-path" (normalized-resource-build-path resource is-main-document)
+        "body-source" (get-body-source resource resource-type)
+    })
+
 (defn get-resource-type [resource]
     (cond
         [(in "url" resource) "url/file"]
@@ -128,41 +143,11 @@
 (defn normalized-resource-build-path [resource is-main-document]
     (if is-main-document
         "__main_document__.tex"
-        (get resource "path")))
+        (get-default resource "path" None)))
 
 (defn sort-resources [resources]
     (fun-sort
         resources
-        ; TODO
-        (fn [resource] (get resource "build-path"))))
-
-(defn normalize-resource-input [resource]
-    """
-    Normalize the resource input, without performing any operation
-    or checks.
-    """
-    ; TODO Do not use setv, but make intermediate normalized "passes"?
-    (setv resource-type (get-resource-type resource))
-    (setv is-main-document (is-resource-main-document resource))
-    {
-        "type" resource-type
-        ; TODO Under build key? (for is-main-document, build-path)
-        "is-main-document" is-main-document
-        "build-path" (normalized-resource-build-path resource is-main-document)
-        "body-source" (get-body-source resource resource-type)
-    })
-
-; TODO Fetchers (defn get-resource-data [resource])
-
-; (defn normalize-resource-input [resource]
-;     ; TODO Do not use setv, but make intermediate normalized "passes"
-;     (setv resource-type (get-resource-type resource))
-;     (setv is-main-document (is-main-document resource))
-;     (merge-dicts [
-;         {
-;             "type" resource-type
-;             "is-main-document" is-main-document
-            
-;         }
-        
-;     ]))
+        (fn [resource]
+            (setv build-path (get resource "build-path"))
+            (if build-path build-path ""))))

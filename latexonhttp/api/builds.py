@@ -15,8 +15,10 @@ import base64
 from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
+from latexonhttp.resources.validation import check_resources_prefetch
 
 from pprint import pformat
+
 logger = logging.getLogger(__name__)
 
 builds_app = Blueprint("builds", __name__)
@@ -27,7 +29,6 @@ def is_safe_path(basedir, path, follow_symlinks=False):
     if follow_symlinks:
         return os.path.realpath(path).startswith(basedir)
     return os.path.abspath(path).startswith(basedir)
-
 
 
 # TODO Only register request here, and allows to define an hook for when
@@ -55,9 +56,15 @@ def compiler_latex():
     normalized_resources = normalize_resources_input(payload["resources"])
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug(pformat(normalized_resources))
+    errors = check_resources_prefetch(normalized_resources)
+    if errors:
+        return jsonify(errors[0]), 400
     # TODO
     # - Prefetch checks (paths, main document, ...);
     # - Fetch input body/data; (checks for fetching; caching)
+    # (All in memory, then process? Or pass a filesystem writter function and flush on the fly to build storage?)
+    # -> Memory: good if we cached output; hard for git; problematic if huge input volume;
+    # -> DIsk on-the-fly: uncesserary (slow/operations) if cached output; but else simpler.
     # -˙Hash and normalize fetched inputs;
     # - Process build global signature/hash (compiler, resource hashes, other options...)
 
@@ -124,7 +131,7 @@ def compiler_latex():
     # lifecycle management. With something like a Redis.)
     # TODO In async / build status endpoint, returns:
     # - Normalized inputs;
-    # - 
+    # -
     return Response(
         latexToPdfOutput["pdf"],
         status="201",
