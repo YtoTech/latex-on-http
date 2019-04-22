@@ -57,19 +57,24 @@ def compiler_latex():
     payload = request.get_json()
     if not payload:
         return jsonify("MISSING_PAYLOAD"), 400
+
+    # TODO Pre-normalized data checks.
+    # - resources (mandatory, must be an array).
+    # TODO High-level normalizsation.
+    # - compiler
     # Choose compiler: latex, pdflatex, xelatex or lualatex
     # We default to pdflatex.
     compilerName = "pdflatex"
-    # TODO Choose them directly from the method?
     if "compiler" in payload:
         if payload["compiler"] not in ["latex", "lualatex", "xelatex", "pdflatex"]:
             return jsonify("INVALID_COMPILER"), 400
         compilerName = payload["compiler"]
     if not "resources" in payload:
         return jsonify("MISSING_RESOURCES"), 400
-    # TODO Must be an array.
-    # Iterate on resources.
 
+    # -------------
+    # Pre-fetch normalization and checks.
+    # -------------
     normalized_resources = normalize_resources_input(payload["resources"])
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug(pformat(normalized_resources))
@@ -78,11 +83,35 @@ def compiler_latex():
     if errors:
         return jsonify(errors[0]), 400
 
+    # -------------
+    # Fetching, post-fetch normalization and checks, filesystem creation.
+    # -------------
+
+    workspace_id = str(uuid.uuid4())
+    workspace_path = os.path.abspath("./tmp/" + workspace_id)
+
     def on_fetched(resource, data):
+        logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
         # TODO Persist to filesystem;
         # TODO Hash and normalize fetched inputs;
         # TODO Input cache forwarding.
-        logger.debug("Fetched %s: %s bytes", resource["build-path"], len(data))
+        # --> in a module (filesystem.persist or storage.persist, or workspace.persist)
+        # https://security.openstack.org/guidelines/dg_using-file-paths.html
+        resource["workspace"] = {
+            "build_path": os.path.abspath(workspace_path + "/" + resource["build_path"])
+        }
+        if not is_safe_path(workspace_path, resource["workspace"]["build_path"]):
+            return jsonify("INVALID_PATH"), 400
+        # TODO Id for input resources.
+        logger.info("Writing to %s ...", resource["workspace"]["build_path"])
+        os.makedirs(os.path.dirname(resource["workspace"]["build_path"]), exist_ok=True)
+        with open(resource["workspace"]["build_path"], "wb") as f:
+            bytes_written = f.write(data)
+            logger.debug(
+                "Wrote %d bytes to %s ...",
+                bytes_written,
+                resource["workspace"]["build_path"],
+            )
 
     # TODO Input cache provider.
     error = fetch_resources(normalized_resources, on_fetched)
@@ -91,55 +120,64 @@ def compiler_latex():
     # TODO
     # - Process build global signature/hash (compiler, resource hashes, other options...)
 
-    mainResource = None
-    workspaceId = str(uuid.uuid4())
-    workspacePath = os.path.abspath("./tmp/" + workspaceId)
-    for resource in payload["resources"]:
-        # Must have:
-        # Either data or url.
-        if "main" in resource and resource["main"] is True:
-            mainResource = resource
-        # TODO Be immutable and preserve the original content payload.
-        if "url" in resource:
-            # Fetch and put in resource content.
-            # TODO Handle errors (404, network, etc.).
-            print("Fetching {} ...".format(resource["url"]))
-            resource["content"] = urllib.request.urlopen(resource["url"]).read()
-            # Decode if main file?
-            if "main" in resource and resource["main"] is True:
-                resource["content"] = resource["content"].decode("utf-8")
-        if "file" in resource:
-            resource["content"] = base64.b64decode(resource["file"])
-        if not "content" in resource:
-            return jsonify("MISSING_CONTENT"), 400
-        # Path relative to the project.
-        if "path" in resource:
-            # Write file to workspace, if not the main file.
-            if not "main" in resource or resource["main"] is not True:
-                # https://security.openstack.org/guidelines/dg_using-file-paths.html
-                resource["path"] = os.path.abspath(
-                    workspacePath + "/" + resource["path"]
-                )
-                if not is_safe_path(workspacePath, resource["path"]):
-                    return jsonify("INVALID_PATH"), 400
-                print("Writing to {} ...".format(resource["path"]))
-                os.makedirs(os.path.dirname(resource["path"]), exist_ok=True)
-                if not "url" in resource and not "file" in resource:
-                    resource["content"] = resource["content"].encode("utf-8")
-                with open(resource["path"], "wb") as f:
-                    f.write(resource["content"])
-    # TODO If more than one resource, must give a main file flag.
-    if len(payload["resources"]) == 1:
-        mainResource = payload["resources"][0]
-    else:
-        if not mainResource:
-            return jsonify("MUST_SPECIFY_MAIN_RESOURCE"), 400
+    # mainResource = None
+    # workspaceId = str(uuid.uuid4())
+    # workspacePath = os.path.abspath("./tmp/" + workspaceId)
+    # for resource in payload["resources"]:
+    #     # Must have:
+    #     # Either data or url.
+    #     if "main" in resource and resource["main"] is True:
+    #         mainResource = resource
+    #     # TODO Be immutable and preserve the original content payload.
+    #     if "url" in resource:
+    #         # Fetch and put in resource content.
+    #         # TODO Handle errors (404, network, etc.).
+    #         print("Fetching {} ...".format(resource["url"]))
+    #         resource["content"] = urllib.request.urlopen(resource["url"]).read()
+    #         # Decode if main file?
+    #         if "main" in resource and resource["main"] is True:
+    #             resource["content"] = resource["content"].decode("utf-8")
+    #     if "file" in resource:
+    #         resource["content"] = base64.b64decode(resource["file"])
+    #     if not "content" in resource:
+    #         return jsonify("MISSING_CONTENT"), 400
+    #     # Path relative to the project.
+    #     if "path" in resource:
+    #         # Write file to workspace, if not the main file.
+    #         if not "main" in resource or resource["main"] is not True:
+    #             # https://security.openstack.org/guidelines/dg_using-file-paths.html
+    #             resource["path"] = os.path.abspath(
+    #                 workspacePath + "/" + resource["path"]
+    #             )
+    #             if not is_safe_path(workspacePath, resource["path"]):
+    #                 return jsonify("INVALID_PATH"), 400
+    #             print("Writing to {} ...".format(resource["path"]))
+    #             os.makedirs(os.path.dirname(resource["path"]), exist_ok=True)
+    #             if not "url" in resource and not "file" in resource:
+    #                 resource["content"] = resource["content"].encode("utf-8")
+    #             with open(resource["path"], "wb") as f:
+    #                 f.write(resource["content"])
+    # # TODO If more than one resource, must give a main file flag.
+    # if len(payload["resources"]) == 1:
+    #     mainResource = payload["resources"][0]
+    # else:
+    #     if not mainResource:
+    #         return jsonify("MUST_SPECIFY_MAIN_RESOURCE"), 400
+
+    # -------------
+    # Compilation.
+    # -------------
+
+    # TODO Do an util to get main resource.
+    main_resource = next(
+        resource for resource in normalized_resources if resource["is_main_document"]
+    )
     # TODO Try catch.
     latexToPdfOutput = latexToPdf(
         compilerName,
         # TODO Absolute directory.
-        workspacePath,
-        mainResource["content"],
+        workspace_path,
+        main_resource,
     )
     if not latexToPdfOutput["pdf"]:
         return (
@@ -152,9 +190,10 @@ def compiler_latex():
     # (In the long term it will be better to give a static URL to download
     # the generated PDF. We begin to talk about caching. This requires
     # lifecycle management. With something like a Redis.)
+    # URL to get build result: PDF output, log, etc.
     # TODO In async / build status endpoint, returns:
     # - Normalized inputs;
-    # -
+    # - URLs for PDF output, log;
     return Response(
         latexToPdfOutput["pdf"],
         status="201",

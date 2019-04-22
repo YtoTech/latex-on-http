@@ -15,22 +15,25 @@
 ])
 
 (defn normalize-resources-input [resources]
-    (sort-resources (list (map normalize-resource-input resources))))
+    (sort-resources (list (map
+        (fn [resource] (normalize-resource-input resource resources))
+        resources
+    ))))
 
-(defn normalize-resource-input [resource]
+(defn normalize-resource-input [resource resources]
     """
     Normalize the resource input, without performing any operation
     or checks.
     """
     ; TODO Do not use setv, but make intermediate normalized "passes"?
     (setv resource-type (get-resource-type resource))
-    (setv is-main-document (is-resource-main-document resource))
+    (setv is-main-document (is-resource-main-document resource resources))
     {
         "type" resource-type
         ; TODO Under build key? (for is-main-document, build-path)
-        "is-main-document" is-main-document
-        "build-path" (normalized-resource-build-path resource is-main-document)
-        "body-source" (get-body-source resource resource-type)
+        "is_main_document" is-main-document
+        "build_path" (normalized-resource-build-path resource is-main-document)
+        "body_source" (get-body-source resource resource-type)
     })
 
 (defn get-resource-type [resource]
@@ -53,7 +56,7 @@
             }]
         [(= resource-type "base64/file")
             {
-                "raw-base64" (get resource "file")
+                "raw_base64" (get resource "file")
             }]
         [(= resource-type "url/git")
             {
@@ -69,12 +72,14 @@
             }]
         [(= resource-type "utf8/string")
             {
-                "raw-string" (get resource "content")
+                "raw_string" (get resource "content")
             }]
     ))
 
-(defn is-resource-main-document [resource]
-    (get-default resource "main" False))
+(defn is-resource-main-document [resource resources]
+    (if (= (len resources) 1)
+        True
+        (get-default resource "main" False)))
 
 (defn normalized-resource-build-path [resource is-main-document]
     (if is-main-document
@@ -85,5 +90,5 @@
     (fun-sort
         resources
         (fn [resource]
-            (setv build-path (get resource "build-path"))
+            (setv build-path (get resource "build_path"))
             (if build-path build-path ""))))

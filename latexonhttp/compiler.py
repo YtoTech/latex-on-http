@@ -12,6 +12,9 @@ import subprocess
 import codecs
 import os
 import shutil
+import logging
+
+logger = logging.getLogger(__name__)
 
 # TODO Temporary dirty work.
 # Lol.
@@ -44,32 +47,32 @@ def run_command(directory, command):
             stdout += str(output) + "\n"
             print(output.strip())
     rc = process.poll()
-    print("Program returned with status code {}".format(rc))
+    logger.debug("Program returned with status code %d", rc)
     # TODO Does it return command output?
     return {"return_code": rc, "stdout": stdout}
 
 
-def latexToPdf(compilerName, directory, latex):
+def latexToPdf(compilerName, directory, main_resource):
     if compilerName not in ["latex", "lualatex", "xelatex", "pdflatex"]:
         raise ValueError("Invalid compiler")
-    print("Compiling")
     # print(latex)
     # TODO Choose appropriate options following the compiler.
     # Copy files to tmp directory.
     # TODO Handle filesystem in another part. Check path.
     directory = os.path.abspath(directory)
     os.makedirs(directory, exist_ok=True)
-    inputPath = directory + "/input.tex"
-    outputPath = directory + "/output.pdf"
-    logDir = directory + "/latex.out"
-    print("Writing file")
-    print(inputPath)
+    input_path = directory + "/{}".format(main_resource["build_path"])
+    output_path = directory + "/output.pdf"
+    log_dir = directory + "/latex.out"
+    logger.info("Compiling %s from %s", main_resource["build_path"], directory)
+    # print("Writing file")
+    # print(input_path)
     # TODO Force UTF-8?
     # with open(inputPath, 'w') as f:
     #     f.write(latex)
     # TODO I don't know what I'm doing here.
-    with codecs.open(inputPath, "wb", "utf-8") as f:
-        f.write(latex)
+    # with codecs.open(inputPath, "wb", "utf-8") as f:
+    #     f.write(latex)
     # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
@@ -79,22 +82,22 @@ def latexToPdf(compilerName, directory, latex):
         "python",
         os.getcwd() + "/latexonhttp/latexrun.py",
         "--latex-cmd=" + compilerName,
-        "-O=" + logDir,
-        "-o=" + outputPath,
+        "-O=" + log_dir,
+        "-o=" + output_path,
         # Return all logs.
         "-W=all"
         # TODO Add -halt-on-error --interaction=nonstopmode
         '--latex-args="--output-format=pdf"',
-        inputPath,
+        input_path,
     ]
-    print(command)
+    logger.debug(command)
     commandOutput = run_command(directory, command)
     # TODO Check for compilation errors.
     # commandOutput['return_code'] is not 0
     # Return both generated PDF and compile logs.
     pdf = None
-    if os.path.isfile(outputPath):
-        with open(outputPath, "rb") as f:
+    if os.path.isfile(output_path):
+        with open(output_path, "rb") as f:
             pdf = f.read()
     # Clean things up before returning.
     shutil.rmtree(directory)

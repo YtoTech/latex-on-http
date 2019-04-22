@@ -12,10 +12,10 @@
 ])
 
 (defn count-main-documents [resources]
-    (fun-count-pred resources (fn [resource] (get-default resource "is-main-document" False))))
+    (fun-count-pred resources (fn [resource] (get-default resource "is_main_document" False))))
 
 (defn has-path [resource]
-    (get-default resource "build-path" None))
+    (get-default resource "build_path" None))
 
 (defn add-error [errors error-name]
     (.append errors error-name)
