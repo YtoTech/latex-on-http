@@ -13,6 +13,8 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
+CHECK_DATA_SPEC_SIZE_ESTIMATE = True
+
 
 def is_safe_path(basedir, path, follow_symlinks=False):
     # https://security.openstack.org/guidelines/dg_using-file-paths.html
@@ -42,9 +44,25 @@ def persist_resource_to_workspace(workspace_id, resource, data):
     with open(resource_full_path, "wb") as f:
         bytes_written = f.write(data)
         logger.debug("Wrote %d bytes to %s", bytes_written, resource_full_path)
+    if CHECK_DATA_SPEC_SIZE_ESTIMATE:
+        check_data_spec_size_estimate(workspace_id, resource)
 
 
 def delete_workspace(workspace_id):
     workspace_path = get_workspace_root_path(workspace_id)
     logger.info("Deleting workspace directory %s", workspace_path)
     shutil.rmtree(workspace_path)
+
+
+def check_data_spec_size_estimate(workspace_id, resource):
+    size_on_disk = os.path.getsize(get_resource_fullpath(workspace_id, resource))
+    logger.debug(
+        "Size on disk: %d ft. Size est: %s", size_on_disk, resource["data_spec"]["size"]
+    )
+    if size_on_disk != resource["data_spec"]["size"]:
+        logger.warning(
+            "Resource %s size estimate (%s) mismatch with size on disk (%d)",
+            resource["data_spec"]["size"],
+            size_on_disk,
+            resource["build_path"],
+        )
