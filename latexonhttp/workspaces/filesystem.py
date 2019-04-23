@@ -14,6 +14,7 @@ import shutil
 logger = logging.getLogger(__name__)
 
 CHECK_DATA_SPEC_SIZE_ESTIMATE = True
+WORKSPACE_DIRECTORY = "./tmp/loh_workspaces"
 
 
 def is_safe_path(basedir, path, follow_symlinks=False):
@@ -25,7 +26,7 @@ def is_safe_path(basedir, path, follow_symlinks=False):
 
 
 def get_workspace_root_path(workspace_id):
-    return os.path.abspath("./tmp/" + workspace_id)
+    return os.path.abspath("{}/{}".format(WORKSPACE_DIRECTORY, workspace_id))
 
 
 def get_resource_fullpath(workspace_id, resource):

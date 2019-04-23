@@ -41,7 +41,7 @@
     (any (map pred-fn collection)))
 
 
-(defn get-default [value key default]
+(defn get-default [value key &optional [default None]]
   (if (in key value)
     (get value key)
     default))

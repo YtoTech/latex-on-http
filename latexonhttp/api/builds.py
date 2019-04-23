@@ -19,6 +19,7 @@ from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
     persist_resource_to_workspace,
 )
+from latexonhttp.caching.resources import forward_resource_to_cache
 
 from pprint import pformat
 
@@ -87,16 +88,13 @@ def compiler_latex():
 
     def on_fetched(resource, data):
         logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
-        # TODO Hash and normalize fetched inputs;
+        # Hash fetched inputs;
         resource["data_spec"] = process_resource_data_spec(data)
-        # TODO Input cache forwarding.
-        # Cache module:
-        # - Create directory for caching files (delete on start / if no metadata);
-        # - Put input files on cache directory, with metadata (size, cache id: flat directory);
-        # - Check input cache metadata for enforcing constraints (max size cache), act if needed (delete files on overflow);
-        # - Actually take the metadata, the resource forwared and return the actions: add/rm, rm --all;
-        # - From time to time, as a sanity check, get directory size to check that it matches our metadata.
         error = persist_resource_to_workspace(workspace_id, resource, data)
+        if error:
+            return error
+        # Input cache forwarding.
+        error = forward_resource_to_cache(resource, data)
         if error:
             return error
 
