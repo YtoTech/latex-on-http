@@ -1,3 +1,12 @@
+#! /usr/bin/env hy
+"""
+    latexonhttp.utils.fun
+    ~~~~~~~~~~~~~~~~~~~~~
+    Latex-On-HTTP functional programming utilities.
+
+    :copyright: (c) 2019 Yoan Tournade.
+    :license: AGPL, see LICENSE for more details.
+"""
 (import [
     functools [reduce]
 ])
