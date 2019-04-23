@@ -13,6 +13,7 @@ from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
+from latexonhttp.resources.utils import process_resource_data_spec
 from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
@@ -87,7 +88,14 @@ def compiler_latex():
     def on_fetched(resource, data):
         logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
         # TODO Hash and normalize fetched inputs;
+        resource["data_spec"] = process_resource_data_spec(data)
         # TODO Input cache forwarding.
+        # Cache module:
+        # - Create directory for caching files (delete on start / if no metadata);
+        # - Put input files on cache directory, with metadata (size, cache id: flat directory);
+        # - Check input cache metadata for enforcing constraints (max size cache), act if needed (delete files on overflow);
+        # - Actually take the metadata, the resource forwared and return the actions: add/rm, rm --all;
+        # - From time to time, as a sanity check, get directory size to check that it matches our metadata.
         error = persist_resource_to_workspace(workspace_id, resource, data)
         if error:
             return error
@@ -98,6 +106,8 @@ def compiler_latex():
         return jsonify(error), 400
     # TODO
     # - Process build global signature/hash (compiler, resource hashes, other options...)
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(pformat(normalized_resources))
 
     # -------------
     # Compilation.
