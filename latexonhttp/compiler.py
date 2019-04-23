@@ -9,9 +9,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import subprocess
-import codecs
 import os
-import shutil
 import logging
 
 logger = logging.getLogger(__name__)
@@ -64,14 +62,6 @@ def latexToPdf(compilerName, directory, main_resource):
     output_path = directory + "/output.pdf"
     log_dir = directory + "/latex.out"
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
-    # print("Writing file")
-    # print(input_path)
-    # TODO Force UTF-8?
-    # with open(inputPath, 'w') as f:
-    #     f.write(latex)
-    # TODO I don't know what I'm doing here.
-    # with codecs.open(inputPath, "wb", "utf-8") as f:
-    #     f.write(latex)
     # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
@@ -94,10 +84,10 @@ def latexToPdf(compilerName, directory, main_resource):
     # TODO Check for compilation errors.
     # commandOutput['return_code'] is not 0
     # Return both generated PDF and compile logs.
+    # TODO Uses workspace.filesystem module read file back?
     pdf = None
     if os.path.isfile(output_path):
         with open(output_path, "rb") as f:
             pdf = f.read()
-    # Clean things up before returning.
-    shutil.rmtree(directory)
+    # TODO Returns paths instead of data?
     return {"pdf": pdf, "logs": commandOutput["stdout"]}

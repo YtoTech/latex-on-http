@@ -13,7 +13,7 @@ from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
-from latexonhttp.workspaces.lifecycle import create_workspace
+from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
     persist_resource_to_workspace,
@@ -69,6 +69,7 @@ def compiler_latex():
     # -------------
     # Pre-fetch normalization and checks.
     # -------------
+
     normalized_resources = normalize_resources_input(payload["resources"])
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug(pformat(normalized_resources))
@@ -110,6 +111,11 @@ def compiler_latex():
     latexToPdfOutput = latexToPdf(
         compilerName, get_workspace_root_path(workspace_id), main_resource
     )
+
+    # -------------
+    # Response creation.
+    # -------------
+
     if not latexToPdfOutput["pdf"]:
         return (
             jsonify({"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}),
@@ -124,6 +130,13 @@ def compiler_latex():
     # TODO In async / build status endpoint, returns:
     # - Normalized inputs;
     # - URLs for PDF output, log;
+
+    # -------------
+    # Cleanup.
+    # -------------
+
+    remove_workspace(workspace_id)
+
     return Response(
         latexToPdfOutput["pdf"],
         status="201",

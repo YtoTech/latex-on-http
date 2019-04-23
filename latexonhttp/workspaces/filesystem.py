@@ -1,5 +1,6 @@
 import logging
 import os.path
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -32,3 +33,9 @@ def persist_resource_to_workspace(workspace_id, resource, data):
     with open(resource_full_path, "wb") as f:
         bytes_written = f.write(data)
         logger.debug("Wrote %d bytes to %s", bytes_written, resource_full_path)
+
+
+def delete_workspace(workspace_id):
+    workspace_path = get_workspace_root_path(workspace_id)
+    logger.info("Deleting workspace directory %s", workspace_path)
+    shutil.rmtree(workspace_path)
