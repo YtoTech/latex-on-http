@@ -8,15 +8,16 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
-import uuid
-import urllib.request
-import os.path
-import base64
 from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
+from latexonhttp.workspaces.lifecycle import create_workspace
+from latexonhttp.workspaces.filesystem import (
+    get_workspace_root_path,
+    persist_resource_to_workspace,
+)
 
 from pprint import pformat
 
@@ -25,14 +26,7 @@ logger = logging.getLogger(__name__)
 builds_app = Blueprint("builds", __name__)
 
 
-def is_safe_path(basedir, path, follow_symlinks=False):
-    # resolves symbolic links
-    if follow_symlinks:
-        return os.path.realpath(path).startswith(basedir)
-    return os.path.abspath(path).startswith(basedir)
-
-
-# TODO Extract the filesystem management in a module:
+# TODO Extract the filesystem/workspace management in a module:
 # - determine of fs/files actions to get to construct the filesystem;
 # - support content/string, base64/file, url/file, url/git, url/tar, post-data/tar
 # - hash and make a (deterministic) signature of files uploaded;
@@ -87,31 +81,15 @@ def compiler_latex():
     # Fetching, post-fetch normalization and checks, filesystem creation.
     # -------------
 
-    workspace_id = str(uuid.uuid4())
-    workspace_path = os.path.abspath("./tmp/" + workspace_id)
+    workspace_id = create_workspace(normalized_resources)
 
     def on_fetched(resource, data):
         logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
-        # TODO Persist to filesystem;
         # TODO Hash and normalize fetched inputs;
         # TODO Input cache forwarding.
-        # --> in a module (filesystem.persist or storage.persist, or workspace.persist)
-        # https://security.openstack.org/guidelines/dg_using-file-paths.html
-        resource["workspace"] = {
-            "build_path": os.path.abspath(workspace_path + "/" + resource["build_path"])
-        }
-        if not is_safe_path(workspace_path, resource["workspace"]["build_path"]):
-            return jsonify("INVALID_PATH"), 400
-        # TODO Id for input resources.
-        logger.info("Writing to %s ...", resource["workspace"]["build_path"])
-        os.makedirs(os.path.dirname(resource["workspace"]["build_path"]), exist_ok=True)
-        with open(resource["workspace"]["build_path"], "wb") as f:
-            bytes_written = f.write(data)
-            logger.debug(
-                "Wrote %d bytes to %s ...",
-                bytes_written,
-                resource["workspace"]["build_path"],
-            )
+        error = persist_resource_to_workspace(workspace_id, resource, data)
+        if error:
+            return error
 
     # TODO Input cache provider.
     error = fetch_resources(normalized_resources, on_fetched)
@@ -119,50 +97,6 @@ def compiler_latex():
         return jsonify(error), 400
     # TODO
     # - Process build global signature/hash (compiler, resource hashes, other options...)
-
-    # mainResource = None
-    # workspaceId = str(uuid.uuid4())
-    # workspacePath = os.path.abspath("./tmp/" + workspaceId)
-    # for resource in payload["resources"]:
-    #     # Must have:
-    #     # Either data or url.
-    #     if "main" in resource and resource["main"] is True:
-    #         mainResource = resource
-    #     # TODO Be immutable and preserve the original content payload.
-    #     if "url" in resource:
-    #         # Fetch and put in resource content.
-    #         # TODO Handle errors (404, network, etc.).
-    #         print("Fetching {} ...".format(resource["url"]))
-    #         resource["content"] = urllib.request.urlopen(resource["url"]).read()
-    #         # Decode if main file?
-    #         if "main" in resource and resource["main"] is True:
-    #             resource["content"] = resource["content"].decode("utf-8")
-    #     if "file" in resource:
-    #         resource["content"] = base64.b64decode(resource["file"])
-    #     if not "content" in resource:
-    #         return jsonify("MISSING_CONTENT"), 400
-    #     # Path relative to the project.
-    #     if "path" in resource:
-    #         # Write file to workspace, if not the main file.
-    #         if not "main" in resource or resource["main"] is not True:
-    #             # https://security.openstack.org/guidelines/dg_using-file-paths.html
-    #             resource["path"] = os.path.abspath(
-    #                 workspacePath + "/" + resource["path"]
-    #             )
-    #             if not is_safe_path(workspacePath, resource["path"]):
-    #                 return jsonify("INVALID_PATH"), 400
-    #             print("Writing to {} ...".format(resource["path"]))
-    #             os.makedirs(os.path.dirname(resource["path"]), exist_ok=True)
-    #             if not "url" in resource and not "file" in resource:
-    #                 resource["content"] = resource["content"].encode("utf-8")
-    #             with open(resource["path"], "wb") as f:
-    #                 f.write(resource["content"])
-    # # TODO If more than one resource, must give a main file flag.
-    # if len(payload["resources"]) == 1:
-    #     mainResource = payload["resources"][0]
-    # else:
-    #     if not mainResource:
-    #         return jsonify("MUST_SPECIFY_MAIN_RESOURCE"), 400
 
     # -------------
     # Compilation.
@@ -174,17 +108,13 @@ def compiler_latex():
     )
     # TODO Try catch.
     latexToPdfOutput = latexToPdf(
-        compilerName,
-        # TODO Absolute directory.
-        workspace_path,
-        main_resource,
+        compilerName, get_workspace_root_path(workspace_id), main_resource
     )
     if not latexToPdfOutput["pdf"]:
         return (
             jsonify({"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}),
             400,
         )
-    # TODO Specify ouput file name.
     # TODO Also return compilation logs here.
     # (So return a json. Include the PDF as base64 data?)
     # (In the long term it will be better to give a static URL to download

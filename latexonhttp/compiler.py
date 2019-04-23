@@ -37,7 +37,7 @@ def run_command(directory, command):
     #     process.kill()
     #     out, err = process.communicate()
     #     print(out)
-    # TODO Read output line by line in a thread
+    # TODO Read output line by line in a thread (so we have a timeout if external process stucks?)
     while True:
         output = process.stdout.readline()
         if process.poll() is not None:
@@ -55,12 +55,11 @@ def run_command(directory, command):
 def latexToPdf(compilerName, directory, main_resource):
     if compilerName not in ["latex", "lualatex", "xelatex", "pdflatex"]:
         raise ValueError("Invalid compiler")
-    # print(latex)
     # TODO Choose appropriate options following the compiler.
     # Copy files to tmp directory.
-    # TODO Handle filesystem in another part. Check path.
+    # Should already be an absolute path (in our usage), but just to be sure.
     directory = os.path.abspath(directory)
-    os.makedirs(directory, exist_ok=True)
+    # TODO Uses workspace.filesystem module to these get paths.
     input_path = directory + "/{}".format(main_resource["build_path"])
     output_path = directory + "/output.pdf"
     log_dir = directory + "/latex.out"

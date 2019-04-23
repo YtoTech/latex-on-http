@@ -14,6 +14,10 @@
     latexonhttp.utils.fun [fun-sort get-default]
 ])
 
+; --------------------------------------------
+; Prefetch resource normalizsation.
+; --------------------------------------------
+
 (defn normalize-resources-input [resources]
     (sort-resources (list (map
         (fn [resource] (normalize-resource-input resource resources))
