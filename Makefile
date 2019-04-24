@@ -12,6 +12,16 @@ debug:
 
 
 ## -------------------------------
+## Running cache app ##
+## -------------------------------
+start-cache:
+	pipenv run python latexonhttp/caching/process.py
+
+debug-cache:
+	pipenv run python latexonhttp/caching/process.py --debug
+
+
+## -------------------------------
 ## Dev tools ##
 ## -------------------------------
 install-dev:

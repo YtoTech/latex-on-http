@@ -8,3 +8,10 @@ services:
      - "8080:8080"
     volumes:
      - .:/app/latex-on-http
+  cache:
+    build:
+      context: .
+      dockerfile: cache.Dockerfile
+    command: make debug-cache
+    volumes:
+     - .:/app/latex-on-http
