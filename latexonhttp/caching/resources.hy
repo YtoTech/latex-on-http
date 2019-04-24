@@ -138,7 +138,7 @@
       ; - Check for a caching size threshold;
       (>= (get resource "data_spec" "size") MIN-FILE-SIZE-CACHE-THRESHOLD)
       ; - Check that not more than half the max cache size;
-      (< (get resource "data_spec" "size") MAX-RESOURCES-CACHE-SIZE)
+      (< (get resource "data_spec" "size") (/ MAX-RESOURCES-CACHE-SIZE 2))
       ; - Check if already cached;
       (not (is-resource-cached cache-metadata resource))
     )
