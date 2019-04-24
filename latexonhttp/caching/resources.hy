@@ -66,7 +66,7 @@
         ; for multi-threading/process context.
         ; (See comment above on making it a dedicated and concurrent-safe process)
         (setv cache-metadata (persist-cache-metadata (update-cache-metadata-for-action cache-metadata action))))
-        (if ENABLE-SANITY-CHECKS
+        (when ENABLE-SANITY-CHECKS
           (apply-sanity-check))
     )
 
@@ -111,7 +111,7 @@
   })
 
 (defn free-space-from-first-rec [resources size-to-free actions]
-  (if (> size-to-free 0)
+  (if (pos? size-to-free )
     (free-space-from-first-rec
       (list (drop 1 resources))
       (- size-to-free (get (first resources) "size"))
@@ -121,7 +121,7 @@
 (defn free-space-from-old-entries [cache-metadata size-to-free]
   (setv ordered-resources (fun-sort (.values (get cache-metadata "cached_resources")) (fn [resource] (get resource "added_at"))))
   ; (logger.debug "Ordered resources: %s" ordered-resources)
-  (if (> size-to-free 0)
+  (if (pos? size-to-free)
     ; Order resources by timestamp.
     ; Remove until we have freed the specified size
     (free-space-from-first-rec
