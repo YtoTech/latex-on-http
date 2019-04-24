@@ -13,7 +13,7 @@ import sys
 
 def process_resource_data_spec(data):
     return {
-        "hash": hashlib.sha256(data).hexdigest(),
+        "hash": "sha256:{}".format(hashlib.sha256(data).hexdigest()),
         # What we would like it too have an accurate estimation of size
         # (when written) on disk of the data (not on memory).
         "size": len(data),
