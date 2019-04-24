@@ -19,12 +19,12 @@
     (setv errors [])
     (setv main-documents-occ (count-main-documents resources))
     ; Has a main document/resource;
-    (if (< main-documents-occ 1)
+    (when (< main-documents-occ 1)
         (add-error errors "MUST_SPECIFY_MAIN_DOCUMENT"))
-    (if (> main-documents-occ 1)
+    (when (> main-documents-occ 1)
         (add-error errors "MORE_THAN_ONE_MAIN_DOCUMENT"))
     ; All resources have a path (main document path has been normalized).
-    (if-not (all-pred resources has-path)
+    (unless (all-pred resources has-path)
         (add-error errors "MISSING_PATH_ON_RESOURCE"))
     errors)
 
