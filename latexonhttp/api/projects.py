@@ -18,6 +18,7 @@ projects_app = Blueprint("projects", __name__)
 # Persistent workspaces?
 # Functional-like workspaces: init workspace from a previous workspace.
 
+
 @projects_app.route("/", methods=["POST"])
 def template_project_create():
     payload = request.get_json()

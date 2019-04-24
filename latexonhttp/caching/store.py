@@ -17,11 +17,6 @@ CACHE_METADATA = None
 
 def get_cache_metadata():
     global CACHE_METADATA
-    if not CACHE_METADATA:
-        # Dirty cache init on first fetch.
-        from latexonhttp.caching.resources import init_cache_metadata
-
-        CACHE_METADATA = init_cache_metadata()
     # Returns a copy?
     return CACHE_METADATA
 

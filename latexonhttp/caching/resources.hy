@@ -239,3 +239,11 @@
     [True
       (raise (RuntimeError (.format "Unsupported cache action '{}'" action-name)))]
   ))
+
+
+; --------------------------------
+; Danger zone: init cache metadata on app start.
+; TODO Do it from "above" (app bootstrap)
+; --------------------------------
+
+(persist_cache_metadata (init-cache-metadata))
