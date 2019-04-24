@@ -15,6 +15,7 @@ flask = "*"
 fclist = {git = "https://github.com/MonsieurV/python-fclist.git"}
 gunicorn = "*"
 texlivemetadata = ">=0.1.2"
+hy = {git = "https://github.com/hylang/hy.git"}
 
 [requires]
 python_version = "3"

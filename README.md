@@ -203,9 +203,14 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
 
 ## TODOs
 
+* Tmp site https://nicedoc.io/ytotech/latex-on-http
+* Find/create a std Hy formatter (like black for Python)
+    * Uniformize Hy code formatting
+    * Follow style guide http://docs.hylang.org/en/stable/style-guide.html
 * Build sync/async API
     * Main endpoint: create compilation tasks/builds in async POST:/builds
-    * Add an  emdpoint for waiting on a compilation task/build GET/POST:/builds/wait
+        * Allows to see progress of a build https://github.com/aslushnikov/latex-online/issues/29#issuecomment-303569813
+    * Add an endpoint for waiting on a compilation task/build GET/POST:/builds/wait
         * Add a parameter to the main endpoint to redirect? (to /wait)
         * Or create a specialized endpoint for creating and waiing POST:/builds/sync
     * Add other notification mechanism
@@ -244,6 +249,9 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
         * when hash of input hashes match -> same output
 * Create client libraries (or samples codes)
     * For the moment in my get paid project
+    * CLI API inspiration
+        * https://github.com/aslushnikov/latex-online/blob/master/util/latexonline
+        * Uses https://github.com/chalk/chalk for the swag
     * So we can manage the sending of files
         * with cache management / optimization -> sending just hash of cache files
     * So we can use it in a terminal like a local Latex installation
@@ -263,6 +271,10 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
     * Support more compilers?
     * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
+* Output format selection
+    * Allows to select output other than PDF when available (mapping by compilers / with right parameters)
+    * See usage request here https://github.com/aslushnikov/latex-online/issues/20
+    * Default to PDF
 * Use Pandoc?
   * http://pandoc.org/MANUAL.html#creating-a-pdf
   * As a preprocessor -> another method
