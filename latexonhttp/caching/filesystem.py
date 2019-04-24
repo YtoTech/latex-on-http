@@ -11,6 +11,7 @@ import logging
 import shutil
 import os.path
 from latexonhttp.caching.store import get_cache_metadata
+from latexonhttp.resources.utils import process_resource_data_spec
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,21 @@ def apply_cache_action(action):
     if not action_fn:
         raise RuntimeError("No cache action for {}".format(action["name"]))
     action_fn(action)
+
+
+def get_cached_data(resource_hash):
+    resource_cache_entry_path = get_cache_entry_path(resource_hash)
+    with open(resource_cache_entry_path, "rb") as f:
+        cached_data = f.read()
+    if ENABLE_SANITY_CHECKS:
+        data_spec = process_resource_data_spec(cached_data)
+        if data_spec["hash"] != resource_hash:
+            raise RuntimeError(
+                "Cache data read not matching hash {} != {}".format(
+                    data_spec["hash"], resource_hash
+                )
+            )
+    return cached_data
 
 
 # -------------------------------------

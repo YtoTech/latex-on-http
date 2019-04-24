@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 CHECK_DATA_SPEC_SIZE_ESTIMATE = True
 WORKSPACE_DIRECTORY = "./tmp/loh_workspaces"
 
+# TODO Clean workspace directory on start/init?
+# --> if there was an application error, the workspace is orphaned and not removed.
+
 
 def is_safe_path(basedir, path, follow_symlinks=False):
     # https://security.openstack.org/guidelines/dg_using-file-paths.html

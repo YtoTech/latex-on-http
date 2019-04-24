@@ -16,7 +16,7 @@
     latexonhttp.caching.store [get-cache-metadata persist-cache-metadata]
 ])
 (import [
-    latexonhttp.caching.filesystem [apply-cache-action apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
+    latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
 ])
 
 (setv logger (.getLogger logging __name__))
@@ -78,9 +78,16 @@
           (apply-sanity-check))
     )
 
-; TODO Cache usage.
-; Maintain statistics on cache hits,
-; with volumes of input resource bandwitdh hit/missed.
+
+(defn get-resource-from-cache [resource]
+  ; TODO Cache usage.
+  ; Maintain statistics on cache hits,
+  ; with volumes of input resource bandwitdh hit/missed.
+  (setv cache-metadata (get-cache-metadata))
+  (setv resource-hash (get resource "body_source" "hash"))
+  (if (is-resource-cached cache-metadata resource-hash)
+    (get-cached-data resource-hash)
+    None))
 
 ; --------------------------------
 ; Decision making.
@@ -95,8 +102,8 @@
             }
         ]))
 
-(defn is-resource-cached [cache-metadata resource]
-  (in (get resource "data_spec" "hash") (get cache-metadata "cached_resources")))
+(defn is-resource-cached [cache-metadata resource-hash]
+  (in resource-hash (get cache-metadata "cached_resources")))
 
 (defn map-add-resource-action [resource data]
   {
@@ -140,7 +147,7 @@
       ; - Check that not more than half the max cache size;
       (< (get resource "data_spec" "size") (/ MAX-RESOURCES-CACHE-SIZE 2))
       ; - Check if already cached;
-      (not (is-resource-cached cache-metadata resource))
+      (not (is-resource-cached cache-metadata (get resource "data_spec" "hash")))
     )
       (+
         ; - (If threshold passed) add to cache;

@@ -19,7 +19,10 @@ from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
     persist_resource_to_workspace,
 )
-from latexonhttp.caching.resources import forward_resource_to_cache
+from latexonhttp.caching.resources import (
+    forward_resource_to_cache,
+    get_resource_from_cache,
+)
 
 from pprint import pformat
 
@@ -98,8 +101,10 @@ def compiler_latex():
         if error:
             return error
 
-    # TODO Input cache provider.
-    error = fetch_resources(normalized_resources, on_fetched)
+    # Input cache provider.
+    error = fetch_resources(
+        normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
+    )
     if error:
         return jsonify(error), 400
     # TODO
@@ -138,6 +143,8 @@ def compiler_latex():
     # TODO In async / build status endpoint, returns:
     # - Normalized inputs;
     # - URLs for PDF output, log;
+
+    # TODO Output cache management.
 
     # -------------
     # Cleanup.
