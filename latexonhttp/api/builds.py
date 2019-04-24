@@ -76,8 +76,8 @@ def compiler_latex():
     # -------------
 
     normalized_resources = normalize_resources_input(payload["resources"])
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug(pformat(normalized_resources))
+    # if logger.isEnabledFor(logging.DEBUG):
+    #     logger.debug(pformat(normalized_resources))
     # - Prefetch checks (paths, main document, ...);
     errors = check_resources_prefetch(normalized_resources)
     if errors:
@@ -109,8 +109,6 @@ def compiler_latex():
         return jsonify(error), 400
     # TODO
     # - Process build global signature/hash (compiler, resource hashes, other options...)
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug(pformat(normalized_resources))
 
     # -------------
     # Compilation.
