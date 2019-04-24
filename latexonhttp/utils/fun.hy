@@ -24,6 +24,16 @@
     (sorted collection :key sort-fn))
 
 
+(defn fun-dict-update [original-dict update-dict]
+  (.update original-dict update-dict)
+  original-dict)
+
+
+(defn fun-dict-remove-key [original-dict key]
+  (.pop original-dict key)
+  original-dict)
+
+
 (defn fun-count-pred [collection pred-fn]
     ; As map returns an iterable, this don't iterate twice (from my understanding).
     ; https://docs.python.org/3/library/itertools.html
