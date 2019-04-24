@@ -12,6 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # TODO Store to Redis?
+# TODO Use init-cache-metadata from resources
 CACHE_METADATA = {}
 
 
@@ -23,7 +24,7 @@ def get_cache_metadata():
 
 def persist_cache_metadata(metadata):
     # TODO Only allows the API to send updates? (React-like)
-    logger.debug("Cache metadata update: %s", metadata)
+    # logger.debug("Cache metadata update: %s", metadata)
     global CACHE_METADATA
     CACHE_METADATA = metadata
     return CACHE_METADATA

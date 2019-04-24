@@ -28,10 +28,10 @@ ENABLE_SANITY_CHECKS = True
 
 
 def apply_cache_action(action):
+    logger.info("Applying cache action: %s ...", {**action, "data": None})
     action_fn = CACHE_ACTIONS.get(action["name"])
     if not action_fn:
         raise RuntimeError("No cache action for {}".format(action["name"]))
-    logger.info("Applying cache action: %s ...", {**action, "data": None})
     action_fn(action)
 
 

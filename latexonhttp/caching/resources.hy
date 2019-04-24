@@ -10,7 +10,7 @@
 (import logging)
 (import datetime)
 (import [
-    latexonhttp.utils.fun [get-default fun-merge-dicts fun-dict-update fun-dict-remove-key]
+    latexonhttp.utils.fun [get-default fun-merge-dicts fun-dict-update fun-dict-remove-key fun-sort]
 ])
 (import [
     latexonhttp.caching.store [get-cache-metadata persist-cache-metadata]
@@ -95,21 +95,67 @@
             }
         ]))
 
+(defn is-resource-cached [cache-metadata resource]
+  (in (get resource "data_spec" "hash") (get cache-metadata "cached_resources")))
+
+(defn map-add-resource-action [resource data]
+  {
+    "name" "add_resource"
+    "resource" resource
+    "data" data
+  })
+
+(defn map-remove-resource-action [resource]
+  {
+    "name" "remove_resource"
+    "resource" resource
+  })
+
+(defn free-space-from-first-rec [resources size-to-free actions]
+  (if (> size-to-free 0)
+    (free-space-from-first-rec
+      (list (drop 1 resources))
+      (- size-to-free (get (first resources) "size"))
+      (+ actions [(map-remove-resource-action (first resources))]))
+    actions))
+
+(defn free-space-from-old-entries [cache-metadata size-to-free]
+  (setv ordered-resources (fun-sort (.values (get cache-metadata "cached_resources")) (fn [resource] (get resource "added_at"))))
+  ; (logger.debug "Ordered resources: %s" ordered-resources)
+  (if (> size-to-free 0)
+    ; Order resources by timestamp.
+    ; Remove until we have freed the specified size
+    (free-space-from-first-rec
+      ordered-resources
+      size-to-free
+      [])
+    []))
+
 (defn process-resource-caching-decision [cache-metadata resource data]
     ; Naive FIFO cache:
-    ; - Check if already cached;
-    ; - Check for a caching size threshold;
-    ; - (If threshold passed) add to cache;
-    ; - Remove from cache if max cache size reached (remove older cache entries).
     ; TODO Uses resources stats to cache the most used resources.
-    (if (>= (get resource "data_spec" "size") MIN-FILE-SIZE-CACHE-THRESHOLD)
-      [
-        {
-          "name" "add_resource"
-          "resource" resource
-          "data" data
-        }
-      ]
+    (if (and
+      ; - Check for a caching size threshold;
+      (>= (get resource "data_spec" "size") MIN-FILE-SIZE-CACHE-THRESHOLD)
+      ; - Check that not more than half the max cache size;
+      (< (get resource "data_spec" "size") MAX-RESOURCES-CACHE-SIZE)
+      ; - Check if already cached;
+      (not (is-resource-cached cache-metadata resource))
+    )
+      (+
+        ; - (If threshold passed) add to cache;
+        [
+          (map-add-resource-action resource data)
+        ]
+        ; - Remove from cache if max cache size reached (remove older cache entries).
+        (free-space-from-old-entries
+          cache-metadata
+          (- 
+            ; New size with added resource - max allowed size = size to free.
+            (+ (get cache-metadata "total_size") (get resource "data_spec" "size"))
+            MAX-RESOURCES-CACHE-SIZE
+          ))
+      )
       []))
 
 ; --------------------------------
@@ -170,7 +216,7 @@
       cache-metadata
       {
         ; This mutate original cached_resources dict.
-        "cached_resources" (fun-dict-remove-key (get cache-metadata "cached_resources") (get resource "data_spec" "hash"))
+        "cached_resources" (fun-dict-remove-key (get cache-metadata "cached_resources") (get resource "hash"))
       }
     ])))
 
