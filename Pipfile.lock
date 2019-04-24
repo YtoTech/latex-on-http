@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "65adf58b48ffe1a71c88ab4534c05e437c1ec6c7ca401da2e71de2bca74e8ca4"
+            "sha256": "79f9d3b6f21d92c3e449f398b312f5c56d0dc5bd131324f9fdcd74530d3494f5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -45,7 +45,7 @@
         },
         "hy": {
             "git": "https://github.com/hylang/hy.git",
-            "ref": "c415c6c90796990cf7156ecbcb0d55f8b9c7bc38"
+            "ref": "a38cdb7ccc08b832a17bb54425baf21c9147ba03"
         },
         "itsdangerous": {
             "hashes": [
@@ -101,6 +101,14 @@
             ],
             "index": "pypi",
             "version": "==0.1.2"
+        },
+        "urllib3": {
+            "hashes": [
+                "sha256:a08afe8b057ba35963364711a1f36d346375da0c118f611f35c0252375338c7c",
+                "sha256:f03eeb431c77b88cf8747d47e94233a91d0e0fdae1cf09e0b21405a885700266"
+            ],
+            "index": "pypi",
+            "version": "==1.25"
         },
         "werkzeug": {
             "hashes": [
@@ -267,10 +275,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0",
-                "sha256:9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3"
+                "sha256:a08afe8b057ba35963364711a1f36d346375da0c118f611f35c0252375338c7c",
+                "sha256:f03eeb431c77b88cf8747d47e94233a91d0e0fdae1cf09e0b21405a885700266"
             ],
-            "version": "==1.24.2"
+            "index": "pypi",
+            "version": "==1.25"
         }
     }
 }
