@@ -18,6 +18,9 @@
 (import [
     latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
 ])
+(import [
+    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-async]
+])
 
 (setv logger (.getLogger logging __name__))
 
@@ -29,19 +32,28 @@
 ; External API.
 ; --------------------------------
 
-; TODO Actually the caching must be forwarded to a decicated process
-; for the whole node to ensure consistency.
-; Also will avoid cache management overhead in main process.
-; --> Uses a zeroMQ socket as the API.
-; The cache layer could then be 100% independent.
-; For eg. could be implemented in Go, with a mixed
-; in-memory and on-disk cache.
-; There could be a memcached adapter, to rely on existing
-; caching technology.
-; With enough data, there could be neural-network trained
-; to optimized bandwidth-saving cache hits.
+; TODO What to do if cache process not available / error?
 
 (defn forward-resource-to-cache [resource data]
+  (request-cache-process-async
+    {
+      "action" "forward_resource_to_cache"
+      "resource" resource
+      "data" data
+    }))
+
+(defn get-resource-from-cache [resource]
+  (request-cache-process-sync
+    {
+      "action" "get_resource_from_cache"
+      "resource" resource
+    }))
+
+; --------------------------------
+; Implementation.
+; --------------------------------
+
+(defn do-forward-resource-to-cache [resource data]
     (setv cache-metadata (get-cache-metadata))
     ; TODO Maintain metrics on resource usage, for eg:
     ; - resources inputs for last 24 hours;
@@ -70,8 +82,7 @@
           (apply-sanity-check))
     )
 
-
-(defn get-resource-from-cache [resource]
+(defn do-get-resource-from-cache [resource]
   ; TODO Cache usage.
   ; Maintain statistics on cache hits,
   ; with volumes of input resource bandwitdh hit/missed.
