@@ -16,15 +16,13 @@
     latexonhttp.caching.store [get-cache-metadata persist-cache-metadata]
 ])
 (import [
-    latexonhttp.caching.filesystem [apply-cache-action]
+    latexonhttp.caching.filesystem [apply-cache-action apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
 ])
 
 (setv logger (.getLogger logging __name__))
 
 ; 3 Ko.
 (setv MIN-FILE-SIZE-CACHE-THRESHOLD (* 3 1000))
-; 200 Mo.
-(setv MAX-RESOURCES-CACHE-SIZE (* 200 1000000))
 
 ; # Cache module:
 ; # - Create directory for caching files (delete on start / if no metadata);
@@ -76,6 +74,8 @@
         ; for multi-threading/process context.
         ; (See comment above on making it a dedicated and concurrent-safe process)
         (setv cache-metadata (persist-cache-metadata (update-cache-metadata-for-action cache-metadata action))))
+        (if ENABLE-SANITY-CHECKS
+          (apply-sanity-check))
     )
 
 ; TODO Cache usage.
@@ -123,6 +123,7 @@
     {
         "last_updated_at" (generate-cache-timestamp)
         "total_size" 0
+        "free_remaining_size" MAX-RESOURCES-CACHE-SIZE
         "cached_resources" {}
     })
 
@@ -132,10 +133,12 @@
     resources)))
 
 (defn update-cache-metadata-metrics [cache-metadata]
+  (setv total-size (process-cache-total-size (.values (get cache-metadata "cached_resources"))))
   (fun-merge-dicts [
     cache-metadata
     {
-      "total_size" (process-cache-total-size (.values (get cache-metadata "cached_resources")))
+      "total_size" total-size
+      "free_remaining_size" (- MAX-RESOURCES-CACHE-SIZE total-size)
       "last_updated_at" (generate-cache-timestamp)
     }
   ]))
