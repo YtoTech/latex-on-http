@@ -12,7 +12,11 @@ from flask import Blueprint, request
 projects_app = Blueprint("projects", __name__)
 
 # Projects management.
+# Workspaces templates:
+# - Initialize a build workspace from a template.
 
+# Persistent workspaces?
+# Functional-like workspaces: init workspace from a previous workspace.
 
 @projects_app.route("/", methods=["POST"])
 def template_project_create():
