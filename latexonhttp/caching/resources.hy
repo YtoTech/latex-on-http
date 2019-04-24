@@ -24,14 +24,6 @@
 ; 3 Ko.
 (setv MIN-FILE-SIZE-CACHE-THRESHOLD (* 3 1000))
 
-; # Cache module:
-; # - Create directory for caching files (delete on start / if no metadata);
-; # - Put input files on cache directory, with metadata (size, cache id: flat directory);
-; # - Check input cache metadata for enforcing constraints (max size cache), act if needed (delete files on overflow);
-; # - Actually take the metadata, the resource forwared and return the actions: add/rm, rm --all;
-; # - From time to time, as a sanity check, get directory size to check that it matches our metadata.
-
-; TODO /caches/resources endpoint
 
 ; --------------------------------
 ; External API.
