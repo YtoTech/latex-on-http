@@ -8,7 +8,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
-import json
+import pickle
 import zmq
 
 logger = logging.getLogger(__name__)
@@ -44,21 +44,30 @@ def get_cache_process_socket():
     return socket
 
 
+# TODO Uses https://msgpack.org/#languages as serializer?
+# https://pyzmq.readthedocs.io/en/latest/serialization.html
+# Currently this is not good: Python-based data API, will be hard to bridge
+# to other languages.
+
+
 def serialize_message(message):
-    return json.dumps(message)
+    return pickle.dumps(message)
 
 
 def deserialize_message(data):
-    return json.loads(data)
+    return pickle.loads(data)
 
 
 def request_cache_process_sync(message):
     socket = get_cache_process_socket()
     socket.send(serialize_message(message))
     # Get reply.
+    # TODO Timeout.
     return deserialize_message(socket.recv())
 
 
 def request_cache_process_async(message):
     socket = get_cache_process_socket()
     socket.send(serialize_message(message))
+    # Get the REP without reading it.
+    socket.recv()

@@ -15,10 +15,10 @@ debug:
 ## Running cache app ##
 ## -------------------------------
 start-cache:
-	pipenv run python latexonhttp/caching/process.py
+	pipenv run python app_cache.py
 
 debug-cache:
-	pipenv run python latexonhttp/caching/process.py --debug
+	pipenv run python -u app_cache.py --debug
 
 
 ## -------------------------------

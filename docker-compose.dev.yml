@@ -15,3 +15,4 @@ services:
     command: make debug-cache
     volumes:
      - .:/app/latex-on-http
+    restart: on-failure

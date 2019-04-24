@@ -19,7 +19,7 @@
     latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
 ])
 (import [
-    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-async]
+    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-sync]
 ])
 
 (setv logger (.getLogger logging __name__))
@@ -38,15 +38,19 @@
   (request-cache-process-async
     {
       "action" "forward_resource_to_cache"
-      "resource" resource
-      "data" data
+      "args" {
+        "resource" resource
+        "data" data
+      }
     }))
 
 (defn get-resource-from-cache [resource]
   (request-cache-process-sync
     {
       "action" "get_resource_from_cache"
-      "resource" resource
+      "args" {
+        "resource" resource
+      }
     }))
 
 ; --------------------------------
