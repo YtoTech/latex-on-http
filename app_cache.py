@@ -15,6 +15,7 @@ from latexonhttp.caching.resources import (
     do_forward_resource_to_cache,
     do_get_resource_from_cache,
 )
+from latexonhttp.caching.store import get_cache_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ context = zmq.Context()
 ACTIONS_MAP = {
     "forward_resource_to_cache": {"fn": do_forward_resource_to_cache, "mode": "async"},
     "get_resource_from_cache": {"fn": do_get_resource_from_cache, "mode": "sync"},
+    "get_cache_metadata": {"fn": get_cache_metadata, "mode": "sync"},
 }
 
 if __name__ == "__main__":

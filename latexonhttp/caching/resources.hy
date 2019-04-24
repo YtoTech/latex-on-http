@@ -34,6 +34,13 @@
 
 ; TODO What to do if cache process not available / error?
 
+(defn get-cache-metadata-snapshot []
+  (request-cache-process-sync
+    {
+      "action" "get_cache_metadata"
+      "args" {}
+    }))
+
 (defn forward-resource-to-cache [resource data]
   (request-cache-process-async
     {
