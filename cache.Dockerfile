@@ -16,7 +16,8 @@ ENV LANG C.UTF-8
 
 # Install libmq, but also packages required for pip install.
 RUN apk add --no-cache \
-    zeromq \
+    libzmq \
+    zeromq-dev \
     cython \
     make \
     git \
@@ -39,9 +40,6 @@ COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 # Install app dependencies.
 RUN make install
-# TODO pyzmq install fails using lock?
-# --no-use-wheel
-RUN pipenv install --skip-lock pyzmq
 
 EXPOSE 8080
 CMD ["make", "start-cache"]
