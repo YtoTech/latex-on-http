@@ -52,6 +52,7 @@ FETCHERS = {
     "url/file": fetcher_url_file,
     "hash/cache": fetcher_hash_cache,
     # TODO "url/git", "url/tar"
+    # TODO Support a base64/gz/file, for compressed file upload?
 }
 
 
