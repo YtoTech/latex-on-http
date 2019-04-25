@@ -8,7 +8,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
-import pickle
+import msgpack
 import zmq
 
 logger = logging.getLogger(__name__)
@@ -16,24 +16,12 @@ logger = logging.getLogger(__name__)
 context = zmq.Context()
 
 
-# ; TODO Actually the caching must be forwarded to a decicated process
-# ; for the whole node to ensure consistency.
-# ; Also will avoid cache management overhead in main process.
+# ; The caching is forwarded to a decicated process
+# ; for the whole Latex-On-HTTP node to ensure consistency.
+# ; Also will avoid cache management overhead in main process
+# (with async operations).
 # ; --> Uses a zeroMQ socket as the API.
 # ; The cache layer could then be 100% independent.
-# ; For eg. could be implemented in Go, with a mixed
-# ; in-memory and on-disk cache.
-# ; There could be a memcached adapter, to rely on existing
-# ; caching technology.
-# ; With enough data, there could be neural-network trained
-# ; to optimized bandwidth-saving cache hits.
-
-# ; GO GO GO zeroMQ bridge.
-# ; Update Docker image
-# ; add zeroMQ lib;
-# ; install Python wrapper;
-# ; launch caching process (docker-compose);
-# ; forward/bridge using REQ/RES socket.
 
 
 def get_cache_process_socket():
@@ -44,18 +32,12 @@ def get_cache_process_socket():
     return socket
 
 
-# TODO Uses https://msgpack.org/#languages as serializer?
-# https://pyzmq.readthedocs.io/en/latest/serialization.html
-# Currently this is not good: Python-based data API, will be hard to bridge
-# to other languages.
-
-
 def serialize_message(message):
-    return pickle.dumps(message)
+    return msgpack.packb(message, use_bin_type=True)
 
 
 def deserialize_message(data):
-    return pickle.loads(data)
+    return msgpack.unpackb(data, raw=False)
 
 
 def request_cache_process_sync(message):
