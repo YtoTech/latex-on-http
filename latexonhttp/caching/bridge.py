@@ -24,10 +24,18 @@ context = zmq.Context()
 # ; The cache layer could then be 100% independent.
 
 
-def get_cache_process_socket():
+def get_cache_process_sync_socket():
     # TODO Connect only one time and let open?
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://cache:10000")
+    # TODO Close? with statement?
+    return socket
+
+
+def get_cache_process_async_socket():
+    # TODO Connect only one time and let open?
+    socket = context.socket(zmq.DEALER)
+    socket.connect("tcp://cache:10001")
     # TODO Close? with statement?
     return socket
 
@@ -41,7 +49,7 @@ def deserialize_message(data):
 
 
 def request_cache_process_sync(message):
-    socket = get_cache_process_socket()
+    socket = get_cache_process_sync_socket()
     socket.send(serialize_message(message))
     # Get reply.
     # TODO Timeout.
@@ -49,7 +57,13 @@ def request_cache_process_sync(message):
 
 
 def request_cache_process_async(message):
-    socket = get_cache_process_socket()
+    socket = get_cache_process_async_socket()
     socket.send(serialize_message(message))
-    # Get the REP without reading it.
-    socket.recv()
+    # We do not expect a response.
+    # We could have an async mode with responses,
+    # which would requires to ask for responses
+    # at any time. The use would be responsible for
+    # matching requests with responses (for eg. using an id).
+    # This mode could be used to launch a batch of requests
+    # to the cache process and then wait for all responses.
+    # (instead of REQ/REP sequentially)
