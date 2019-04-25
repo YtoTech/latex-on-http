@@ -7,7 +7,7 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-import logging
+import logging.config
 import sys
 import zmq
 from latexonhttp.caching.bridge import serialize_message, deserialize_message
@@ -17,7 +17,20 @@ from latexonhttp.caching.resources import (
 )
 from latexonhttp.caching.store import get_cache_metadata
 
-logger = logging.getLogger(__name__)
+# Logging.
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {"default": {"format": "[%(levelname)s %(module)s] %(message)s"}},
+        "handlers": {
+            "console": {"class": "logging.StreamHandler", "formatter": "default"}
+        },
+        "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
+    }
+)
+
+logger = logging.getLogger("latexonhttp")
 
 context = zmq.Context()
 
@@ -28,29 +41,25 @@ ACTIONS_MAP = {
 }
 
 if __name__ == "__main__":
-    print("starting")
+    logger.info("Starting Latex-On-HTTP cache process")
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:10000")
     while True:
-        print("RECV")
-        # TODO Uses logging.
-        sys.stdout.flush()
         message = deserialize_message(socket.recv())
-        print({**message, "args": {**message["args"], "data": None}})
+        logger.info(
+            "Received message: %s",
+            {**message, "args": {**message["args"], "data": None}},
+        )
         action_desc = ACTIONS_MAP.get(message["action"])
         if not action_desc:
             logger.error("Unknow action %s", message["action"])
             raise RuntimeError("Unknow action {}".format(message["action"]))
         # Async? Reply directly.
         if action_desc["mode"] == "async":
-            print("REP async")
             socket.send(b"")
-            # socket.send(serialize_message("void"))
-        # TODO Uses logging.
-        sys.stdout.flush()
         # Invoke action.
         response = action_desc["fn"](**message["args"])
         # Send response.
         if action_desc["mode"] == "sync":
-            print("REP sync")
+            logger.debug("Send response for %s", message["action"])
             socket.send(serialize_message(response))

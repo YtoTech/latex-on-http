@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 # TODO Store to Redis?
 CACHE_METADATA = None
 
+# TODO These operations should/must fail (be forbidden)
+# outside the cache process.
+
 
 def get_cache_metadata():
     global CACHE_METADATA
