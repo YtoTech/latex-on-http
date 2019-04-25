@@ -59,11 +59,14 @@ if __name__ == "__main__":
     poller.register(rep_socket, zmq.POLLIN)
     poller.register(dealer_socket, zmq.POLLIN)
     while True:
+        # Wait for any message on both sockets.
         sockets = dict(poller.poll())
-        # TODO REP in priority, so async can't starve async.
-        # if socket_pull in socks and socks[socket_pull] == zmq.POLLIN:
-        print(sockets)
-        socket = next(iter(sockets.keys()))
+        # REP in priority, so async can't starve sync.
+        # We don't mind if we wait to update the cache from latest data,
+        # but we certainly want to respond as fast as possible for cache requests
+        # (where the client is waiting).
+        socket = rep_socket if rep_socket in sockets else next(iter(sockets.keys()))
+        is_rep_socket = socket == rep_socket
         message = deserialize_message(socket.recv())
         logger.info(
             "Received message: %s",
@@ -73,18 +76,19 @@ if __name__ == "__main__":
         if not action_desc:
             logger.error("Unknow action %s", message["action"])
             raise RuntimeError("Unknow action {}".format(message["action"]))
-        if action_desc["mode"] == "async":
-            # Async? Reply directly to free client.
-            # TODO However if the client send another async message,
-            # we will only receive and reply to it after processing the
-            # current action: this limit a lot the async.
-            # TODO Use a PUB/SUB for this use case?
-            # DEALER/ROUTER?
-            # http://zguide.zeromq.org/php:chapter3#The-Asynchronous-Client-Server-Pattern
+        # We send no reply to DEALER sockets,
+        # which is used so the clients do not block:
+        # we do not want to wait for data forwarded to cache,
+        # that can fail silently from time to time without being an issue.
+        # http://zguide.zeromq.org/php:chapter3#The-Asynchronous-Client-Server-Pattern
+        if is_rep_socket and action_desc["mode"] == "async":
+            # Async: reply directly to free the client asap.
+            # (This should not be used for now, we could remove sync/async altogether
+            # and just use is_rep_socket as switch).
             socket.send(b"")
         # Invoke action.
         response = action_desc["fn"](**message["args"])
-        if action_desc["mode"] == "sync":
+        if is_rep_socket and action_desc["mode"] == "sync":
             # Send response.
             logger.debug("Send response for %s", message["action"])
             socket.send(serialize_message(response))
