@@ -14,6 +14,8 @@ import zmq
 logger = logging.getLogger(__name__)
 
 context = zmq.Context()
+req_socket = None
+dealer_socket = None
 
 
 # ; The caching is forwarded to a decicated process
@@ -25,19 +27,23 @@ context = zmq.Context()
 
 
 def get_cache_process_sync_socket():
-    # TODO Connect only one time and let open?
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://cache:10000")
-    # TODO Close? with statement?
-    return socket
+    # Connect only one time and let open.
+    # (Does this can timeout? Will see)
+    global req_socket
+    if not req_socket:
+        req_socket = context.socket(zmq.REQ)
+        req_socket.connect("tcp://cache:10000")
+    return req_socket
 
 
 def get_cache_process_async_socket():
-    # TODO Connect only one time and let open?
-    socket = context.socket(zmq.DEALER)
-    socket.connect("tcp://cache:10001")
-    # TODO Close? with statement?
-    return socket
+    # Connect only one time and let open.
+    # (Does this can timeout? Will see)
+    global dealer_socket
+    if not dealer_socket:
+        dealer_socket = context.socket(zmq.DEALER)
+        dealer_socket.connect("tcp://cache:10001")
+    return dealer_socket
 
 
 def serialize_message(message):
@@ -52,7 +58,7 @@ def request_cache_process_sync(message):
     socket = get_cache_process_sync_socket()
     socket.send(serialize_message(message))
     # Get reply.
-    # TODO Timeout.
+    # TODO Manage timeout and server error.
     return deserialize_message(socket.recv())
 
 
@@ -67,3 +73,5 @@ def request_cache_process_async(message):
     # This mode could be used to launch a batch of requests
     # to the cache process and then wait for all responses.
     # (instead of REQ/REP sequentially)
+    # http://zguide.zeromq.org/py:asyncsrv
+    # http://zguide.zeromq.org/php:chapter3#The-DEALER-to-DEALER-Combination
