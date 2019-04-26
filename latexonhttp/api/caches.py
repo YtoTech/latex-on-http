@@ -37,7 +37,17 @@ def resources_check_cached():
     for resource in payload["resources"]:
         if not "hash" in resource:
             return jsonify("MISSING_RESOURCE_HASH"), 400
-    return (jsonify({"resources": are_resources_in_cache(payload["resources"])}), 200)
+    return (
+        jsonify(
+            {
+                "resources": {
+                    resource["hash"]: {"hit": resource["hit"]}
+                    for resource in are_resources_in_cache(payload["resources"])
+                }
+            }
+        ),
+        200,
+    )
 
 
 def map_cache_metadata_for_public(cache_metadata):
