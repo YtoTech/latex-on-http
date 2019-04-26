@@ -12,7 +12,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 # TODO Store to Redis?
+# So we can keep cache statistics between restarts.
+# However requires to refresh the cache metadata from
+# what is on the filesystem on startup
+# (data on disk could have been erased or been corrupted).
 CACHE_METADATA = None
+
+# TODO These operations should/must fail (be forbidden)
+# outside the cache process.
 
 
 def get_cache_metadata():

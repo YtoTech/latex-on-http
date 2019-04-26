@@ -18,6 +18,9 @@
 (import [
     latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
 ])
+(import [
+    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-sync]
+])
 
 (setv logger (.getLogger logging __name__))
 
@@ -29,19 +32,55 @@
 ; External API.
 ; --------------------------------
 
-; TODO Actually the caching must be forwarded to a decicated process
-; for the whole node to ensure consistency.
-; Also will avoid cache management overhead in main process.
-; --> Uses a zeroMQ socket as the API.
-; The cache layer could then be 100% independent.
-; For eg. could be implemented in Go, with a mixed
-; in-memory and on-disk cache.
-; There could be a memcached adapter, to rely on existing
-; caching technology.
-; With enough data, there could be neural-network trained
-; to optimized bandwidth-saving cache hits.
+; TODO What to do if cache process not available / error?
+
+(defn get-cache-metadata-snapshot []
+  (request-cache-process-sync
+    {
+      "action" "get_cache_metadata"
+      "args" {}
+    }))
 
 (defn forward-resource-to-cache [resource data]
+  (request-cache-process-async
+    {
+      "action" "forward_resource_to_cache"
+      "args" {
+        "resource" (filter-data-from-resource-object resource)
+        "data" data
+      }
+    }))
+
+(defn get-resource-from-cache [resource]
+  (request-cache-process-sync
+    {
+      "action" "get_resource_from_cache"
+      "args" {
+        "resource" resource
+      }
+    }))
+
+(defn are-resources-in-cache [resources]
+  (request-cache-process-sync
+    {
+      "action" "are_resources_in_cache"
+      "args" {
+        "resources" resources
+      }
+    }))
+
+; --------------------------------
+; Implementation.
+; --------------------------------
+
+(defn reset-cache []
+  (setv action {
+    "name" "reset_cache"
+  })
+  (apply-cache-action action)
+  (persist-cache-metadata (update-cache-metadata-for-action {} action)))
+
+(defn do-forward-resource-to-cache [resource data]
     (setv cache-metadata (get-cache-metadata))
     ; TODO Maintain metrics on resource usage, for eg:
     ; - resources inputs for last 24 hours;
@@ -49,12 +88,9 @@
     ; With this data + hit logs, we could process cache efficiency metrics.
     ; TODO Logs this data and create datasets, so we can try strategies and
     ; see which ones work best on past-data.
-    (setv actions (+
-        ; - Check/Init resource cache -> actions;
-        (prepare-cache cache-metadata)
+    (setv actions
         ; - Decide what to do with current resource -> actions;
-        (process-resource-caching-decision cache-metadata resource data)
-    ))
+        (process-resource-caching-decision cache-metadata resource data))
     ; (logger.debug "Cache actions: %s" actions)
     (for [action actions]
         ; - Apply actions;
@@ -70,8 +106,7 @@
           (apply-sanity-check))
     )
 
-
-(defn get-resource-from-cache [resource]
+(defn do-get-resource-from-cache [resource]
   ; TODO Cache usage.
   ; Maintain statistics on cache hits,
   ; with volumes of input resource bandwitdh hit/missed.
@@ -81,21 +116,39 @@
     (get-cached-data resource-hash)
     None))
 
+(defn do-are-resources-in-cache [resources]
+  ; TODO Keep stats on resources asked, so we can use it
+  ; in our cache decision making.
+  (setv cache-metadata (get-cache-metadata))
+  (list (map
+    (fn [resource] (fun-merge-dicts [
+      resource
+      {
+        "hit" (is-resource-cached cache-metadata (get resource "hash"))
+      }
+    ]))
+    resources)))
+
 ; --------------------------------
 ; Decision making.
 ; --------------------------------
 
-(defn prepare-cache [cache-metadata]
-    (if (get-default cache-metadata "last_updated_at")
-        []
-        [
-            {
-                "name" "reset_cache"
-            }
-        ]))
-
 (defn is-resource-cached [cache-metadata resource-hash]
   (in resource-hash (get cache-metadata "cached_resources")))
+
+(defn filter-data-from-resource-object [resource]
+  (fun-merge-dicts [
+    resource
+    {
+      "body_source" (fun-merge-dicts [
+        (get resource "body_source")
+        {
+          "raw_base64" None
+          "raw_string" None
+        }
+      ])
+    }
+  ]))
 
 (defn map-add-resource-action [resource data]
   {
@@ -231,11 +284,3 @@
     [True
       (raise (RuntimeError (.format "Unsupported cache action '{}'" action-name)))]
   ))
-
-
-; --------------------------------
-; Danger zone: init cache metadata on app start.
-; TODO Do it from "above" (app bootstrap)
-; --------------------------------
-
-(persist_cache_metadata (init-cache-metadata))

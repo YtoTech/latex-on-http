@@ -12,6 +12,16 @@ debug:
 
 
 ## -------------------------------
+## Running cache app ##
+## -------------------------------
+start-cache:
+	pipenv run python app_cache.py
+
+debug-cache:
+	pipenv run python -u app_cache.py --debug
+
+
+## -------------------------------
 ## Dev tools ##
 ## -------------------------------
 install-dev:

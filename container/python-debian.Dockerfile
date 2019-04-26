@@ -5,6 +5,7 @@
 # - a Texlive distribution (yoant/docker-texlive);
 # - a selection of fonts;
 # - a selection of TexLive packages;
+# - libmq, with development headers;
 # - a Python runtime/distribution.
 FROM yoant/latexonhttp-tl-distrib:debian
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
@@ -13,7 +14,8 @@ LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 RUN apt-get update -qq && apt-get install -y \
     python3 \
     python3-pip \
-    git
+    git \
+    libzmq5-dev
 
 # Update pip and install Pipenv.
 RUN pip3 install -U \

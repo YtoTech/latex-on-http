@@ -35,7 +35,13 @@ app.register_blueprint(builds_app, url_prefix="/builds")
 app.register_blueprint(fonts_app, url_prefix="/fonts")
 app.register_blueprint(packages_app, url_prefix="/packages")
 app.register_blueprint(caches_app, url_prefix="/caches")
-app.register_blueprint(projects_app, url_prefix="/projects")
+# TODO
+# /users
+# /projects
+# In Fire-Latex layer as an extension?
+# Keep this project centered on the Latex compiling features/abstractions,
+# put the project/workspace/user management in another layer.
+# app.register_blueprint(projects_app, url_prefix="/projects")
 
 
 @app.route("/")
@@ -50,6 +56,7 @@ def hello():
                 "message": "Welcome to the Latex-On-HTTP API",
                 "version": get_api_version(),
                 "source": "https://github.com/YtoTech/latex-on-http",
+                "documentation": "https://github.com/YtoTech/latex-on-http",
             }
         ),
         200,

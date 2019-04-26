@@ -9,3 +9,11 @@ services:
      - "127.0.0.1:2345:8080"
     volumes:
      - .:/app/latex-on-http
+  cache:
+    build:
+      context: .
+      dockerfile: cache.Dockerfile
+    restart: always
+    command: make start-cache
+    volumes:
+     - .:/app/latex-on-http

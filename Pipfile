@@ -17,6 +17,8 @@ gunicorn = "*"
 texlivemetadata = ">=0.1.2"
 hy = {git = "https://github.com/hylang/hy.git"}
 urllib3 = ">=1.24.2"
+pyzmq = "*"
+msgpack = "*"
 
 [requires]
 python_version = "3"
