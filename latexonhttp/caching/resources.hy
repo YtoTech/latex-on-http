@@ -61,14 +61,13 @@
     }))
 
 (defn are-resources-in-cache [resources]
-  ; TODO Transmit request to cache process instead of requesting
-  ; all cache metadata and processing results here.
-  (setv cache-metadata (request-cache-process-sync
+  (request-cache-process-sync
     {
-      "action" "get_cache_metadata"
-      "args" {}
+      "action" "are_resources_in_cache"
+      "args" {
+        "resources" resources
+      }
     }))
-  (do-are-resources-in-cache cache-metadata resources))
 
 ; --------------------------------
 ; Implementation.
@@ -117,10 +116,10 @@
     (get-cached-data resource-hash)
     None))
 
-(defn do-are-resources-in-cache [cache-metadata resources]
-  ; (setv cache-metadata (get-cache-metadata))
+(defn do-are-resources-in-cache [resources]
   ; TODO Keep stats on resources asked, so we can use it
   ; in our cache decision making.
+  (setv cache-metadata (get-cache-metadata))
   (list (map
     (fn [resource] (fun-merge-dicts [
       resource

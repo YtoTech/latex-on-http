@@ -14,6 +14,7 @@ from latexonhttp.caching.bridge import serialize_message, deserialize_message
 from latexonhttp.caching.resources import (
     do_forward_resource_to_cache,
     do_get_resource_from_cache,
+    do_are_resources_in_cache,
     reset_cache,
 )
 from latexonhttp.caching.store import get_cache_metadata
@@ -39,6 +40,7 @@ ACTIONS_MAP = {
     "forward_resource_to_cache": {"fn": do_forward_resource_to_cache, "mode": "async"},
     "get_resource_from_cache": {"fn": do_get_resource_from_cache, "mode": "sync"},
     "get_cache_metadata": {"fn": get_cache_metadata, "mode": "sync"},
+    "are_resources_in_cache": {"fn": do_are_resources_in_cache, "mode": "sync"},
 }
 
 # Other implementation ideas:
