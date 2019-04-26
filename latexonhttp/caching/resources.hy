@@ -74,6 +74,13 @@
 ; Implementation.
 ; --------------------------------
 
+(defn reset-cache []
+  (setv action {
+    "name" "reset_cache"
+  })
+  (apply-cache-action action)
+  (persist-cache-metadata (update-cache-metadata-for-action {} action)))
+
 (defn do-forward-resource-to-cache [resource data]
     (setv cache-metadata (get-cache-metadata))
     ; TODO Maintain metrics on resource usage, for eg:
@@ -82,12 +89,9 @@
     ; With this data + hit logs, we could process cache efficiency metrics.
     ; TODO Logs this data and create datasets, so we can try strategies and
     ; see which ones work best on past-data.
-    (setv actions (+
-        ; - Check/Init resource cache -> actions;
-        (prepare-cache cache-metadata)
+    (setv actions
         ; - Decide what to do with current resource -> actions;
-        (process-resource-caching-decision cache-metadata resource data)
-    ))
+        (process-resource-caching-decision cache-metadata resource data))
     ; (logger.debug "Cache actions: %s" actions)
     (for [action actions]
         ; - Apply actions;
@@ -129,15 +133,6 @@
 ; --------------------------------
 ; Decision making.
 ; --------------------------------
-
-(defn prepare-cache [cache-metadata]
-    (if (get-default cache-metadata "last_updated_at")
-        []
-        [
-            {
-                "name" "reset_cache"
-            }
-        ]))
 
 (defn is-resource-cached [cache-metadata resource-hash]
   (in resource-hash (get cache-metadata "cached_resources")))
@@ -276,11 +271,3 @@
     [True
       (raise (RuntimeError (.format "Unsupported cache action '{}'" action-name)))]
   ))
-
-
-; --------------------------------
-; Danger zone: init cache metadata on app start.
-; TODO Do it from "above" (app bootstrap)
-; --------------------------------
-
-(persist_cache_metadata (init-cache-metadata))

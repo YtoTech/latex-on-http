@@ -14,6 +14,7 @@ from latexonhttp.caching.bridge import serialize_message, deserialize_message
 from latexonhttp.caching.resources import (
     do_forward_resource_to_cache,
     do_get_resource_from_cache,
+    reset_cache,
 )
 from latexonhttp.caching.store import get_cache_metadata
 
@@ -51,6 +52,12 @@ ACTIONS_MAP = {
 
 if __name__ == "__main__":
     logger.info("Starting Latex-On-HTTP cache process")
+    # Initializing cache metadata.
+    logger.info("Preparing cache...")
+    # Reset cache.
+    # (Flush cache on disk and init metadata).
+    reset_cache()
+    logger.info("Cache init process, done...")
     rep_socket = context.socket(zmq.REP)
     rep_socket.bind("tcp://*:10000")
     dealer_socket = context.socket(zmq.DEALER)
