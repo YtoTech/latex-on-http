@@ -46,7 +46,7 @@
     {
       "action" "forward_resource_to_cache"
       "args" {
-        "resource" resource
+        "resource" (filter-data-from-resource-object resource)
         "data" data
       }
     }))
@@ -136,6 +136,20 @@
 
 (defn is-resource-cached [cache-metadata resource-hash]
   (in resource-hash (get cache-metadata "cached_resources")))
+
+(defn filter-data-from-resource-object [resource]
+  (fun-merge-dicts [
+    resource
+    {
+      "body_source" (fun-merge-dicts [
+        (get resource "body_source")
+        {
+          "raw_base64" None
+          "raw_string" None
+        }
+      ])
+    }
+  ]))
 
 (defn map-add-resource-action [resource data]
   {
