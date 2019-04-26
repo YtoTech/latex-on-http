@@ -2,7 +2,7 @@
 # 
 # This is:
 # - a Python runtime/distribution;
-# - zeroMQ / libmq;
+# - libmq, with development headers;
 # - the cache application, with its dependencies.
 
 # TODO Publish the final image?

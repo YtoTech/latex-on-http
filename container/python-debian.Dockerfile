@@ -13,7 +13,8 @@ LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 RUN apt-get update -qq && apt-get install -y \
     python3 \
     python3-pip \
-    git
+    git \
+    libzmq5-dev
 
 # Update pip and install Pipenv.
 RUN pip3 install -U \
