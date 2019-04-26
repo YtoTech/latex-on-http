@@ -4,8 +4,11 @@
 # - a Texlive distribution;
 # - a selection of fonts;
 # - a selection of TexLive packages;
+# - libmq, with development headers;
 # - a Python runtime/distribution;
 # - the Latex-on-HTTP application, with its dependencies.
+
+# TODO Publish the final image.
 
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive

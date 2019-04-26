@@ -5,6 +5,7 @@
 # - a Texlive distribution (yoant/docker-texlive);
 # - a selection of fonts;
 # - a selection of TexLive packages;
+# - libmq, with development headers;
 # - a Python runtime/distribution.
 FROM yoant/latexonhttp-tl-distrib:debian
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
