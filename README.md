@@ -271,6 +271,13 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
     * Support more compilers?
     * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
+* Compilation options
+    * Timeout
+* Build output structure
+    * Generic "outputFiles"
+        * https://github.com/overleaf/clsi#example-response
+* Compilation infrastructure
+    * Fanout the compiler processes / nodes
 * Output format selection
     * Allows to select output other than PDF when available (mapping by compilers / with right parameters)
     * See usage request here https://github.com/aslushnikov/latex-online/issues/20
@@ -305,4 +312,5 @@ Inspired by:
 * https://www.overleaf.com/
 * https://github.com/aslushnikov/latex-online
 * https://github.com/sharelatex/clsi-sharelatex
+* https://github.com/overleaf/clsi
 * http://mrzool.cc/writing/typesetting-automation/
