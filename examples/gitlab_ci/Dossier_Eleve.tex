@@ -1,0 +1,293 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fourier} 
+\usepackage[scaled=0.875]{helvet}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage{amsmath,amssymb,makeidx}
+\usepackage{fancybox}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage[normalem]{ulem}
+\usepackage{pifont}
+\usepackage{textcomp} 
+\usepackage{verbatim}
+\newcommand{\euro}{\eurologo}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\usepackage{ulem}
+\usepackage{dcolumn}
+\usepackage{lscape}
+\usepackage{diagbox}
+\usepackage{lscape}
+\usepackage{pst-plot,pst-text,pst-tree}
+\usepackage{pstricks,pst-plot,pst-tree,pst-func,pstricks-add}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\D}{\mathbb{D}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+
+
+\setlength{\textheight}{23,5cm}
+\newcommand{\vect}[1]{\mathchoice%
+{\overrightarrow{\displaystyle\mathstrut#1\,\,}}%
+{\overrightarrow{\textstyle\mathstrut#1\,\,}}%
+{\overrightarrow{\scriptstyle\mathstrut#1\,\,}}%
+{\overrightarrow{\scriptscriptstyle\mathstrut#1\,\,}}}
+\renewcommand{\theenumi}{\textbf{\arabic{enumi}}}
+\renewcommand{\labelenumi}{\textbf{\theenumi.}}
+\renewcommand{\theenumii}{\textbf{\alph{enumii}}}
+\renewcommand{\labelenumii}{\textbf{\theenumii.}}
+\def\Oij{$\left(\text{O},~\vect{\imath},~\vect{\jmath}\right)$}
+\def\Oijk{$\left(\text{O},~\vect{\imath},~\vect{\jmath},~\vect{k}\right)$}
+\def\Ouv{$\left(\text{O},~\vect{u},~\vect{v}\right)$}
+\setlength{\voffset}{-1,5cm}
+\usepackage{fancyhdr}
+\PassOptionsToPackage{hyphens}{url}   % Pour les liens qui etaient coupes en bas de page
+\usepackage{hyperref}
+
+\hypersetup{%
+  pdfauthor = {Mireille Coilhac, Vincent-Xavier Jumel},
+  %pdfsubject = {controle},
+  pdftitle = {Projet : proposer des groupes à partir d'un graphe d'interaction sociales },
+  allbordercolors = white,
+  pdfstartview=FitH
+}
+
+\usepackage[frenchb]{babel}
+\usepackage[np]{numprint}
+\usepackage[left=1.8cm,right=1.8cm,top=3cm,bottom=1cm]{geometry}
+\usepackage { fancybox }
+\usepackage{amsmath}
+\usepackage{lastpage}
+
+\begin{document}
+
+\setlength\parindent{0mm}
+\renewcommand{\headrulewidth}{0pt}%supprime le trait d'entête
+
+
+\lfoot{\small {M. \bsc{COILHAC}, V.X. \bsc{JUMEL}\\
+Ce document est mis à disposition selon les termes de la Licence Creative
+Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes
+conditions 4.0 non transposé }}
+%\rfoot{\small{avril 2015}}
+\cfoot{}
+\rfoot{\thepage/\pageref{LastPage}} %numerotation de page automatique
+\renewcommand \footrulewidth{.2pt}
+
+\pagestyle{fancy}
+\thispagestyle{empty}
+
+\begin{center} %
+
+\Huge \textbf{ Former des groupes de travail dans votre classe de NSI}
+\end{center}
+
+\vspace{1cm}
+
+\section{Situation}\
+
+La classe de première NSI est composée de 27 élèves qui doivent réaliser un projet informatique par groupes de 3.\\
+Vous devez réaliser pour le professeur, qui est votre «client», un programme qui fasse une proposition de la composition de ces groupes de 3 élèves, et qui leur convienne le mieux possible .
+
+\medskip
+
+Pour vous aider, le professeur a réalisé une petite enquête : il a demandé à chaque élève de citer:
+\begin{itemize}
+ \item [\textbullet] un élève avec qui il voudrait absolument travailler (affecté de la valeur +2),
+ \item [\textbullet]un avec qui il voudrait travailler (affecté de la valeur +1)
+ \item [\textbullet]et un avec qui il ne voudrait pas travailler (affecté de la valeur -1)
+\end{itemize}
+
+Ces données vont être fournies par le professeur sous la forme d’un dictionnaire :  
+Par exemple : 
+\begin{verbatim}
+Classe_NSI={ 'Alexia': {'Kellian': 2, 'Christelle': 1, 'Alice': -1}, etc….}  
+\end{verbatim}
+
+Ici Alexia voudrait absolument travailler avec Kellian, voudrait bien travailler avec Christelle, et pas du tout avec Alice.\\
+
+\medskip
+
+\section{Cahier des charges }
+
+\begin{itemize}
+ 
+\item [\textbullet] \textbf{Version obligatoire}
+
+
+\begin{itemize}
+ 
+\item [\textbullet] On ne dispose que des élèves avec qui chacun veut travailler : 
+\begin{verbatim}
+Par exemple : Classe_NSI={ 'Alexia': {'Kellian': 2, 'Christelle': 1}, etc….}.  
+\end{verbatim}
+\item [\textbullet] Ce dictionnaire sera dans le fichier data \_exemple.json  
+\item [\textbullet]Le professeur fournit la fonction def lire-entree \_json qui retourne le dictionnaire.
+\item [\textbullet] On ne tient pas compte des préférences (par exemple celle pour Kellian par rapport à Christelle).  
+\end{itemize}
+\item [\textbullet] \textbf{Version luxe}\\
+Tenir compte de tous les renseignements donnés (+2, +1 ou -1)
+\end{itemize}
+\vspace{1cm}
+\medskip
+
+\setlength\parindent{20mm}
+\textbf{Dans tous les cas, vous devrez travailler par groupes de deux élèves:}
+\setlength\parindent{0mm}
+
+
+\begin{enumerate}
+    \item Réaliser en Python le programme demandé, avec des tests pour les principales fonction.
+    \item Faire un exposé avec présentation, et démonstration de l'exécution du programme.
+    \item Rédiger un dossier contenant (au moins 10 pages hors annexe) :
+    \begin{itemize}
+        \item [\textbullet] le cahier des charges
+        \item [\textbullet] un planning des différentes tâches exécutées par chacun
+        \item [\textbullet] une explication des problèmes rencontrés
+        \item [\textbullet] des copies d'écran des résultats obtenus
+        \item [\textbullet] le code complet du programme en annexe
+    \end{itemize}
+\end{enumerate}
+ 
+       
+\section{Planning}
+
+\begin{enumerate}
+
+\item Phase 0 : Mise en place de framagit (0,5 semaine)
+
+\medskip
+
+\item Phase 1 : (2 semaines)
+\begin{itemize}
+
+\item [\textbullet] 1\ier{} lot : Représentation des graphes :
+
+Créer un algorithme, qui crée un dictionnaire substituant des numéros aux prénoms, ne gardant que les renseignements nécessaires, (pas de +2 ou +1) pour que les graphes soient plus lisible. \\
+Faire une dictionnaire de correspondance numéro/prénom
+
+Écrire une fonction qui crée un graphe orienté à partir d’un dictionnaire
+
+Représenter un graphe donné par un dictionnaire, et créer un fichier png avec ce graphique (utiliser les bibliothèques matplotlib, networkx, numpy…)
+\medskip
+\item [\textbullet]2\ieme{} lot : Travail sur les chemins : \\
+On commence par travailler sans se préoccuper des choix +2 ou +1. \\
+Créer des fonctions, qui à partir d’un dictionnaire du type \{0 :[20,15],1 :[18,13], ...\} permettent de déterminer tous les cycles de longueur 3.  
+Vous pouvez par exemple commencer par chercher tous les chemins de longueur 3.  
+
+
+Créer un graphe réduit dans lequel tous les cycles de longueur 3 ont été supprimés.
+\end{itemize}
+\medskip
+\item Phase 2 : (1 semaine)
+
+Réunion des porteurs du projet: mise en commun du travail réalisé et intégration des différentes fonctions. Représenter les graphes réduit créés dans le 2\ieme{} lot.  
+Vous réaliserez ce travail à 2, en classe.
+
+Point d'étape avec votre client (le professeur).
+
+\medskip
+\item Phase 3 : (2 semaines)
+\begin{itemize}
+
+
+\item [\textbullet] 1\ier{} lot : travail sur la matrice d’adjacence
+
+Créer une fonction qui  à partir d’un dictionnaire du type \{0 :[20,15],1 :[18,13],... \} retourne la matrice d’adjacence.
+
+\item [\textbullet] 2\ieme{} lot :
+
+Créer une fonction qui retourne la liste des élèves qui ne sont demandés par personne
+
+Créer une fonction qui retourne la liste des binômes : Par exemple si Alexia(5) veut travailler avec Kellian(11), et si Kellian(11) veut travailler avec Alexia(5) cette fonction retournera entre autres [5,11]. On propose de donner la liste par ordre croissant.
+
+
+
+\medskip
+\end{itemize}
+\item Phase 4 : (1 semaine)  
+
+Réunion des porteurs du projet: mise en commun, aide mutuelle.
+
+Détermination des lots restant à réaliser pour finaliser le projet.  
+Répartition du travail entre vous
+Point d'étape avec votre client (le professeur).
+\medskip
+
+\item Phase 5 : (2 semaines)
+
+Chacun réalise le lot décidé en phase 4.\\
+Point d'étape hebdomadaire avec votre client (le professeur).
+
+\medskip
+
+\item Phase 6 : (2 semaines)  
+
+Mise en commun du travail, intégration des différentes fonctions dans le programme.  \\
+Point d'étape hebdomadaire avec votre client (le professeur).\\
+Rectifications éventuelles
+
+ \medskip
+
+\item Phase 7 : (1 semaine)  \\
+Préparation de l'exposé et de tous les supports demandés (diaporama, dossier...)
+\end{enumerate}
+
+\section{Évaluation du projet}\
+Les points suivants seront évalués : \\
+
+\begin{itemize}
+   \item [\textbullet] Le programme fonctionne et répond au cahier des charges
+   \item [\textbullet] engagement personnel : chaque élève évalue de façon confidentielle auprès du professeur l'implication de son camarade dans le projet.
+  \item [\textbullet] respect des dates du planning
+  \item [\textbullet] qualité du programme créé (structure générale, présence de tests, de commentaires etc...)
+  \item [\textbullet] qualité de la prestation orale lors de l'exposé
+  \item [\textbullet] qualité des supports (diaporama, dossier)
+
+\end{itemize}
+\subsection{Grille d'évaluation}
+
+\begin{tabular}{|p{8cm}|p{5cm}|}
+  \hline
+  Critère & Niveau (MI, MF, BM, TBM) \\ \hline
+  Respect du cahier des charges & \\ \hline
+  Le code est correctement exécutable & \\ \hline
+  Les tests sont respectés et validés & \\ \hline
+  Les fonctions sont documentées & \\ \hline
+  Toutes les fonctions sont testées & \\ \hline
+  Les problèmes sont identifiés par des tickets & \\ \hline
+  Les dates des jalons ont été respectées & \\ \hline
+  Avis des camarades sur l'implication & \\ \hline
+  Avis de l'enseignant sur l'implication & \\ \hline
+\end{tabular}
+
+\section{Quelques ressources documentaires sur le sujet}
+
+\begin{enumerate}
+    
+
+
+\item  Un problème complexe :
+
+  \url{ https://fr.wikipedia.org/wiki/Partitionnement_de_graphe}\\
+  \url{ https://en.wikipedia.org/wiki/Graph_partition}\\
+\medskip
+\item Des solutions algorithmiques :\\
+\url{https://en.wikipedia.org/wiki/Cycle_detection}\\
+  \url{ https://stackoverflow.com/questions/10185773/graph-theory-splitting-a-graph}\\
+  \url{ https://cstheory.stackexchange.com/questions/16387/k-clustering-of-a-graph-maximizing-intra-cluster-weights}
+\medskip
+\item ou pratiques :\\
+   \url{ https://stackoverflow.com/questions/53379575/networkx-splitting-a-graph-into-n-subgraphs-based-on-edge-weight}\\
+   %PB adresse suivante à cause des % - A modifier
+   \url{ https://framagit.org/ketluts/gestiondeclasses/blob/master/app%2Fstudent%2Fviews%2Fsociogramme.php}\\ 
+
+
+
+\end{enumerate}
+\end{document}
+%src : https://www.overleaf.com/project/5dc5a85e73ab9f00010810a7
