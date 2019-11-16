@@ -52,7 +52,14 @@ builds_app = Blueprint("builds", __name__)
 # Allows the two: (async, sync)
 @builds_app.route("/sync", methods=["POST"])
 def compiler_latex():
-    # TODO Distribute documentation. (HTML)
+
+    # TODO Support multipart/form-data requests.
+    # API is:
+    # expect a resources part with json spec resources.
+    # takes files (will be referred in json spec as multipart mode pointer)
+    # takes other parts as options (compiler, ...)
+    # TODO Mode with best guess if only files uploaded (reconstruct resources spec).
+
     payload = request.get_json()
     if not payload:
         return jsonify("MISSING_PAYLOAD"), 400
@@ -89,69 +96,74 @@ def compiler_latex():
 
     workspace_id = create_workspace(normalized_resources)
 
-    def on_fetched(resource, data):
-        logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
-        # Hash fetched inputs;
-        resource["data_spec"] = process_resource_data_spec(data)
-        error = persist_resource_to_workspace(workspace_id, resource, data)
-        if error:
-            return error
-        # Input cache forwarding.
-        error = forward_resource_to_cache(resource, data)
-        if error:
-            return error
+    try:
+        def on_fetched(resource, data):
+            logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
+            # Hash fetched inputs;
+            resource["data_spec"] = process_resource_data_spec(data)
+            error = persist_resource_to_workspace(workspace_id, resource, data)
+            if error:
+                return error
+            # Input cache forwarding.
+            error = forward_resource_to_cache(resource, data)
+            if error:
+                return error
 
-    # Input cache provider.
-    error = fetch_resources(
-        normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
-    )
-    if error:
-        return jsonify(error), 400
-    # TODO
-    # - Process build global signature/hash (compiler, resource hashes, other options...)
-
-    # -------------
-    # Compilation.
-    # -------------
-
-    # TODO Do an util to get main resource.
-    main_resource = next(
-        resource for resource in normalized_resources if resource["is_main_document"]
-    )
-    # TODO Try catch.
-    latexToPdfOutput = latexToPdf(
-        compilerName, get_workspace_root_path(workspace_id), main_resource
-    )
-
-    # -------------
-    # Response creation.
-    # -------------
-
-    if not latexToPdfOutput["pdf"]:
-        return (
-            jsonify({"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}),
-            400,
+        # Input cache provider.
+        error = fetch_resources(
+            normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
         )
-    # TODO Also return compilation logs here.
-    # (So return a json. Include the PDF as base64 data?)
-    # (In the long term it will be better to give a static URL to download
-    # the generated PDF. We begin to talk about caching. This requires
-    # lifecycle management. With something like a Redis.)
-    # URL to get build result: PDF output, log, etc.
-    # TODO In async / build status endpoint, returns:
-    # - Normalized inputs;
-    # - URLs for PDF output, log;
+        if error:
+            return jsonify(error), 400
+        # TODO
+        # - Process build global signature/hash (compiler, resource hashes, other options...)
 
-    # TODO Output cache management.
+        # -------------
+        # Compilation.
+        # -------------
 
-    # -------------
-    # Cleanup.
-    # -------------
+        # TODO Do an util to get main resource.
+        main_resource = next(
+            resource for resource in normalized_resources if resource["is_main_document"]
+        )
+        latexToPdfOutput = latexToPdf(
+            compilerName, get_workspace_root_path(workspace_id), main_resource
+        )
 
-    remove_workspace(workspace_id)
+        # -------------
+        # Response creation.
+        # -------------
 
-    return Response(
-        latexToPdfOutput["pdf"],
-        status="201",
-        headers={"Content-Type": "application/pdf"},
-    )
+        if not latexToPdfOutput["pdf"]:
+            return (
+                jsonify({"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}),
+                400,
+            )
+        # TODO Also return compilation logs here.
+        # (So return a json. Include the PDF as base64 data?)
+        # (In the long term it will be better to give a static URL to download
+        # the generated PDF. We begin to talk about caching. This requires
+        # lifecycle management. With something like a Redis.)
+        # URL to get build result: PDF output, log, etc.
+        # TODO In async / build status endpoint, returns:
+        # - Normalized inputs;
+        # - URLs for PDF output, log;
+
+        # TODO Output cache management.
+
+        return Response(
+            latexToPdfOutput["pdf"],
+            status="201",
+            headers={"Content-Type": "application/pdf"},
+        )
+
+    # TODO Report error to Sentry (create a hook for custom code?).
+
+    finally:
+        # -------------
+        # Cleanup.
+        # -------------
+
+        # TODO Option to let workspace on failure.
+
+        remove_workspace(workspace_id)
