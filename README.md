@@ -51,6 +51,11 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
     > hello_world.pdf
 ```
 
+In this example the main document is passed as a plain-string (Json-encoded `content` resource mode), the logo image file with an url (`url` resource mode)
+and the second Latex file as a base64 encoded string (`file` resource mode, which expects the file content as base64).
+
+Also note how the first document is flag with the `main` property and how the dependencies relative paths are specified to reconstruct the file arborescence server-side for the compilation with multiple files to work.
+
 # API
 
 This project is in an experimental phase and the API is *very likely* to change.
