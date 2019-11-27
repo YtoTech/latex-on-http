@@ -7,7 +7,7 @@ name = "pypi"
 pytest = "*"
 requests = "*"
 requests-futures = "*"
-black = "*"
+black = "==19.10b0"
 "pdf2image" = "*"
 
 [packages]
