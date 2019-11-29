@@ -31,6 +31,9 @@ install-dev:
 ## -------------------------------
 ## Docker build/images ##
 ## -------------------------------
+docker-pull-yoant-texlive-debian:
+	docker pull yoant/docker-texlive:debian
+
 docker-build-tl-distrib-debian:
 	docker build -f container/tl-distrib-debian.Dockerfile -t yoant/latexonhttp-tl-distrib:debian .
 
@@ -46,7 +49,7 @@ docker-build-python-alpine:
 docker-build-main:
 	docker build -f Dockerfile .
 
-docker-build-all: docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
+docker-build-all: docker-pull-yoant-texlive-debian docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
 
 
 ## -------------------------------
