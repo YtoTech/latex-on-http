@@ -16,6 +16,7 @@ from latexonhttp.api.packages import packages_app
 from latexonhttp.api.caches import caches_app
 from latexonhttp.api.projects import projects_app
 from latexonhttp.utils.misc import get_api_version
+from latexonhttp.utils.texlive import get_texlive_version_spec
 
 # Logging.
 logging.config.dictConfig(
@@ -57,6 +58,8 @@ def hello():
                 "version": get_api_version(),
                 "source": "https://github.com/YtoTech/latex-on-http",
                 "documentation": "https://github.com/YtoTech/latex-on-http",
+                # TODO Put the full spec in a specific introspection endpoint?
+                "texlive_version": get_texlive_version_spec()["texlive"]["version"],
             }
         ),
         200,
