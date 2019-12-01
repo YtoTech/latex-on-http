@@ -13,6 +13,7 @@ from flask import Flask, request, jsonify
 from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.packages import packages_app
+from latexonhttp.api.texlive import texlive_app
 from latexonhttp.api.caches import caches_app
 from latexonhttp.api.projects import projects_app
 from latexonhttp.utils.misc import get_api_version
@@ -35,6 +36,7 @@ app = Flask(__name__)
 app.register_blueprint(builds_app, url_prefix="/builds")
 app.register_blueprint(fonts_app, url_prefix="/fonts")
 app.register_blueprint(packages_app, url_prefix="/packages")
+app.register_blueprint(texlive_app, url_prefix="/texlive")
 app.register_blueprint(caches_app, url_prefix="/caches")
 # TODO
 # /users
@@ -58,7 +60,6 @@ def hello():
                 "version": get_api_version(),
                 "source": "https://github.com/YtoTech/latex-on-http",
                 "documentation": "https://github.com/YtoTech/latex-on-http",
-                # TODO Put the full spec in a specific introspection endpoint?
                 "texlive_version": get_texlive_version_spec()["texlive"]["version"],
             }
         ),

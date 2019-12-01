@@ -23,6 +23,7 @@ COMPIL_HELLO_WORLD = {
 }
 SAMPLE_HELLO_WORLD = "hello_world"
 
+
 def test_simple_compilation_body(latex_on_http_api_url):
     """
     Compile a simple Latex document, text-only, passed directly in document

@@ -106,7 +106,41 @@ Payload (json)
 
 A PDF file if the compilation succeeds, else a Json payload with the error logs.
 
-## Inspecting build environment (fonts, packages)
+## Inspecting build environment (texlive, fonts, packages)
+
+### `GET:/texlive/information`
+
+See information on TeXLive installation used in Latex compilations.
+
+>  Request
+
+`GET:/texlive/information`
+
+
+>  Response
+
+A Json payload with a TeXLive installation specification.
+
+Sample
+```json
+{
+  "texlive": {
+    "installation_path": "/usr/local/texlive", 
+    "modules": [
+      {
+        "name": "TLConfig", 
+        "value": "52745"
+      }, 
+      ["..."]
+    ], 
+    "version": "2019"
+  }, 
+  "tlmgr": {
+    "revision": "52931", 
+    "revision_date": "2019-11-27 00:04:18 +0100"
+  }
+}
+```
 
 ### `GET:/fonts`
 

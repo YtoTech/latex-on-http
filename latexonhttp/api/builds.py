@@ -97,6 +97,7 @@ def compiler_latex():
     workspace_id = create_workspace(normalized_resources)
 
     try:
+
         def on_fetched(resource, data):
             logger.debug("Fetched %s: %s bytes", resource["build_path"], len(data))
             # Hash fetched inputs;
@@ -124,7 +125,9 @@ def compiler_latex():
 
         # TODO Do an util to get main resource.
         main_resource = next(
-            resource for resource in normalized_resources if resource["is_main_document"]
+            resource
+            for resource in normalized_resources
+            if resource["is_main_document"]
         )
         latexToPdfOutput = latexToPdf(
             compilerName, get_workspace_root_path(workspace_id), main_resource
@@ -136,7 +139,9 @@ def compiler_latex():
 
         if not latexToPdfOutput["pdf"]:
             return (
-                jsonify({"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}),
+                jsonify(
+                    {"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}
+                ),
                 400,
             )
         # TODO Also return compilation logs here.
