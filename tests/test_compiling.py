@@ -23,12 +23,14 @@ COMPIL_HELLO_WORLD = {
 }
 SAMPLE_HELLO_WORLD = "hello_world"
 
+
 def test_no_payload_error(latex_on_http_api_url):
     r = requests.post(latex_on_http_api_url + "/builds/sync", json={})
     assert r.status_code == 400
     assert r.json() == {
         "error": "MISSING_PAYLOAD",
     }
+
 
 def test_simple_compilation_body(latex_on_http_api_url):
     """

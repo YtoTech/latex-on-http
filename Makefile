@@ -68,6 +68,8 @@ docker-push-python-debian:
 dev:
 	docker-compose -f docker-compose.dev.yml up
 
+dev-build:
+	docker-compose -f docker-compose.dev.yml build --no-cache
 
 ## -------------------------------
 ## Tests ##

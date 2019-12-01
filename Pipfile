@@ -5,12 +5,12 @@ name = "pypi"
 
 [dev-packages]
 pytest = "*"
-requests = "*"
 requests-futures = "*"
 black = "==19.10b0"
 "pdf2image" = "*"
 
 [packages]
+requests = "*"
 flask = "*"
 fclist = {git = "https://github.com/MonsieurV/python-fclist.git"}
 gunicorn = "*"

@@ -8,7 +8,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import base64
-import urllib
+import requests
 import logging
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,25 @@ def fetcher_base64_file(resource, _get_from_cache):
 def fetcher_url_file(resource, _get_from_cache):
     url = resource["body_source"]["url"]
     logger.info("Fetching file from %s", url)
-    return urllib.request.urlopen(url).read(), None
+    response = requests.get(url)
+    logger.info(
+        "Fetch response %s of content length %d",
+        response.status_code,
+        len(response.content),
+    )
+    if response.status_code >= 300:
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "http_code": response.status_code,
+                    "http_response_content": response.text,
+                },
+                "resource": resource,
+            },
+        )
+    return response.content, None
 
 
 def fetcher_hash_cache(resource, get_from_cache):

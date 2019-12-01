@@ -8,11 +8,13 @@
     :license: AGPL, see LICENSE for more details.
 """
 import uuid
-from .filesystem import delete_workspace
+from .filesystem import delete_workspace, make_workspace
 
 
 def create_workspace(_resources):
-    return str(uuid.uuid4())
+    workspace_id = str(uuid.uuid4())
+    make_workspace(workspace_id)
+    return workspace_id
 
 
 def remove_workspace(workspace_id):

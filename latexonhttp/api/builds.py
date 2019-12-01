@@ -64,7 +64,7 @@ def compiler_latex():
 
     payload = request.get_json()
     if not payload:
-        return jsonify({ "error": "MISSING_PAYLOAD" }), 400
+        return jsonify({"error": "MISSING_PAYLOAD"}), 400
 
     # TODO Pre-normalized data checks.
     # - resources (mandatory, must be an array).
@@ -75,10 +75,18 @@ def compiler_latex():
     compilerName = "pdflatex"
     if "compiler" in payload:
         if payload["compiler"] not in AVAILABLE_COMPILERS:
-            return jsonify({ "error": "INVALID_COMPILER", "available_compilers": AVAILABLE_COMPILERS }), 400
+            return (
+                jsonify(
+                    {
+                        "error": "INVALID_COMPILER",
+                        "available_compilers": AVAILABLE_COMPILERS,
+                    }
+                ),
+                400,
+            )
         compilerName = payload["compiler"]
     if not "resources" in payload:
-        return jsonify({ "error": "MISSING_RESOURCES" }), 400
+        return jsonify({"error": "MISSING_RESOURCES"}), 400
 
     # -------------
     # Pre-fetch normalization and checks.
