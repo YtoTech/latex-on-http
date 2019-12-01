@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 
 builds_app = Blueprint("builds", __name__)
 
+AVAILABLE_COMPILERS = ["latex", "lualatex", "xelatex", "pdflatex"]
+
 
 # TODO Extract the filesystem/workspace management in a module:
 # - determine of fs/files actions to get to construct the filesystem;
@@ -62,7 +64,7 @@ def compiler_latex():
 
     payload = request.get_json()
     if not payload:
-        return jsonify("MISSING_PAYLOAD"), 400
+        return jsonify({ "error": "MISSING_PAYLOAD" }), 400
 
     # TODO Pre-normalized data checks.
     # - resources (mandatory, must be an array).
@@ -72,11 +74,11 @@ def compiler_latex():
     # We default to pdflatex.
     compilerName = "pdflatex"
     if "compiler" in payload:
-        if payload["compiler"] not in ["latex", "lualatex", "xelatex", "pdflatex"]:
-            return jsonify("INVALID_COMPILER"), 400
+        if payload["compiler"] not in AVAILABLE_COMPILERS:
+            return jsonify({ "error": "INVALID_COMPILER", "available_compilers": AVAILABLE_COMPILERS }), 400
         compilerName = payload["compiler"]
     if not "resources" in payload:
-        return jsonify("MISSING_RESOURCES"), 400
+        return jsonify({ "error": "MISSING_RESOURCES" }), 400
 
     # -------------
     # Pre-fetch normalization and checks.
@@ -140,7 +142,7 @@ def compiler_latex():
         if not latexToPdfOutput["pdf"]:
             return (
                 jsonify(
-                    {"code": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}
+                    {"error": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}
                 ),
                 400,
             )
