@@ -28,8 +28,3 @@ def test_api_index(latex_on_http_api_url):
 
 
 # TODO proper ping API?
-
-# TODO Test of file fetchers
-# URL fetch mode:
-# - proper error handling and message for HTTP errors (404, 403, 500, etc.)
-# See https://github.com/YtoTech/latex-on-http/issues/6
