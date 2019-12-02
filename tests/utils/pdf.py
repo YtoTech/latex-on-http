@@ -8,26 +8,67 @@
 """
 import os
 import re
+import difflib
+import hexdump
 import pytest
+import pprint
+import subprocess
 from pdf2image import convert_from_bytes
 from PIL import Image
 from PIL.ImageChops import difference
 
 SAMPLE_DIR = os.getcwd() + "/tests/samples/"
-REGEX_CLEAN = r"<</Producer.+>>"
+REGEX_CLEAN_LIST_RE = [
+    {"target": r"<< \/Producer.+>>", "replace_by": "<</Producer cleaned>>",},
+    {"target": r"R \/ID \[ <\.+> ]", "replace_by": "R /ID [ <id1> <id2> ]",},
+]
 
 
-def clean_pdf_bytes_for_compare(bytes):
-    return re.sub(REGEX_CLEAN, "<</Producer cleaned>>", bytes)
+def clean_pdf_bytes_for_compare(data_bytes):
+    for clean_re in REGEX_CLEAN_LIST_RE:
+        data_bytes = re.sub(clean_re["target"], clean_re["replace_by"], data_bytes)
+    return data_bytes
 
 
-def pdf_compare_bytes(reference, compared):
+def pdf_compare_bytes(reference, compared, sample_dir):
     # Generated binary PDF files differs.
     # This line changes on each compilation, which is expected:
     # <</Producer (LuaTeX-1.07.0)/Creator (TeX)/CreationDate (D:20180701130853Z)/ModDate (D:20180701130853Z)/Trapped/False/PTEX.FullBanner (This is LuaTeX, Version 1.07.0 (TeX Live 2018))>>
     # We just strip it out for the moment.
     reference_cleaned = clean_pdf_bytes_for_compare(str(reference))
     compared_cleaned = clean_pdf_bytes_for_compare(str(compared))
+    if compared_cleaned != reference_cleaned:
+        sample_hex_path = "{}sample.hexdump".format(sample_dir)
+        generated_hex_path = "{}generated.hexdump".format(sample_dir)
+        hexdump_reference = hexdump.hexdump(reference, result="return")
+        hexdump_generated = hexdump.hexdump(compared, result="return")
+        with open(sample_hex_path, "w") as f:
+            f.write(hexdump_reference)
+        with open(generated_hex_path, "w") as f:
+            f.write(hexdump_generated)
+        # differ = difflib.Differ
+        compared = list(
+            difflib.context_diff(
+                hexdump_reference,
+                hexdump_generated,
+                fromfile="sample.pdf",
+                tofile="generated.pdf",
+            )
+        )
+        diff_difflib_hex_path = "{}diff_difflib.hexdump".format(sample_dir)
+        with open(diff_difflib_hex_path, "w") as f:
+            for line in compared:
+                f.write(line)
+        diff_compared = subprocess.run(
+            ["diff", sample_hex_path, generated_hex_path],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        ).stdout
+        pprint.pprint(diff_compared)
+        diff_diff_hex_path = "{}diff_diff.hexdump".format(sample_dir)
+        with open(diff_diff_hex_path, "wb") as f:
+            f.write(diff_compared)
     assert compared_cleaned == reference_cleaned
 
 
@@ -42,7 +83,7 @@ def snapshot_pdf_bytes(pdf, sample_dir, update_snapshot):
     with open(sample_pdf_path, "rb") as f:
         sample_bytes = f.read()
         assert len(pdf) == len(sample_bytes)
-        pdf_compare_bytes(sample_bytes, pdf)
+        pdf_compare_bytes(sample_bytes, pdf, sample_dir)
 
 
 def snapshot_pdf_text(pdf, sample_dir, update_snapshot):

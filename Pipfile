@@ -8,6 +8,7 @@ pytest = "*"
 requests-futures = "*"
 black = "==19.10b0"
 "pdf2image" = "*"
+hexdump = "*"
 
 [packages]
 requests = "*"
