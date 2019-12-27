@@ -30,28 +30,61 @@ def fetcher_base64_file(resource, _get_from_cache):
     return base64.b64decode(resource["body_source"]["raw_base64"]), None
 
 
+HTTP_REQUEST_TIMEOUT = 10
+
+
 def fetcher_url_file(resource, _get_from_cache):
     url = resource["body_source"]["url"]
     logger.info("Fetching file from %s", url)
-    response = requests.get(url)
-    logger.info(
-        "Fetch response %s of content length %d",
-        response.status_code,
-        len(response.content),
-    )
-    if response.status_code >= 300:
+    try:
+        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
+        logger.info(
+            "Fetch response %s of content length %d",
+            response.status_code,
+            len(response.content),
+        )
+        if response.status_code >= 300:
+            return (
+                None,
+                {
+                    "error": "RESOURCE_FETCH_FAILURE",
+                    "fetch_error": {
+                        "type": "http_error",
+                        "http_code": response.status_code,
+                        "http_response_content": response.text,
+                    },
+                    "resource": resource,
+                },
+            )
+        return response.content, None
+    except requests.exceptions.Timeout as te:
         return (
             None,
             {
                 "error": "RESOURCE_FETCH_FAILURE",
                 "fetch_error": {
-                    "http_code": response.status_code,
-                    "http_response_content": response.text,
+                    "type": "request_timeout",
+                    "exception_content": str(te),
+                    "http_code": None,
+                    "http_response_content": None,
                 },
                 "resource": resource,
             },
         )
-    return response.content, None
+    except requests.exceptions.ConnectionError as cee:
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "type": "connection_error",
+                    "exception_content": str(cee),
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            },
+        )
 
 
 def fetcher_hash_cache(resource, get_from_cache):
