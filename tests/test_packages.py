@@ -26,12 +26,11 @@ def test_api_packages_list(latex_on_http_api_url):
         assert "url_ctan" in package
         assert "installed" in package
         assert package["installed"] is True
-    assert len(packages) == 3905
+    assert len(packages) == 3950
 
 
 PACKAGE_INFO_MANDATORIES_PROPERTIES = [
     "package",
-    "cat-date",
     "cat-license",
     "cat-topics",
     "cat-version",

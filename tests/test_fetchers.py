@@ -76,7 +76,7 @@ def test_resource_fetch_file_timeout(latex_on_http_api_url):
     assert response_payload["fetch_error"]["http_code"] == None
     assert (
         response_payload["resource"]["body_source"]["url"]
-        == "https://doesnotexist-cucumber-impossible.org/willtimeout"
+        == "https://httpstat.us/200?sleep=15000"
     )
 
 
