@@ -8,12 +8,14 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
+import pprint
 from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import latexToPdf
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
 from latexonhttp.resources.utils import process_resource_data_spec
+from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
 from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
@@ -24,7 +26,6 @@ from latexonhttp.caching.resources import (
     get_resource_from_cache,
 )
 
-from pprint import pformat
 
 logger = logging.getLogger(__name__)
 
@@ -54,15 +55,19 @@ AVAILABLE_COMPILERS = ["latex", "lualatex", "xelatex", "pdflatex"]
 # Allows the two: (async, sync)
 @builds_app.route("/sync", methods=["POST"])
 def compiler_latex():
+    payload = None
 
-    # TODO Support multipart/form-data requests.
-    # API is:
-    # expect a resources part with json spec resources.
-    # takes files (will be referred in json spec as multipart mode pointer)
-    # takes other parts as options (compiler, ...)
-    # TODO Mode with best guess if only files uploaded (reconstruct resources spec).
+    # Support for multipart/form-data requests.
+    if "multipart/form-data" in request.content_type:
+        logger.info(request.content_type)
+        logger.info(pprint.pformat(request.files))
+        logger.info(pprint.pformat(request.form))
+        payload, error = parse_multipart_resources_spec(request.form, request.files)
+        if error:
+            return jsonify(error), 400
 
-    payload = request.get_json()
+    if not payload:
+        payload = request.get_json()
     if not payload:
         return jsonify({"error": "MISSING_PAYLOAD"}), 400
 
@@ -94,7 +99,7 @@ def compiler_latex():
 
     normalized_resources = normalize_resources_input(payload["resources"])
     # if logger.isEnabledFor(logging.DEBUG):
-    #     logger.debug(pformat(normalized_resources))
+    #     logger.debug(pprint.pformat(normalized_resources))
     # - Prefetch checks (paths, main document, ...);
     errors = check_resources_prefetch(normalized_resources)
     if errors:
@@ -169,7 +174,13 @@ def compiler_latex():
         return Response(
             latexToPdfOutput["pdf"],
             status="201",
-            headers={"Content-Type": "application/pdf"},
+            headers={
+                "Content-Type": "application/pdf",
+                # TODO Pass an option for returning as attachment (instead of inline, which is the default).
+                "Content-Disposition": "inline;filename={}".format(
+                    latexToPdfOutput["output_path"]
+                ),
+            },
         )
 
     # TODO Report error to Sentry (create a hook for custom code?).

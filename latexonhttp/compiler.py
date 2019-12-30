@@ -90,4 +90,8 @@ def latexToPdf(compilerName, directory, main_resource):
         with open(output_path, "rb") as f:
             pdf = f.read()
     # TODO Returns paths instead of data?
-    return {"pdf": pdf, "logs": commandOutput["stdout"]}
+    return {
+        "pdf": pdf,
+        "output_path": main_resource["output_path"],
+        "logs": commandOutput["stdout"],
+    }
