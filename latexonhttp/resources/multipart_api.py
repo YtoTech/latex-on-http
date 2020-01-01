@@ -37,7 +37,7 @@ def construct_resources_specification_from_files(multipart_files):
                 None,
                 {"error": "UNABLE_TO_IDENTIFY_MAIN_DOCUMENT_IN_MULTIPART_FILES"},
             )
-        first_tex_file = multipart_files.values()[0]
+        first_tex_file = next(multipart_files.values())
     resources_spec = []
     for multipart_key, multipart_file in multipart_files.items():
         resource_spec = {
