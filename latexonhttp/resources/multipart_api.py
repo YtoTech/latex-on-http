@@ -18,8 +18,13 @@ def parse_multipart_resources_spec(forms, files):
         json_spec["compiler"] = forms["compiler"]
     # Get resources specification.
     if "resources" in forms:
-        # TODO Handle invalid json.
-        json_spec["resources"] = json.loads(forms["resources"])
+        try:
+            json_spec["resources"] = json.loads(forms["resources"])
+        except json.decoder.JSONDecodeError as jde:
+            return (
+                None,
+                {"error": "INVALID_RESOURCES_JSON", "exception_content": str(jde),},
+            )
     # TODO Else reconstruct resources spec with best guest:
     # only one main tex file, with other non tex resources.
     # Replace files in resource spec by uploaded multipart files.

@@ -11,7 +11,9 @@ import pytest
 import requests
 from .utils.pdf import snapshot_pdf
 
-LATEX_HELLO_WORLD = "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
+LATEX_HELLO_WORLD = (
+    "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
+)
 SAMPLE_HELLO_WORLD = "hello_world"
 
 
@@ -21,7 +23,7 @@ def test_multipart_api_full_spec(latex_on_http_api_url):
     definition content entry.
     """
     # Create a multipart request.
-    files = {'file1': ('hello_world.tex', LATEX_HELLO_WORLD)}
+    files = {"file1": ("hello_world.tex", LATEX_HELLO_WORLD)}
     form = {
         "compiler": "lualatex",
         "resources": '[{"main": "true", "multipart": "file1"}]',
@@ -30,12 +32,13 @@ def test_multipart_api_full_spec(latex_on_http_api_url):
     assert r.status_code == 201
     snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
 
+
 def test_multipart_api_invalid_json_resources_spec(latex_on_http_api_url):
     """
     Handle invalid json resources spec error.
     """
     # Create a multipart request.
-    files = {'file1': ('hello_world.tex', LATEX_HELLO_WORLD)}
+    files = {"file1": ("hello_world.tex", LATEX_HELLO_WORLD)}
     form = {
         "resources": '[}}{"main": "true", "multipart": "file1"}]',
     }
