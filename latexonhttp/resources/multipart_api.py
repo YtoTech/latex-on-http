@@ -18,6 +18,7 @@ def parse_multipart_resources_spec(forms, files):
         json_spec["compiler"] = forms["compiler"]
     # Get resources specification.
     if "resources" in forms:
+        # TODO Handle invalid json.
         json_spec["resources"] = json.loads(forms["resources"])
     # TODO Else reconstruct resources spec with best guest:
     # only one main tex file, with other non tex resources.
@@ -37,4 +38,3 @@ def parse_multipart_resources_spec(forms, files):
         if "path" not in resource:
             resource["path"] = uploaded_file.filename
     return json_spec, None
-    # return None, {"error": "INVALID_MULTIPART_SPEC"}
