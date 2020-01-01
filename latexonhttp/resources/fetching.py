@@ -30,6 +30,8 @@ def fetcher_base64_file(resource, _get_from_cache):
     return base64.b64decode(resource["body_source"]["raw_base64"]), None
 
 
+# TODO Make it configurable.
+# (So we can - around other things - reduce the delay in test configuration)
 HTTP_REQUEST_TIMEOUT = 10
 
 

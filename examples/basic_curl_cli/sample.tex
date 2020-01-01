@@ -1,0 +1,153 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[10pt, a4paper]{article}
+
+% LAYOUT
+%--------------------------------
+\usepackage{geometry}
+\geometry{a4paper, left=43mm, right=43mm, top=51mm, bottom=17mm}
+
+% No page numbers
+\pagenumbering{gobble}
+
+% Left align
+\usepackage[document]{ragged2e}
+
+
+% TYPOGRAPHY
+%--------------------------------
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+
+% converts LaTeX specials (quotes, dashes etc.) to Unicode
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Linux Libertine O}
+\setsansfont[Scale=0.9]{Liberation Sans}
+
+% Set paragraph break
+\setlength{\parskip}{1em}
+
+% Custom ampersand
+\newcommand{\amper}{{\fontspec[Scale=.95]{Linux Libertine O}\selectfont\itshape\&}}
+
+\setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Linux Libertine O}
+    \setsansfont{Liberation Sans}
+
+% Command required by how Pandoc handles the list conversion
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% TABLE CUSTOMIZATION
+%--------------------------------
+\usepackage{spreadtab}
+\usepackage[compact]{titlesec} % For customizing title sections
+\titlespacing*{\section}{0pt}{3pt}{-7pt} % Remove margin bottom from the title
+\usepackage{arydshln} % For the dotted line on the table
+\renewcommand{\arraystretch}{1.5} % Apply vertical padding to table cells
+\usepackage{hhline} % For single-cell borders
+\usepackage{enumitem} % For customizing lists
+\setlist{nolistsep} % No whitespace around list items
+\setlist[itemize]{leftmargin=0.5cm} % Reduce list left indent
+\setlength{\tabcolsep}{9pt} % Larger gutter between columns
+
+
+% LANGUAGE
+%--------------------------------
+\usepackage{polyglossia}
+\setmainlanguage{english}
+
+% PDF SETUP
+%--------------------------------
+\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
+\hypersetup
+{
+  pdfauthor=Max Mustermann,
+  pdfsubject=Invoice Nr. 2015-11-04,
+  pdftitle=Invoice Nr. 2015-11-04,
+  linkcolor=blue,
+  citecolor=blue,
+  filecolor=black,
+  urlcolor=blue
+}
+
+% To display custom date
+% \usepackage[nodayofweek]{datetime}
+% \newdate{date}{01}{12}{1867}
+% \date{\displaydate{date}}
+% Use this instead of \today: % \displaydate{date}
+
+% DOCUMENT
+%--------------------------------
+\begin{document}
+\small
+\textsc{\textbf{Max Mustermann}}
+\textbullet{} \textsc{Musterstraße 37}
+\textbullet{} \textsc{12345 Musterstadt}
+
+\vspace{1em}
+
+\normalsize \sffamily
+Erika Mustermann\\
+Musterallee 1\\
+12345 Musterstadt\\
+Germany\\
+
+\vspace{6em}
+
+\begin{flushright}
+  \small
+  Musterstadt, \today
+\end{flushright}
+
+\vspace{1em}
+
+
+\section*{\textsc{Invoice} \textsc{\#2015-11-04}}
+\footnotesize
+\newcounter{pos}
+\setcounter{pos}{0}
+\STautoround*{2} % Get spreadtab to always display the decimal part
+ % Use comma as decimal separator
+
+\begin{spreadtab}{{tabular}[t t t]{lp{8.2cm}r}}
+  \hdashline[1pt/1pt]
+  @ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Prices in EUR} \\ \hline
+       @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ The first service provided
+         & 320\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ And another one, with a list of details
+        \newline \begin{itemize}
+          \scriptsize \item Some more detailed explanation
+          \scriptsize \item of the service provided
+          \scriptsize \item Looking good
+           \end{itemize}
+           & 245\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ The last service provided
+         & 65\\ \noalign{\vskip 2mm} \hline
+  @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
+  @ & @ \multicolumn{1}{r}{VAT 20\%:}               & 20/100*[0,-1] \\ \hhline{~~-}
+  @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={[0,-1]+[0,-2]}} \\ \hhline{~~-}
+\end{spreadtab}
+
+\vspace{15mm}
+
+\sffamily
+\small
+Please transfer the due amount to the following bank account within the
+next 14 days:
+
+Mustermann GmbH Kreditinstitut: Deutsche Postbank AG IBAN: DE18 3601
+0043 9999 9999 99 BIC: PBNKDEFF
+
+We really appreciate your business and look forward to future projects
+together.
+
+Best regards,
+
+\medskip
+
+Max Mustermann
+
+\end{document}

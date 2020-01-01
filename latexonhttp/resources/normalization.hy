@@ -37,6 +37,7 @@
         ; TODO Under build key? (for is-main-document, build-path)
         "is_main_document" is-main-document
         "build_path" (normalized-resource-build-path resource is-main-document)
+        "output_path" (normalized-resource-output-path resource is-main-document)
         "body_source" (get-body-source resource resource-type)
     })
 
@@ -89,6 +90,14 @@
     (if is-main-document
         "__main_document__.tex"
         (get-default resource "path" None)))
+
+(defn normalized-resource-output-pathname [path-name]
+  (.replace path-name ".tex" ".pdf"))
+
+(defn normalized-resource-output-path [resource is-main-document]
+    (if is-main-document
+        (normalized-resource-output-pathname (get-default resource "path" "output.pdf"))
+        None))
 
 (defn sort-resources [resources]
     (fun-sort

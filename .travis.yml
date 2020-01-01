@@ -1,12 +1,12 @@
 language: python
 sudo: required
-dist: trusty
+dist: bionic
 services:
   - docker
 before_install:
   - sudo ./container/install_tests.sh
 python:
-  - '3.6'
+  - '3.7'
 
 install:
   - pip install pipenv
