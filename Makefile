@@ -77,6 +77,9 @@ dev-build:
 test:
 	pipenv run pytest -vv
 
+test-x:
+	pipenv run pytest -vv -x
+
 test-docker-compose: test-docker-compose-start
 	sleep 3
 	make test
