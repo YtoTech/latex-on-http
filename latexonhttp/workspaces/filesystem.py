@@ -44,6 +44,7 @@ def persist_resource_to_workspace(workspace_id, resource, data):
         return "INVALID_PATH"
     # TODO Id for identifying input resources.
     logger.info("Writing to %s ...", resource_full_path)
+    os.makedirs(os.path.dirname(resource_full_path), exist_ok=True)
     with open(resource_full_path, "wb") as f:
         bytes_written = f.write(data)
         logger.debug("Wrote %d bytes to %s", bytes_written, resource_full_path)
