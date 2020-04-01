@@ -103,3 +103,5 @@
     * Templates layer
     * Automate invoicing
         * https://help.shopify.com/manual/apps/apps-by-shopify/order-printer
+    * CV templating
+        * Create from jsonresume https://jsonresume.org/schema/
