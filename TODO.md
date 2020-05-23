@@ -87,6 +87,9 @@
   * As a preprocessor -> another method
   * https://github.com/jez/pandoc-starter
   * https://github.com/thomasWeise/docker-pandoc
+* Combined Markdown/Yaml document creation
+    * See https://github.com/Wandmalfarbe/pandoc-latex-template
+    * Allows to takes pandoc templates
 * Find a dedicated domain-name
     * Put API under api.domain.com, doc developer.domain.com and keep domain.com for home
     * Create a landing page with rationale (simple, directly let play with the toy)
