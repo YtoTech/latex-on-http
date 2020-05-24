@@ -3,6 +3,9 @@
 
 ## TODOs
 
+* Font catalog:
+    * Also list fonts from Latex Font catalogue?
+        * https://tug.org/FontCatalogue/
 * Tmp site https://nicedoc.io/ytotech/latex-on-http
 * Find/create a std Hy formatter (like black for Python)
     * Uniformize Hy code formatting
