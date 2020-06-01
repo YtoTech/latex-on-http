@@ -62,7 +62,7 @@ def run_command(directory, command):
 
 
 def latexToPdf(compilerName, directory, main_resource):
-    if compilerName not in ["latex", "lualatex", "xelatex", "pdflatex"]:
+    if compilerName not in AVAILABLE_LATEX_COMPILERS:
         raise ValueError("Invalid compiler")
     # TODO Choose appropriate options following the compiler.
     # Copy files to tmp directory.
