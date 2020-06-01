@@ -18,6 +18,17 @@ logger = logging.getLogger(__name__)
 # Lol.
 # (Like any Python script that grow indefinitely?)
 
+# TODO Let users access tex, latex, dvilualatex, ptex and uptexfor DVI output.
+# https://tex.stackexchange.com/a/397312/122145
+# TODO Support also pandoc?
+AVAILABLE_LATEX_COMPILERS = [
+    "pdflatex",
+    "xelatex",
+    "lualatex",
+    "platex",
+    "uplatex",
+]
+
 
 def run_command(directory, command):
     # TODO And if the command fails?

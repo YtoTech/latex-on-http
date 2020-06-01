@@ -10,7 +10,7 @@
 import logging
 import pprint
 from flask import Blueprint, request, jsonify, Response
-from latexonhttp.compiler import latexToPdf
+from latexonhttp.compiler import latexToPdf, AVAILABLE_LATEX_COMPILERS
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
@@ -30,8 +30,6 @@ from latexonhttp.caching.resources import (
 logger = logging.getLogger(__name__)
 
 builds_app = Blueprint("builds", __name__)
-
-AVAILABLE_COMPILERS = ["latex", "lualatex", "xelatex", "pdflatex"]
 
 
 # TODO Extract the filesystem/workspace management in a module:
@@ -79,12 +77,12 @@ def compiler_latex():
     # We default to pdflatex.
     compilerName = "pdflatex"
     if "compiler" in payload:
-        if payload["compiler"] not in AVAILABLE_COMPILERS:
+        if payload["compiler"] not in AVAILABLE_LATEX_COMPILERS:
             return (
                 jsonify(
                     {
                         "error": "INVALID_COMPILER",
-                        "available_compilers": AVAILABLE_COMPILERS,
+                        "available_compilers": AVAILABLE_LATEX_COMPILERS,
                     }
                 ),
                 400,
