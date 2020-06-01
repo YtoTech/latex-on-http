@@ -108,6 +108,8 @@ def compiler_latex():
     # -------------
 
     workspace_id = create_workspace(normalized_resources)
+    error_in_try_block = None
+    error_compilation = None
 
     try:
 
@@ -151,6 +153,7 @@ def compiler_latex():
         # -------------
 
         if not latexToPdfOutput["pdf"]:
+            error_compilation = latexToPdfOutput["logs"]
             return (
                 jsonify(
                     {"error": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}
@@ -181,7 +184,14 @@ def compiler_latex():
             },
         )
 
-    # TODO Report error to Sentry (create a hook for custom code?).
+    except Exception as e:
+        # -------------
+        # Error management.
+        # -------------
+
+        # TODO Report error to Sentry (create a hook for custom code?).
+
+        error_in_try_block = e
 
     finally:
         # -------------
@@ -189,5 +199,9 @@ def compiler_latex():
         # -------------
 
         # TODO Option to let workspace on failure.
+        let_workspace_on_error = True
 
-        remove_workspace(workspace_id)
+        if let_workspace_on_error is False or (
+            error_in_try_block is None and error_compilation is None
+        ):
+            remove_workspace(workspace_id)

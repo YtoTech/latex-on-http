@@ -27,6 +27,7 @@ AVAILABLE_LATEX_COMPILERS = [
     "lualatex",
     "platex",
     "uplatex",
+    "context",
 ]
 
 
@@ -69,27 +70,43 @@ def latexToPdf(compilerName, directory, main_resource):
     # Should already be an absolute path (in our usage), but just to be sure.
     directory = os.path.abspath(directory)
     # TODO Uses workspace.filesystem module to these get paths.
-    input_path = directory + "/{}".format(main_resource["build_path"])
-    output_path = directory + "/output.pdf"
-    log_dir = directory + "/latex.out"
+    input_path = "{}/{}".format(directory, main_resource["build_path"])
+    output_path = "{}/output.pdf".format(directory)
+    log_dir = "{}/latex.out".format(directory)
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
     # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.
     # (Cross-references, page numbers, etc.)
     # TODO Put on pip
     # TODO Fix this lame subprocessing with parh orgy.
-    command = [
-        "python",
-        os.getcwd() + "/latexonhttp/latexrun.py",
-        "--latex-cmd=" + compilerName,
-        "-O=" + log_dir,
-        "-o=" + output_path,
-        # Return all logs.
-        "-W=all"
-        # TODO Add -halt-on-error --interaction=nonstopmode
-        '--latex-args="--output-format=pdf"',
-        input_path,
-    ]
+    if compilerName in ["context"]:
+        # TODO Patch latexrun to support context?
+        # --> do not pass nonstopmode
+        # --> parse jobName / output files from Context output
+        # Or use another more universal Latex runner?
+        command = [
+            compilerName,
+            input_path,
+        ]
+        output_path = "{}/{}".format(
+            directory, main_resource["build_path"].replace(".tex", ".pdf")
+        )
+        log_dir = "{}/{}".format(
+            directory, main_resource["build_path"].replace(".tex", ".log")
+        )
+    else:
+        command = [
+            "python",
+            os.getcwd() + "/latexonhttp/latexrun.py",
+            "--latex-cmd=" + compilerName,
+            "-O=" + log_dir,
+            "-o=" + output_path,
+            # Return all logs.
+            "-W=all"
+            # TODO Add -halt-on-error --interaction=nonstopmode
+            '--latex-args="--output-format=pdf"',
+            input_path,
+        ]
     logger.debug(command)
     commandOutput = run_command(directory, command)
     # TODO Check for compilation errors.

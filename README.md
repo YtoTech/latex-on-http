@@ -91,7 +91,7 @@ Payload (json)
 }
 ```
 
-* `compiler` defaults to `pdflatex`. Available compilers: `pdflatex`, `xelatex`, `lualatex`, `platex` and `uplatex`.
+* `compiler` defaults to `pdflatex`. Available compilers: `pdflatex`, `xelatex`, `lualatex`, `platex`, `uplatex` and `context`.
 * `resources` entries:
     * These are the files uploaded and to be compiled;
     * There must be an entry for the [main Latex document](https://en.wikibooks.org/wiki/LaTeX/Modular_Documents), tagged with the `main: true` value; if there is only one entry, it is considered the main document;
