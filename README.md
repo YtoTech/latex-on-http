@@ -6,25 +6,15 @@
 
 Available on https://latex.ytotech.com as an open-alpha.
 
-This alpha is open to everyone to test the API, collect as much feedbacks as possible and help develop the service. Send your feedbacks to y@yoantournade.com 
+This alpha is open to everyone to test the API, collect as much feedbacks as possible and help develop the service. Feedbacks welcome! Mail me at y@yoantournade.com
 
 ## Notice
 
-As noted above, the API is very likely to change along the way. There will be **no special notice** before changes are rolled out.
+As noted above, the API is likely to change along the way. There will be **no special notice** before changes are rolled out until the API is stabilized.
 
-There is also no guanrantee of availibility; the service can be dropped at any time.
+# Getting started
 
-In the future, there are high chances the service will be limited in the open/anonymous usage mode, requiring to be authenticated to compile several times (and eventually requiring credits).
-
-## Available packages and fonts
-
-Use https://latex.ytotech.com/packages and https://latex.ytotech.com/fonts to see currently available packages and fonts.
-
-You miss something?
-Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/master/container/tl-distrib-debian.Dockerfile#L34) or [Latex/CTAN packages](https://github.com/YtoTech/latex-on-http/blob/master/container/install_latex_packages.sh#L22)!
-
-
-## Hello world
+## Hello world Json API
 
 With Curl:
 
@@ -55,6 +45,13 @@ In this example the main document is passed as a plain-string (Json-encoded `con
 and the second Latex file as a base64 encoded string (`file` resource mode, which expects the file content as base64).
 
 Also note how the first document is flag with the `main` property and how the dependencies relative paths are specified to reconstruct the file arborescence server-side for the compilation with multiple files to work.
+
+## Available packages and fonts
+
+Use https://latex.ytotech.com/packages and https://latex.ytotech.com/fonts to see currently available packages and fonts.
+
+You miss something?
+Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/master/container/tl-distrib-debian.Dockerfile#L34) or [Latex/CTAN packages](https://github.com/YtoTech/latex-on-http/blob/master/container/install_latex_packages.sh#L22)!
 
 # API
 
