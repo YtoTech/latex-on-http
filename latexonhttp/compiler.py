@@ -84,6 +84,7 @@ def latexToPdf(compilerName, directory, main_resource):
         # --> do not pass nonstopmode
         # --> parse jobName / output files from Context output
         # Or use another more universal Latex runner?
+        # https://mg.readthedocs.io/latexmk.html
         command = [
             compilerName,
             input_path,
@@ -109,6 +110,22 @@ def latexToPdf(compilerName, directory, main_resource):
         ]
     logger.debug(command)
     commandOutput = run_command(directory, command)
+    if commandOutput["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
+        # We need a dvipdfmx pass.
+        # https://tex.stackexchange.com/questions/295414/what-is-uptex-uplatex
+        # TODO Use ptex2pdf?
+        # https://github.com/texjporg/ptex2pdf
+        command = [
+            "dvipdfmx",
+            "{}/{}".format(
+                log_dir, main_resource["build_path"].replace(".tex", ".dvi")
+            ),
+        ]
+        output_path = "{}/{}".format(
+            log_dir, main_resource["build_path"].replace(".tex", ".pdf")
+        )
+        logger.debug(command)
+        run_command(log_dir, command)
     # TODO Check for compilation errors.
     # commandOutput['return_code'] is not 0
     # Return both generated PDF and compile logs.
