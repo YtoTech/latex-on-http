@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~~~~~~~~
     Ensures the service is running and test basic functions.
 
-    :copyright: (c) 2017-2019 Yoan Tournade.
+    :copyright: (c) 2017-2020 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
 import pytest
@@ -22,7 +22,7 @@ def test_api_index(latex_on_http_api_url):
         "message": "Welcome to the Latex-On-HTTP API",
         "source": "https://github.com/YtoTech/latex-on-http",
         "documentation": "https://github.com/YtoTech/latex-on-http",
-        "texlive_version": "2019",
+        "texlive_version": "2020",
         "version": get_api_version(),
     }
 
