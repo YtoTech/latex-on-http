@@ -22,6 +22,7 @@ COMPIL_HELLO_WORLD = {
     ],
 }
 SAMPLE_HELLO_WORLD = "hello_world"
+
 COMPIL_UPLATEX_JAPANESE = {
     "compiler": "uplatex",
     "resources": [
@@ -31,6 +32,7 @@ COMPIL_UPLATEX_JAPANESE = {
     ],
 }
 SAMPLE_HELLO_JAPANESE = "hello_japanese"
+
 COMPIL_HELLO_CONTEXT = {
     "compiler": "context",
     "resources": [{"content": "\\starttext\nHello world.\n\\stoptext"}],

@@ -6,6 +6,9 @@
 # - a selection of fonts;
 # - a selection of TexLive packages.
 
+# For inspiration:
+# https://gitlab.com/islandoftex/images/texlive
+
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive

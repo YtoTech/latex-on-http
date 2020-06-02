@@ -14,7 +14,11 @@ As noted above, the API is likely to change along the way. There will be **no sp
 
 # Getting started
 
-## Hello world Json API
+## Hello world GET Querystring API (experimental)
+
+https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%5Cn%20%5Cusepackage%7Bgraphicx%7D%5Cn%20%5Cbegin%7Bdocument%7D%5Cn%20Hello%20World%5Cn%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%5Cn%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png
+
+## Hello world POST Json API
 
 With Curl:
 
@@ -45,6 +49,19 @@ In this example the main document is passed as a plain-string (Json-encoded `con
 and the second Latex file as a base64 encoded string (`file` resource mode, which expects the file content as base64).
 
 Also note how the first document is flag with the `main` property and how the dependencies relative paths are specified to reconstruct the file arborescence server-side for the compilation with multiple files to work.
+
+## Hello world Multipart API
+
+With [HTTPie](https://github.com/jakubroztocil/httpie):
+
+```sh
+http --download -f -v POST https://latex.ytotech.com/builds/sync \
+    file1@sample.tex \
+    compiler=xelatex \
+    resources='[{"main": "true", "multipart": "file1"}]'
+```
+
+This multi-part API allows to send resource files to be compiled in a multipart HTTP query.
 
 ## Available packages and fonts
 

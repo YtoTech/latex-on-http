@@ -73,7 +73,9 @@
         * .NET
 * Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
     * Support more compilers?
-    * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
+        * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
+    * Support Arara https://gitlab.com/islandoftex/arara
+    * Allows non-pdf output (DVI, etc.).
 * Compilation options
     * Timeout
 * Build output structure

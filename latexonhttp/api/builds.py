@@ -16,6 +16,7 @@ from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
 from latexonhttp.resources.utils import process_resource_data_spec
 from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
+from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
 from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
@@ -51,12 +52,21 @@ builds_app = Blueprint("builds", __name__)
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?
 # Allows the two: (async, sync)
-@builds_app.route("/sync", methods=["POST"])
+@builds_app.route("/sync", methods=["GET", "POST"])
 def compiler_latex():
     payload = None
 
+    # Support for GET querystring requests.
+    if request.method == "GET":
+        logger.info(pprint.pformat(request.args.to_dict(False)))
+        payload, error = parse_querystring_resources_spec(
+            request.args.to_dict(True), request.args.to_dict(False)
+        )
+        if error:
+            return jsonify(error), 400
+
     # Support for multipart/form-data requests.
-    if "multipart/form-data" in request.content_type:
+    if request.content_type and "multipart/form-data" in request.content_type:
         logger.info(request.content_type)
         logger.info(pprint.pformat(request.files))
         logger.info(pprint.pformat(request.form))
