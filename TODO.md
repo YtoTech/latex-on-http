@@ -40,6 +40,8 @@
     * Add Tectonic engine https://github.com/tectonic-typesetting/tectonic
 * Upgrade filesystem layer
     * work with tar, git, etc.
+        * allows to extract a git hierarchy from git/GitHub/GitLab links
+            * https://github.com/posquit0/Awesome-CV/blob/master/examples/resume.tex
 * Caching layer
     * allocate a file caching space by instance / user ?
     * cache on inputs

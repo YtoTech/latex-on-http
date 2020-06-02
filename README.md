@@ -16,7 +16,23 @@ As noted above, the API is likely to change along the way. There will be **no sp
 
 ## Hello world GET Querystring API (experimental)
 
-https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%5Cn%20%5Cusepackage%7Bgraphicx%7D%5Cn%20%5Cbegin%7Bdocument%7D%5Cn%20Hello%20World%5Cn%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%5Cn%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png
+You can pass your Latex document to compile in a `content` GET parameter:
+
+[https://latex.ytotech.com/builds/sync?content=\documentclass{article} \begin{document} Hello World Latex-on-HTTP \end{document}](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20Latex-on-HTTP%20%5Cend%7Bdocument%7D)
+
+You can also pass your document by url using `url` parameter:
+
+https://latex.ytotech.com/builds/sync?url=https://raw.githubusercontent.com/YtoTech/latex-on-http/master/examples/templates/moderncv.tex
+
+It is possible to specify the Latex compiler with `compiler` parameter:
+
+https://latex.ytotech.com/builds/sync?compiler=xelatex&url=https://raw.githubusercontent.com/YtoTech/latex-on-http/master/examples/gitlab_ci/Dossier_Eleve.tex
+
+When you need to add annex resources (for eg. other Latex files or image files), you can specify them using `resource-path[]`, `resource-value[]` and `resource-type[]` parameters:
+
+
+[https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png)
+
 
 ## Hello world POST Json API
 
