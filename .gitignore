@@ -99,3 +99,11 @@ ENV/
 tests/samples/**/generated.pdf
 tests/samples/**/generated*.jpg
 tests/samples/**/*.hexdump
+
+
+examples/**/*.aux
+examples/**/*.log
+examples/**/*.bbl
+examples/**/*.blg
+examples/**/*.bcf
+examples/**/*.run.xml
