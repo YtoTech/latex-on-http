@@ -130,6 +130,8 @@ Payload (json)
         * String format, with `content` (value must be encoded as a valid Json string);
         * Inline file format, with `file` (value must be [base64](https://en.wikipedia.org/wiki/Base64) encoded)
         * URL to a file, with `url` (the resource pointed by the URL will be downloaded and decoded with UTF-8).
+* `options` properties:
+    * `options.bibliography.command` defaults to `bibtex`. Available bibliography commands: `bibtex` and `biber`.
 
 
 > Response

@@ -11,6 +11,7 @@ import logging
 import json
 import base64
 import pprint
+import glom
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,11 @@ def parse_multipart_resources_spec(forms, files):
     # Loads options.
     if "compiler" in forms:
         json_spec["compiler"] = forms["compiler"]
+
+    # options. entries.
+    for option_key in (param_key for param_key in forms if "options." in param_key):
+        glom.assign(json_spec, option_key, forms[option_key], missing=dict)
+
     # Get resources specification.
     if "resources" in forms:
         try:

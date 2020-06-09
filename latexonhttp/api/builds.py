@@ -9,14 +9,23 @@
 """
 import logging
 import pprint
+import glom
 from flask import Blueprint, request, jsonify, Response
-from latexonhttp.compiler import latexToPdf, AVAILABLE_LATEX_COMPILERS
+from latexonhttp.compiler import (
+    latexToPdf,
+    AVAILABLE_LATEX_COMPILERS,
+    AVAILABLE_BIBLIOGRAPHY_COMMANDS,
+)
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
-from latexonhttp.resources.utils import process_resource_data_spec
+from latexonhttp.resources.utils import (
+    process_resource_data_spec,
+    prune_resources_content_for_logging,
+)
 from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
 from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
+from latexonhttp.resources.json_api import parse_json_resources_spec
 from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
@@ -52,14 +61,25 @@ builds_app = Blueprint("builds", __name__)
 # TODO Only register request here, and allows to define an hook for when
 # the work is done?
 # Allows the two: (async, sync)
+# TODO Returns the build job id in a response HTTP header.
+# TODO Make a commond implementation for both async and sync, using a message broker.
+# TODO Store jobs in a Redis, to be flushed.
+# TODO With this job store, add top-level cache:
+# signature of compilation spec -> in cache? -> directly return.
+
+
 @builds_app.route("/sync", methods=["GET", "POST"])
 def compiler_latex():
-    payload = None
+    input_spec = None
+
+    # TODO Allows mixed APIs?
+    # for eg. using GET/param to specify the compiler
+    # with a POST/json payload (POST:/builds/sync?compiler=xelatex)
 
     # Support for GET querystring requests.
     if request.method == "GET":
         logger.info(pprint.pformat(request.args.to_dict(False)))
-        payload, error = parse_querystring_resources_spec(
+        input_spec, error = parse_querystring_resources_spec(
             request.args.to_dict(True), request.args.to_dict(False)
         )
         if error:
@@ -70,42 +90,79 @@ def compiler_latex():
         logger.info(request.content_type)
         logger.info(pprint.pformat(request.files))
         logger.info(pprint.pformat(request.form))
-        payload, error = parse_multipart_resources_spec(request.form, request.files)
+        input_spec, error = parse_multipart_resources_spec(request.form, request.files)
         if error:
             return jsonify(error), 400
 
-    if not payload:
-        payload = request.get_json()
-    if not payload:
-        return jsonify({"error": "MISSING_PAYLOAD"}), 400
+    if not input_spec:
+        input_spec, error = parse_json_resources_spec(request.get_json())
+        if error:
+            return jsonify(error), 400
 
-    # TODO Pre-normalized data checks.
-    # - resources (mandatory, must be an array).
-    # TODO High-level normalizsation.
+    if not input_spec:
+        return jsonify({"error": "MISSING_COMPILATION_SPECIFICATION"}), 400
+
+    # High-level normalizsation.
+    logger.info(
+        "Before normalization %s",
+        pprint.pformat(prune_resources_content_for_logging(input_spec)),
+    )
+
     # - compiler
     # Choose compiler: latex, pdflatex, xelatex or lualatex
     # We default to pdflatex.
-    compilerName = "pdflatex"
-    if "compiler" in payload:
-        if payload["compiler"] not in AVAILABLE_LATEX_COMPILERS:
-            return (
-                jsonify(
-                    {
-                        "error": "INVALID_COMPILER",
-                        "available_compilers": AVAILABLE_LATEX_COMPILERS,
-                    }
-                ),
-                400,
-            )
-        compilerName = payload["compiler"]
-    if not "resources" in payload:
+    compilerName = input_spec.get("compiler", "pdflatex")
+
+    # -options.bibliography.command
+    # Choose bibliography command: bibtex, biber.
+    # We default to bibtex.
+    glom.assign(
+        input_spec,
+        "options.bibliography.command",
+        glom.glom(input_spec, "options.bibliography.command", default="bibtex"),
+        missing=dict,
+    )
+
+    # Pre-normalized data checks.
+
+    # - resources (mandatory, must be an array).
+    if not "resources" in input_spec:
         return jsonify({"error": "MISSING_RESOURCES"}), 400
+    if type(input_spec["resources"]) != list:
+        return jsonify({"error": "RESOURCES_SPEC_MUST_BE_A_LIST"}), 400
+
+    # - compiler
+    if compilerName not in AVAILABLE_LATEX_COMPILERS:
+        return (
+            jsonify(
+                {
+                    "error": "INVALID_COMPILER",
+                    "available_compilers": AVAILABLE_LATEX_COMPILERS,
+                }
+            ),
+            400,
+        )
+
+    # -options.bibliography.command
+    if (
+        glom.glom(input_spec, "options.bibliography.command")
+        not in AVAILABLE_BIBLIOGRAPHY_COMMANDS
+    ):
+        return (
+            jsonify(
+                {
+                    "error": "INVALID_BILIOGRAPHY_COMMAND",
+                    "available_commands": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
+                }
+            ),
+            400,
+        )
 
     # -------------
     # Pre-fetch normalization and checks.
     # -------------
 
-    normalized_resources = normalize_resources_input(payload["resources"])
+    normalized_resources = normalize_resources_input(input_spec["resources"])
     # if logger.isEnabledFor(logging.DEBUG):
     #     logger.debug(pprint.pformat(normalized_resources))
     # - Prefetch checks (paths, main document, ...);
@@ -155,7 +212,10 @@ def compiler_latex():
             if resource["is_main_document"]
         )
         latexToPdfOutput = latexToPdf(
-            compilerName, get_workspace_root_path(workspace_id), main_resource
+            compilerName,
+            get_workspace_root_path(workspace_id),
+            main_resource,
+            input_spec["options"],
         )
 
         # -------------

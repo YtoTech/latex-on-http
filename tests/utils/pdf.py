@@ -118,6 +118,8 @@ def snapshot_pdf_images(pdf, sample_dir, update_snapshot):
 
 def snapshot_pdf(pdf, sample, update_snapshot=False):
     sample_dir = "{}{}/".format(SAMPLE_DIR, sample)
+    if update_snapshot and not os.path.exists(sample_dir):
+        os.makedirs(sample_dir)
     snapshot_pdf_bytes(pdf, sample_dir, update_snapshot)
     snapshot_pdf_text(pdf, sample_dir, update_snapshot)
     # TODO Disabled as not reliable following the machine used to run tests.

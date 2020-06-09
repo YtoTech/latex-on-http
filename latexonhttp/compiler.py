@@ -11,6 +11,7 @@
 import subprocess
 import os
 import logging
+import glom
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ AVAILABLE_LATEX_COMPILERS = [
     "uplatex",
     "context",
 ]
+AVAILABLE_BIBLIOGRAPHY_COMMANDS = ["bibtex", "biber"]
 
 
 def run_command(directory, command):
@@ -62,7 +64,10 @@ def run_command(directory, command):
     return {"return_code": rc, "stdout": stdout}
 
 
-def latexToPdf(compilerName, directory, main_resource):
+def latexToPdf(compilerName, directory, main_resource, options={}):
+    bibtexCommand = glom.glom(options, "bibliography.command", default="bibtex")
+    if bibtexCommand not in AVAILABLE_BIBLIOGRAPHY_COMMANDS:
+        raise ValueError("Invalid bibtex command")
     if compilerName not in AVAILABLE_LATEX_COMPILERS:
         raise ValueError("Invalid compiler")
     # TODO Choose appropriate options following the compiler.
@@ -81,6 +86,7 @@ def latexToPdf(compilerName, directory, main_resource):
     # TODO Fix this lame subprocessing with parh orgy.
     if compilerName in ["context"]:
         # TODO Patch latexrun to support context?
+        # Here do not support multi runs or bibtex/biber commands.
         # --> do not pass nonstopmode
         # --> parse jobName / output files from Context output
         # Or use another more universal Latex runner?
@@ -98,14 +104,16 @@ def latexToPdf(compilerName, directory, main_resource):
     else:
         command = [
             "python",
-            os.getcwd() + "/latexonhttp/latexrun.py",
-            "--latex-cmd=" + compilerName,
-            "-O=" + log_dir,
-            "-o=" + output_path,
+            "{}/latexonhttp/latexrun.py".format(os.getcwd()),
+            "--latex-cmd={}".format(compilerName),
+            "-O={}".format(log_dir),
+            "-o={}".format(output_path),
             # Return all logs.
             "-W=all"
             # TODO Add -halt-on-error --interaction=nonstopmode
+            # TODO Let user choose DVI (or other supported) output.
             '--latex-args="--output-format=pdf"',
+            "--bibtex-cmd={}".format(bibtexCommand),
             input_path,
         ]
     logger.debug(command)

@@ -11,6 +11,7 @@ import logging
 import json
 import base64
 import pprint
+import glom
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,10 @@ def parse_querystring_resources_spec(params, multi_params):
     # Loads options.
     if "compiler" in params:
         json_spec["compiler"] = params["compiler"]
+
+    # options. entries.
+    for option_key in (param_key for param_key in params if "options." in param_key):
+        glom.assign(json_spec, option_key, params[option_key], missing=dict)
 
     # List-based resource specification.
     other_resources = []
