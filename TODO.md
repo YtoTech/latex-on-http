@@ -3,6 +3,11 @@
 
 ## TODOs
 
+* Introspection
+    * Add deeper Latex introspection
+    * Compilation options introspection
+        * Latex compiler, with for each tree of available options
+        * Bibliography / bibtex/biblatex, etc.
 * Font catalog:
     * Also list fonts from Latex Font catalogue? (for use with pdflatex)
         * https://tug.org/FontCatalogue/
