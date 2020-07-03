@@ -47,7 +47,8 @@ RUN apt-get update -qq && apt-get install -y \
     fonts-lato \
     fonts-linuxlibertine \
     fonts-noto \
-    fonts-roboto
+    fonts-roboto \
+    && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 #--------------------------------
@@ -60,11 +61,3 @@ RUN /tmp/install_latex_packages.sh
 
 # Notes: we need tlmgr dependencies installed, because we use it at runtime
 # (for listing packages, etc.)
-
-
-#--------------------------------
-# Clean
-#--------------------------------
-
-# Clean APT cache.
-RUN apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
