@@ -113,6 +113,7 @@ def test_querystring_multi_resources(latex_on_http_api_url):
     )
     # import pprint
 
+    # pprint.pprint(r.text)
     # pprint.pprint(r.json())
     assert r.status_code == 201
 
