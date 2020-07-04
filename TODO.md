@@ -106,6 +106,7 @@
     * Put API under api.domain.com, doc developer.domain.com and keep domain.com for home
     * Create a landing page with rationale (simple, directly let play with the toy)
     * https://fonts.google.com/specimen/Droid+Serif
+        * Better --> https://github.com/DecliningLotus/fontsource
     * https://v4-alpha.getbootstrap.com/
     * Add usage examples with wget, Python (requests), Javascript, Ruby, PHP.
         * Add click-and-see example on the browser, with code snippet
