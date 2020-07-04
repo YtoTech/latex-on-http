@@ -18,6 +18,7 @@ script:
 
   # Run tests (using locally built Docker images).
   - make test-docker-compose
+  # - make test-docker-compose-start && sleep 3 && make test-x && sleep 2 && make test-docker-compose-stop
 
 # Publish images to Docker hub.
 # Only in master branch commits.

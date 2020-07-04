@@ -96,6 +96,9 @@ test-docker-compose-start:
 test-docker-compose-stop:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test stop
 
+test-docker-compose-rm:
+	docker-compose -f docker-compose.test.yml -p latex-on-http-test rm
+
 test-docker-compose-build:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test build --no-cache
 

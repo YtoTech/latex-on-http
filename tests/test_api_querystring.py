@@ -8,6 +8,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import pytest
+import pprint
 import requests
 from .utils.pdf import snapshot_pdf
 
@@ -111,10 +112,9 @@ def test_querystring_multi_resources(latex_on_http_api_url):
             ],
         },
     )
-    # import pprint
-
-    # pprint.pprint(r.text)
-    # pprint.pprint(r.json())
+    if r.status_code != 201:
+        pprint.pprint(r.text)
+        # pprint.pprint(r.json())
     assert r.status_code == 201
 
 
