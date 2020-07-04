@@ -103,7 +103,7 @@ def test_querystring_multi_resources(latex_on_http_api_url):
         latex_on_http_api_url + "/builds/sync",
         params={
             "content": LATEX_MULTI_RESOURCES,
-            "compiler": "xelatex",
+            "compiler": "pdflatex",
             "resource-path[]": ["logo.png", "page2.tex"],
             "resource-type[]": ["url", "base64"],
             "resource-value[]": [
