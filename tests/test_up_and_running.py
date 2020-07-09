@@ -19,7 +19,7 @@ def test_api_index(latex_on_http_api_url):
     r = requests.get(latex_on_http_api_url, allow_redirects=False)
     assert r.status_code == 200
     assert r.json() == {
-        "message": "Welcome to the Latex-On-HTTP API",
+        "message": "Welcome to the LaTeX-On-HTTP API",
         "source": "https://github.com/YtoTech/latex-on-http",
         "documentation": "https://github.com/YtoTech/latex-on-http",
         "texlive_version": "2020",

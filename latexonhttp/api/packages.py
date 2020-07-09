@@ -2,7 +2,7 @@
 """
     latexonhttp.api.packages
     ~~~~~~~~~~~~~~~~~~~~~
-    Manage Latex-On-HTTP Latex packages.
+    Manage LaTeX-On-HTTP Latex packages.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

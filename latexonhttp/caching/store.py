@@ -2,7 +2,7 @@
 """
     latexonhttp.caching.store
     ~~~~~~~~~~~~~~~~~~~~~
-    Caching metadata store for Latex-On-HTTP.
+    Caching metadata store for LaTeX-On-HTTP.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

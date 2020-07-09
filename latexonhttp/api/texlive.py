@@ -2,7 +2,7 @@
 """
     latexonhttp.api.texlive
     ~~~~~~~~~~~~~~~~~~~~~
-    Information about Latex-On-HTTP TeXLive installation.
+    Information about LaTeX-On-HTTP TeXLive installation.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

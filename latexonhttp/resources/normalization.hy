@@ -2,7 +2,7 @@
 """
     latexonhttp.resources.normalization
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP resources input normalization:
+    LaTeX-On-HTTP resources input normalization:
     process normalized resource input representation,
     to be used in actual filesystem implementation
     and caching mechanisms.

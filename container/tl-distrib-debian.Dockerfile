@@ -1,4 +1,4 @@
-# Latex-on-HTTP intermediate Docker container,
+# LaTeX-On-HTTP intermediate Docker container,
 # with the complete TexLive (& other compilers) distribution.
 # 
 # This is:

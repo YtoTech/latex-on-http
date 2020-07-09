@@ -2,7 +2,7 @@
 """
     tests.test_fetchers
     ~~~~~~~~~~~~~~~~~~~~~
-    Test the Latex-on-HTTP file fetchers.
+    Test the LaTeX-On-HTTP file fetchers.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

@@ -1,11 +1,11 @@
 # Compiling Latex documents in GitLab CI pipelines
 
-Vincent-Xavier JUMEL uses the Latex-on-HTTP API to compiles Latex documents during a deploy stage
+Vincent-Xavier JUMEL uses the LaTeX-On-HTTP API to compiles Latex documents during a deploy stage
 with GitLab CI for an [educational project](https://framagit.org/formation-nsi/projet-algo-du).
 
 It consists of:
 1. calling a simple bash script from the GitLab CI stage (see [`.gitlab-ci.yml`](https://framagit.org/formation-nsi/projet-algo-du/blob/a5b70eb90df23f4eef4b4adc35e4697e6417118c/.gitlab-ci.yml#L65))
-2. calling the Latex-on-HTTP API with cURL in the bash script and piping the result to a file (see [`compile_dossier_eleve.sh`](https://framagit.org/formation-nsi/projet-algo-du/blob/a5b70eb90df23f4eef4b4adc35e4697e6417118c/documents/compile_dossier_eleve.sh)):
+2. calling the LaTeX-On-HTTP API with cURL in the bash script and piping the result to a file (see [`compile_dossier_eleve.sh`](https://framagit.org/formation-nsi/projet-algo-du/blob/a5b70eb90df23f4eef4b4adc35e4697e6417118c/documents/compile_dossier_eleve.sh)):
 
 ```bash
 #!/bin/bash

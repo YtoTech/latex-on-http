@@ -2,7 +2,7 @@
 """
     latexonhttp.api.fonts
     ~~~~~~~~~~~~~~~~~~~~~
-    Manage Latex-On-HTTP fonts.
+    Manage LaTeX-On-HTTP fonts.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

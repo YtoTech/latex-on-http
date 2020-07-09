@@ -42,7 +42,10 @@
     * make a multi-TexLive version env?
         * letting choose the TexLive distribution as the compiler?
 * Latex package dynamic install / on demand
-    * Add Tectonic engine https://github.com/tectonic-typesetting/tectonic
+    * Add Tectonic engine
+        * https://github.com/tectonic-typesetting/tectonic
+        * https://tectonic-typesetting.github.io/en-US/install.html
+        * https://tex.stackexchange.com/questions/372408/what-use-is-tectonic
 * Upgrade filesystem layer
     * work with tar, git, etc.
         * allows to extract a git hierarchy from git/GitHub/GitLab links

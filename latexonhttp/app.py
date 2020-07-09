@@ -2,7 +2,7 @@
 """
     latexonhttp.app
     ~~~~~~~~~~~~~~~~~~~~~
-    Server application for Latex-On-HTTP API.
+    Server application for LaTeX-On-HTTP API.
     Here are exposed the Rest API endpoints.
 
     :copyright: (c) 2017-2018 Yoan Tournade.
@@ -56,7 +56,7 @@ def hello():
     return (
         jsonify(
             {
-                "message": "Welcome to the Latex-On-HTTP API",
+                "message": "Welcome to the LaTeX-On-HTTP API",
                 "version": get_api_version(),
                 "source": "https://github.com/YtoTech/latex-on-http",
                 "documentation": "https://github.com/YtoTech/latex-on-http",

@@ -2,7 +2,7 @@
 """
     latexonhttp.api.projects
     ~~~~~~~~~~~~~~~~~~~~~
-    Manage Latex-On-HTTP projects / templates.
+    Manage LaTeX-On-HTTP projects / templates.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

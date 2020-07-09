@@ -2,7 +2,7 @@
 """
     latexonhttp.caching.bridge
     ~~~~~~~~~~~~~~~~~~~~~
-    Bridge to Latex-On-HTTP cache process.
+    Bridge to LaTeX-On-HTTP cache process.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
@@ -19,7 +19,7 @@ dealer_socket = None
 
 
 # ; The caching is forwarded to a decicated process
-# ; for the whole Latex-On-HTTP node to ensure consistency.
+# ; for the whole LaTeX-On-HTTP node to ensure consistency.
 # ; Also will avoid cache management overhead in main process
 # (with async operations).
 # ; --> Uses a zeroMQ socket as the API.

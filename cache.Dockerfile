@@ -1,4 +1,4 @@
-# Latex-on-HTTP cache process Docker container.
+# LaTeX-On-HTTP cache process Docker container.
 # 
 # This is:
 # - a Python runtime/distribution;

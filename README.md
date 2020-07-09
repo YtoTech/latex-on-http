@@ -1,4 +1,4 @@
-# Latex-On-HTTP
+# LaTeX-On-HTTP
 
 > Compiles Latex documents through an HTTP API.
 
@@ -18,7 +18,7 @@ As noted above, the API is likely to change along the way. There will be **no sp
 
 You can pass your Latex document to compile in a `content` GET parameter:
 
-[https://latex.ytotech.com/builds/sync?content=\documentclass{article} \begin{document} Hello World Latex-on-HTTP \end{document}](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20Latex-on-HTTP%20%5Cend%7Bdocument%7D)
+[https://latex.ytotech.com/builds/sync?content=\documentclass{article} \begin{document} Hello World LaTeX-On-HTTP \end{document}](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20LaTeX-On-HTTP%20%5Cend%7Bdocument%7D)
 
 You can also pass your document by url using `url` parameter:
 

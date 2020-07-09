@@ -2,7 +2,7 @@
 """
     latexonhttp.utils.texlive
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP TeX Live utils.
+    LaTeX-On-HTTP TeX Live utils.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

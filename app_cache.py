@@ -2,7 +2,7 @@
 """
     latexonhttp.caching.process
     ~~~~~~~~~~~~~~~~~~~~~
-    Manage Latex-On-HTTP cache process lifecycle.
+    Manage LaTeX-On-HTTP cache process lifecycle.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
@@ -53,7 +53,7 @@ ACTIONS_MAP = {
 
 
 if __name__ == "__main__":
-    logger.info("Starting Latex-On-HTTP cache process")
+    logger.info("Starting LaTeX-On-HTTP cache process")
     # Initializing cache metadata.
     logger.info("Preparing cache...")
     # Reset cache.

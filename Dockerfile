@@ -1,4 +1,4 @@
-# Latex-on-HTTP final Docker container.
+# LaTeX-On-HTTP final Docker container.
 # 
 # This is:
 # - a Texlive distribution;
@@ -6,7 +6,7 @@
 # - a selection of TexLive packages;
 # - libmq, with development headers;
 # - a Python runtime/distribution;
-# - the Latex-on-HTTP application, with its dependencies.
+# - the LaTeX-On-HTTP application, with its dependencies.
 
 # TODO Publish the final image.
 

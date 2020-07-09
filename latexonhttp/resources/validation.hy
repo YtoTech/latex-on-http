@@ -2,7 +2,7 @@
 """
     latexonhttp.resources.validation
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP input resource validation.
+    LaTeX-On-HTTP input resource validation.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.

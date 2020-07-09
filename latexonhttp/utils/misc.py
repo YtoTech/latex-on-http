@@ -2,7 +2,7 @@
 """
     latexonhttp.utils.misc
     ~~~~~~~~~~~~~~~~~~~~~
-    Latex-On-HTTP miscellaneous utils.
+    LaTeX-On-HTTP miscellaneous utils.
 
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
