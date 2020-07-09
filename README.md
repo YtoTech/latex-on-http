@@ -1,6 +1,6 @@
 # LaTeX-On-HTTP
 
-> Compiles Latex documents through an HTTP API.
+> Compiles LaTeX documents through an HTTP API.
 
 # Open Alpha @ latex.ytotech.com
 
@@ -16,7 +16,7 @@ As noted above, the API is likely to change along the way. There will be **no sp
 
 ## Hello world GET Querystring API (experimental)
 
-You can pass your Latex document to compile in a `content` GET parameter:
+You can pass your LaTeX document to compile in a `content` GET parameter:
 
 [https://latex.ytotech.com/builds/sync?content=\documentclass{article} \begin{document} Hello World LaTeX-On-HTTP \end{document}](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20LaTeX-On-HTTP%20%5Cend%7Bdocument%7D)
 
@@ -24,11 +24,11 @@ You can also pass your document by url using `url` parameter:
 
 https://latex.ytotech.com/builds/sync?url=https://raw.githubusercontent.com/YtoTech/latex-on-http/master/examples/templates/moderncv.tex
 
-It is possible to specify the Latex compiler with `compiler` parameter:
+It is possible to specify the LaTeX compiler with `compiler` parameter:
 
 https://latex.ytotech.com/builds/sync?compiler=xelatex&url=https://raw.githubusercontent.com/YtoTech/latex-on-http/master/examples/gitlab_ci/Dossier_Eleve.tex
 
-When you need to add annex resources (for eg. other Latex files or image files), you can specify them using `resource-path[]`, `resource-value[]` and `resource-type[]` parameters:
+When you need to add annex resources (for eg. other LaTeX files or image files), you can specify them using `resource-path[]`, `resource-value[]` and `resource-type[]` parameters:
 
 
 [https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png)
@@ -62,7 +62,7 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
 ```
 
 In this example the main document is passed as a plain-string (Json-encoded `content` resource mode), the logo image file with an url (`url` resource mode)
-and the second Latex file as a base64 encoded string (`file` resource mode, which expects the file content as base64).
+and the second LaTeX file as a base64 encoded string (`file` resource mode, which expects the file content as base64).
 
 Also note how the first document is flag with the `main` property and how the dependencies relative paths are specified to reconstruct the file arborescence server-side for the compilation with multiple files to work.
 
@@ -90,11 +90,11 @@ Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/mas
 
 This project is in an experimental phase and the API is *very likely* to change.
 
-# Compiling Latex
+# Compiling LaTeX
 
 ### `POST:/builds/sync`
 
-Compile a Latex document, waiting for the end of the build to get back the file.
+Compile a LaTeX document, waiting for the end of the build to get back the file.
 
 >  Request
 
@@ -124,8 +124,8 @@ Payload (json)
 * `compiler` defaults to `pdflatex`. Available compilers: `pdflatex`, `xelatex`, `lualatex`, `platex`, `uplatex` and `context`.
 * `resources` entries:
     * These are the files uploaded and to be compiled;
-    * There must be an entry for the [main Latex document](https://en.wikibooks.org/wiki/LaTeX/Modular_Documents), tagged with the `main: true` value; if there is only one entry, it is considered the main document;
-    * Resource entries that are not the main document must be specified a `path`, relative to main document; these files can then been referred in the Latex sources;
+    * There must be an entry for the [main LaTeX document](https://en.wikibooks.org/wiki/LaTeX/Modular_Documents), tagged with the `main: true` value; if there is only one entry, it is considered the main document;
+    * Resource entries that are not the main document must be specified a `path`, relative to main document; these files can then been referred in the LaTeX sources;
     * There are several resource content formats:
         * String format, with `content` (value must be encoded as a valid Json string);
         * Inline file format, with `file` (value must be [base64](https://en.wikipedia.org/wiki/Base64) encoded)
@@ -142,7 +142,7 @@ A PDF file if the compilation succeeds, else a Json payload with the error logs.
 
 ### `GET:/texlive/information`
 
-See information on TeXLive installation used in Latex compilations.
+See information on TeXLive installation used in LaTeX compilations.
 
 >  Request
 
@@ -176,7 +176,7 @@ Sample
 
 ### `GET:/fonts`
 
-Explore available fonts that can be used directly in Latex compilations.
+Explore available fonts that can be used directly in LaTeX compilations.
 
 >  Request
 
@@ -203,7 +203,7 @@ Sample
 
 ### `GET:/packages`
 
-Explore installed Latex packages that can be used in compilations.
+Explore installed LaTeX packages that can be used in compilations.
 
 >  Request
 
@@ -230,7 +230,7 @@ Sample
 
 ### `GET:/packages/<packgeName>`
 
-Get information on a Latex package, including whether it is installed or not.
+Get information on a LaTeX package, including whether it is installed or not.
 
 >  Request
 
@@ -273,7 +273,7 @@ Sample for `/packages/12many`
 ## Credits
 
 Inspired by:
-* [Overleaf](https://www.overleaf.com/) and [Sharelatex](https://fr.sharelatex.com/) for the idea that Latex can be made a web-accessible tool
-* ... and for their open-source cloud Latex compiling architectures ([clsi-sharelatex](https://github.com/sharelatex/clsi-sharelatex) and [clsi-overlead](https://github.com/overleaf/clsi))
-* [Latex-Online](https://github.com/aslushnikov/latex-online) from aslushnikov for a CLI-oriented online Latex compiler
-* mrzool for its [great Latex templates](http://mrzool.cc/writing/typesetting-automation/) and integration with Pandoc
+* [Overleaf](https://www.overleaf.com/) and [Sharelatex](https://fr.sharelatex.com/) for the idea that LaTeX can be made a web-accessible tool
+* ... and for their open-source cloud LaTeX compiling architectures ([clsi-sharelatex](https://github.com/sharelatex/clsi-sharelatex) and [clsi-overlead](https://github.com/overleaf/clsi))
+* [Latex-Online](https://github.com/aslushnikov/latex-online) from aslushnikov for a CLI-oriented online LaTeX compiler
+* mrzool for its [great LaTeX templates](http://mrzool.cc/writing/typesetting-automation/) and integration with Pandoc
