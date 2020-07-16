@@ -17,5 +17,5 @@ def test_cors_cross_origin(latex_on_http_api_url):
     """
     r = requests.request("OPTIONS", latex_on_http_api_url + "/builds/sync")
     assert r.status_code == 200
-    assert r.headers["Allow"] == "GET, OPTIONS, HEAD, POST"
+    assert sorted(r.headers["Allow"].split(", ")) == ["GET", "HEAD", "OPTIONS", "POST"]
     assert r.headers["Access-Control-Allow-Origin"] == "*"
