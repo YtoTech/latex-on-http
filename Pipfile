@@ -22,6 +22,7 @@ pyzmq = "*"
 msgpack = "*"
 colorama = "*"
 glom = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3"

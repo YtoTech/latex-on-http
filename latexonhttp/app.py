@@ -10,6 +10,7 @@
 """
 import logging.config
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.packages import packages_app
@@ -45,6 +46,9 @@ app.register_blueprint(caches_app, url_prefix="/caches")
 # Keep this project centered on the Latex compiling features/abstractions,
 # put the project/workspace/user management in another layer.
 # app.register_blueprint(projects_app, url_prefix="/projects")
+
+# Allows CORS requests on all endpoints.
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route("/")
