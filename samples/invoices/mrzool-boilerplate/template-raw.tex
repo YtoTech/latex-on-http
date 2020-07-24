@@ -13,58 +13,19 @@
 % Left align
 \usepackage[document]{ragged2e}
 
-
-% TYPOGRAPHY (Original: for XeLateX)
+% TYPOGRAPHY (Modified: for T1 fonts)
 %--------------------------------
-% \usepackage{fontspec} 
-% \usepackage{xunicode}
-% \usepackage{xltxtra}
-
-% % converts LaTeX specials (quotes, dashes etc.) to Unicode
-% \defaultfontfeatures{Mapping=tex-text}
-% \setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Hoefler Text}
-% \setsansfont[Scale=0.9]{Helvetica Neue}
-
-% % Set paragraph break
-% \setlength{\parskip}{1em}
-
-% % Custom ampersand
-% \newcommand{\amper}{{\fontspec[Scale=.95]{Hoefler
-% Text}\selectfont\itshape\&}}
-
-% \setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Hoefler
-% Text}
-%     \setsansfont{Helvetica Neue}
-
-% % Command required by how Pandoc handles the list conversion
-% \providecommand{\tightlist}{%
-%   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
-% TYPOGRAPHY (Modified: for PDFLaTeX)
-%--------------------------------
+% You can choose a font on https://tug.org/FontCatalogue/
 \usepackage[T1]{fontenc}
 \usepackage{crimson}
 \usepackage[default]{sourcesanspro}
 
-% converts LaTeX specials (quotes, dashes etc.) to Unicode
-% \defaultfontfeatures{Mapping=tex-text}
-% \setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Hoefler Text}
-% \setsansfont[Scale=0.9]{Helvetica Neue}
-
 % Set paragraph break
 \setlength{\parskip}{1em}
 
-% Custom ampersand
-% \newcommand{\amper}{{\fontspec[Scale=.95]{Hoefler
-% Text}\selectfont\itshape\&}}
-
-% \setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Hoefler
-% Text}
-%     \setsansfont{Helvetica Neue}
-
 % Command required by how Pandoc handles the list conversion
-% \providecommand{\tightlist}{%
-%   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 % TABLE CUSTOMIZATION
 %--------------------------------
