@@ -1,0 +1,158 @@
+---
+proposal-nr: 2020-07-24
+proposal-date: 24 juillet 2020
+author: Max Mustermann
+city: Musterstadt
+from:
+- Musterstraße 37
+- 12345 Musterstadt
+to:
+- Erika Mustermann
+- Musterallee 1
+- 12345 Musterstadt
+- Germany
+VAT: 20
+
+closingnote: |
+  Please transfer the due amount to the following bank account within the next 14 days:
+   
+    Mustermann GmbH  
+    Kreditinstitut: Deutsche Postbank AG  
+    IBAN: DE18 3601 0043 9999 9999 99  
+    BIC: PBNKDEFF  
+
+    We really appreciate your business and look forward to future projects together.
+
+    Best regards,
+
+# Quote settings
+currency: EUR
+# commasep: true
+lang: english
+
+# Typography and layout
+seriffont: Hoefler Text
+sansfont: Helvetica Neue
+fontsize: 10pt
+geometry: a4paper, left=43mm, right=43mm, top=51mm, bottom=17mm
+# letterhead: true # To include personalized letterheads
+
+# Proposal content.
+# Services / prestations listing and pricing:
+service:
+- description: The first service provided
+  price: 320.00
+  details:
+- description: And another one, with a list of details
+  price: 245.00
+  details:
+    - Some more detailed explanation
+    - of the service provided
+    - Looking good
+- description: The last service provided
+  price: 65.00
+
+# TODO Logo
+
+# Proposal redaction / writing.
+
+# Before prestation listing:
+text_sections_before_service:
+  - title: "Object du projet"
+    content: |
+      Le présent devis porte sur ...
+
+
+      La prestation consiste à ...
+
+      Inclure un lien avec \url{https://www.tesla.com}.
+  - title: "Définitions"
+    content: |
+      Tesla désigne le constructeur automobile de voitures électriques sportives et de luxe dont le siège social se situe à Palo Alto, dans la Silicon Valley, aux États-Unis.
+
+
+      La Model 3 avait pour nom de code Tesla BlueStar. Son nom actuel fut annoncé le 16 juillet 201431,32. Plus compacte que la Model S, elle mesurerait 4,60 m. Tesla, avec cette nouvelle gamme, vise tout particulièrement le segment des berlines haut de gamme. Elle a été dévoilée officiellement le 31 mars 2016 et sera commercialisée à partir de fin 2017.
+  - title: "Contexte"
+    content: |
+      Tesla est une entreprise qui cherche à répandre et universaliser l'usage de véhicules électriques.
+
+
+      Je fais une liste comme ça :
+      \begin{itemize}
+        \item Un point ;
+        \item Un carré ;
+        \item Mais il n'est pas carré ;
+        \item Ok on a compris.
+      \end{itemize}\bigskip
+      Blablabla.
+
+
+      Finalement ...
+
+
+      YtoTech, to be, or not to be.
+
+
+      Le présent devis a pour objectif d’établir ...
+  - title: "Documents utiles"
+    content: |
+      \begin{itemize}
+        \item The mail from Elong Musk about launching this project;
+        \item The photo of the sketch I have done on a napkin last night while eating my noodles.
+      \end{itemize}
+
+# After prestation listing:
+text_sections_after_service:
+  - title: Lotissement de la prestation
+    content: |
+      La prestation est organisée en plusieurs lots. Chaque lot fera l’objet d’une livraison et d’une
+      facturation séparée. Le client décide de souscrire à la réalisation des prestations lot par lot.
+
+
+      Le 1\textsuperscript{er} lot comprend :
+      \begin{itemize}
+        \item Création des configurations sur le CPQ.
+      \end{itemize}\bigskip
+      Le 2\textsuperscript{nd} lot comprend :
+      \begin{itemize}
+        \item Intégration de l'UI.
+      \end{itemize}\bigskip
+  - title: Propriété intellectuelle
+    content: |
+      Les logiciels et dispositifs développés dans le cadre de la prestation, y compris tous les
+      dispositifs de tests, deviendront la propriété de TODO Templateception après la réception et le
+      paiement intégral des prestations associées au présent devis.
+      \\
+      Les logiciels et dispositifs dont la propriété intellectuelle est cédée sont ceux listés dans la
+      section « Livrables ».
+      \\
+      Les logiciels et dispositifs non-listés ne sont pas cédés dans le cadre du présent contrat.
+  - title: Livrables
+    content: |
+      \begin{itemize}
+        \item All On GitHub.
+      \end{itemize}\bigskip
+      \noindent Tout code source sera documenté ; il pourra être repris et étendu par d’autres prestataires et
+      développeurs.
+  - title: Hors périmètre
+    content: |
+      Les éléments suivants sont considérés comme hors-périmètre de la prestation :
+      \\
+      \begin{itemize}
+        \item Produire les véhicules ;
+        \item Sauver la planète.
+      \end{itemize}\bigskip
+      Un devis pourra être demandé pour leur réalisation.
+  - title: Garantie
+    content: |
+      La prestation réalisée par YtoTech est soumise à une garantie de six (6) mois à compter de la
+      date de solde de l’intégralité des prestations associées au devis.
+      \\
+      La garantie inclus la correction des défauts techniques constatés dans les logiciels livrables du
+      présent devis. Des corrections mineures pourront être incluses, au jugement seul d’YtoTech.
+  - title: Prise d’effet du devis
+    content: |
+      Le présent devis et ses termes prendront effet à compter de la signature des parties en
+      présence, ou à défaut du règlement par le client de l’acompte pour le premier lot de
+      prestations.
+---

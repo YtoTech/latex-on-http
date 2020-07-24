@@ -1,0 +1,215 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[$fontsize$, a4paper]{article}
+
+% LAYOUT
+%--------------------------------
+\usepackage{geometry} 
+\geometry{$geometry$}
+
+% No page numbers
+\pagenumbering{gobble}
+
+% Left align
+\usepackage[document]{ragged2e}
+
+$if(letterhead)$
+  % To include the letterhead
+  \usepackage{wallpaper}
+  \ULCornerWallPaper{1}{letterhead.pdf}
+$endif$
+
+% TYPOGRAPHY
+%--------------------------------
+\usepackage{fontspec} 
+\usepackage{xunicode}
+\usepackage{xltxtra}
+
+% converts LaTeX specials (quotes, dashes etc.) to Unicode
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{$seriffont$}
+\setsansfont[Scale=0.9]{$sansfont$}
+
+% Set paragraph break
+\setlength{\parskip}{1em}
+
+% Custom ampersand
+\newcommand{\amper}{{\fontspec[Scale=.95]{$seriffont$}\selectfont\itshape\&}}
+
+$if(seriffont)$
+\setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{$seriffont$}
+$endif$
+$if(sansfont)$
+    \setsansfont{$sansfont$}
+$endif$
+
+% Command required by how Pandoc handles the list conversion
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% TABLE CUSTOMIZATION
+%--------------------------------
+\usepackage{spreadtab}
+\usepackage[compact]{titlesec} % For customizing title sections
+\titlespacing*{\section}{0pt}{3pt}{-7pt} % Remove margin bottom from the title
+\usepackage{arydshln} % For the dotted line on the table
+\renewcommand{\arraystretch}{1.5} % Apply vertical padding to table cells
+\usepackage{hhline} % For single-cell borders
+\usepackage{enumitem} % For customizing lists
+\setlist{nolistsep} % No whitespace around list items
+\setlist[itemize]{leftmargin=0.5cm} % Reduce list left indent
+\setlength{\tabcolsep}{9pt} % Larger gutter between columns
+
+% Boxes
+%--------------------------------
+\usepackage{tcolorbox}
+% Create box
+% https://en.wikibooks.org/wiki/LaTeX/Boxes
+% https://ctan.org/pkg/tcolorbox
+% http://tex.stackexchange.com/questions/25903/how-to-put-a-long-piece-of-text-in-a-box
+% http://tex.stackexchange.com/questions/102737/how-to-specify-height-and-width-of-fbox
+{% raw %}
+\newcommand{\cfbox}[2]{%
+    \colorlet{currentcolor}{.}%
+    {\color{#1}%
+    \tcbox[nobeforeafter,colback=white,colframe=blue!75!black,boxrule=0.1pt,leftrule=1pt,arc=1.5pt,auto outer arc]{\color{currentcolor}#2}}%
+}
+{% endraw %}
+
+% LANGUAGE
+%--------------------------------
+$if(lang)$
+\usepackage{polyglossia}
+\setmainlanguage{$lang$}
+$endif$
+
+% PDF SETUP
+%--------------------------------
+\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
+\hypersetup
+{
+  pdfauthor={$author$},
+  pdfsubject=Proposal Nr. $proposal-nr$,
+  pdftitle=Proposal Nr. $proposal-nr$,
+  linkcolor=blue,
+  citecolor=blue,
+  filecolor=black,
+  urlcolor=blue
+}
+
+
+% To display custom date
+% \usepackage[nodayofweek]{datetime}
+% \newdate{date}{01}{12}{1867}
+% \date{\displaydate{date}}
+% Use this instead of \today: % \displaydate{date}
+
+% DOCUMENT
+%--------------------------------
+\begin{document}
+\small
+\ttfamily
+\textsc{\textbf{$author$}}
+$for(from)$
+\textbullet{} \textsc{$from$}
+$endfor$
+
+\vspace{1em}
+
+\normalsize \ttfamily
+$for(to)$
+$to$\\
+$endfor$
+
+\vspace{6em}
+\rmfamily
+
+\huge{\textsc{Projet \#$proposal-nr$} }
+
+\begin{flushright}
+  \small
+  $city$, \today
+\end{flushright}
+
+\vspace{1em}
+
+\normalsize \rmfamily
+
+$for(text_sections_before_service)$
+    \section*{\textsc{$text_sections_before_service.title$}}
+    $text_sections_before_service.content$
+$endfor$
+
+% \newpage
+
+\normalsize \sffamily
+\section*{\textsc{Proposal}}
+\footnotesize
+\newcounter{pos}
+\setcounter{pos}{0}
+\STautoround*{2} % Get spreadtab to always display the decimal part
+$if(commasep)$\STsetdecimalsep{,}$endif$ % Use comma as decimal separator
+
+\begin{spreadtab}{{tabular}[t t t]{lp{8.2cm}r}}
+  \hdashline[1pt/1pt]
+  @ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Prices in $currency$} \\ \hline
+      $for(service)$ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos 
+        & @ $service.description$ 
+        $if(service.details)$\newline \begin{itemize} 
+          $for(service.details)$\scriptsize \item $service.details$ 
+          $endfor$ \end{itemize}
+          $endif$ & $service.price$\\$endfor$ \noalign{\vskip 2mm} \hline
+  $if(VAT)$
+    @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
+    @ & @ \multicolumn{1}{r}{VAT $VAT$\%:}               & $VAT$/100*[0,-1] \\ \hhline{~~-}
+  $endif$
+  @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={$if(VAT)$[0,-1]+[0,-2]$else$sum(c1:[0,-1])$endif$}} \\ \hhline{~~-}
+\end{spreadtab}
+
+
+% \newpage
+
+\normalsize \rmfamily
+$for(text_sections_after_service)$
+    \section*{\textsc{$text_sections_after_service.title$}}
+    $text_sections_after_service.content$
+$endfor$
+
+% Flush to end of page
+% http://tex.stackexchange.com/questions/31186/how-to-move-a-paragraph-to-the-bottom-of-the-page-without-vspace
+\par\vspace*{\fill}
+
+\section*{}
+Fait à $city$, le $proposal-date$.
+\vspace{5mm}
+\\
+\ttfamily
+\begin{minipage}[t][5.5cm][t]{7cm}
+	\cfbox{gray}{\begin{minipage}[t][4cm][t]{6cm}
+		\vspace{2mm}
+        \footnotesize Mention « Lu et approuvé »
+        \vfill
+        \center Pour $for(from)$
+        \textbullet{} $from$
+        $endfor$
+	\end{minipage}}
+	\medbreak
+	\normalsize
+\end{minipage}
+\begin{minipage}[t][5.5cm][t]{7cm}
+	\cfbox{gray}{\begin{minipage}[t][4cm][t]{6cm}
+		\vspace{2mm}
+        \footnotesize Mention « Lu et approuvé »
+        \vfill
+        \center Pour $for(to)$
+        \textbullet{} $to$
+        $endfor$
+	\end{minipage}}
+	\medbreak
+	% \small {{ document.client.contact.civility }} {{ document.client.contact.name }}{% if document.client.contact.role %}, {{ document.client.contact.role }}{% endif %}.
+	\normalsize
+\end{minipage}
+\clearpage
+
+\end{document}
