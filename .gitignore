@@ -1,6 +1,11 @@
 # Latex
 tmp/*
 !tmp/.commitflag
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.xdv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -107,3 +112,5 @@ examples/**/*.bbl
 examples/**/*.blg
 examples/**/*.bcf
 examples/**/*.run.xml
+
+samples/**/*.log

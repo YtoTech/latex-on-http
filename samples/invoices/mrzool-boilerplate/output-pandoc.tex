@@ -5,7 +5,7 @@
 
 % LAYOUT
 %--------------------------------
-\usepackage{geometry}
+\usepackage{geometry} 
 \geometry{a4paper, left=43mm, right=43mm, top=51mm, bottom=17mm}
 
 % No page numbers
@@ -17,23 +17,25 @@
 
 % TYPOGRAPHY
 %--------------------------------
-\usepackage{fontspec}
+\usepackage{fontspec} 
 \usepackage{xunicode}
 \usepackage{xltxtra}
 
 % converts LaTeX specials (quotes, dashes etc.) to Unicode
 \defaultfontfeatures{Mapping=tex-text}
-\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Linux Libertine O}
-\setsansfont[Scale=0.9]{Liberation Sans}
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Hoefler Text}
+\setsansfont[Scale=0.9]{Helvetica Neue}
 
 % Set paragraph break
 \setlength{\parskip}{1em}
 
 % Custom ampersand
-\newcommand{\amper}{{\fontspec[Scale=.95]{Linux Libertine O}\selectfont\itshape\&}}
+\newcommand{\amper}{{\fontspec[Scale=.95]{Hoefler
+Text}\selectfont\itshape\&}}
 
-\setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Linux Libertine O}
-    \setsansfont{Liberation Sans}
+\setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Hoefler
+Text}
+    \setsansfont{Helvetica Neue}
 
 % Command required by how Pandoc handles the list conversion
 \providecommand{\tightlist}{%
@@ -63,9 +65,9 @@
 \usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
 \hypersetup
 {
-  pdfauthor=Max Mustermann,
-  pdfsubject=Invoice Nr. 2015-11-04,
-  pdftitle=Invoice Nr. 2015-11-04,
+  pdfauthor={Max Mustermann},
+  pdfsubject=Invoice Nr. 2020-07-24,
+  pdftitle=Invoice Nr. 2020-07-24,
   linkcolor=blue,
   citecolor=blue,
   filecolor=black,
@@ -104,7 +106,7 @@ Germany\\
 \vspace{1em}
 
 
-\section*{\textsc{Invoice} \textsc{\#2015-11-04}}
+\section*{\textsc{Invoice} \textsc{\#2020-07-24}}
 \footnotesize
 \newcounter{pos}
 \setcounter{pos}{0}
@@ -114,22 +116,23 @@ Germany\\
 \begin{spreadtab}{{tabular}[t t t]{lp{8.2cm}r}}
   \hdashline[1pt/1pt]
   @ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Prices in EUR} \\ \hline
-       @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
-        & @ The first service provided
-         & 320\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
-        & @ And another one, with a list of details
-        \newline \begin{itemize}
-          \scriptsize \item Some more detailed explanation
-          \scriptsize \item of the service provided
-          \scriptsize \item Looking good
+       @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos 
+        & @ The first service provided 
+         & 320.00\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos 
+        & @ And another one, with a list of details 
+        \newline \begin{itemize} 
+          \scriptsize \item Some more detailed explanation 
+          \scriptsize \item of the service provided 
+          \scriptsize \item Looking good 
            \end{itemize}
-           & 245\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
-        & @ The last service provided
-         & 65\\ \noalign{\vskip 2mm} \hline
-  @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
-  @ & @ \multicolumn{1}{r}{VAT 20\%:}               & 20/100*[0,-1] \\ \hhline{~~-}
-  @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={[0,-1]+[0,-2]}} \\ \hhline{~~-}
+           & 245.00\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos 
+        & @ The last service provided 
+         & 65.00\\ \noalign{\vskip 2mm} \hline
+      @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
+    @ & @ \multicolumn{1}{r}{VAT 20\%:}               & 20/100*[0,-1] \\ \hhline{~~-}
+    @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={[0,-1]+[0,-2]}} \\ \hhline{~~-}
 \end{spreadtab}
+
 
 \vspace{15mm}
 
@@ -138,8 +141,10 @@ Germany\\
 Please transfer the due amount to the following bank account within the
 next 14 days:
 
-Mustermann GmbH Kreditinstitut: Deutsche Postbank AG IBAN: DE18 3601
-0043 9999 9999 99 BIC: PBNKDEFF
+Mustermann GmbH\\
+Kreditinstitut: Deutsche Postbank AG\\
+IBAN: DE18 3601 0043 9999 9999 99\\
+BIC: PBNKDEFF
 
 We really appreciate your business and look forward to future projects
 together.
