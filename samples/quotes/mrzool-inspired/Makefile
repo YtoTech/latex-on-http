@@ -12,5 +12,6 @@ output-local-xelatex-pdf:
 output-cloud-latexonhttp-pdf:
 	curl -v -X POST https://latex.ytotech.com/builds/sync \
 		-F "template-raw.tex=@template-raw.tex" \
+		-F "logo.png=@logo.png" \
 		-F "compiler=xelatex" \
 		-o output-xelatex.pdf
