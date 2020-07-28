@@ -91,6 +91,9 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
         # --> parse jobName / output files from Context output
         # Or use another more universal Latex runner?
         # https://mg.readthedocs.io/latexmk.html
+        # Alternative: support many runners.
+        # Arara https://github.com/cereda/arara
+        # https://github.com/wtsnjp/llmk
         command = [
             compilerName,
             input_path,
