@@ -3,6 +3,17 @@
 
 ## TODOs
 
+* Isolation / security for compilation jobs/runs
+    * Docker
+        * Siblings for each run https://github.com/overleaf/clsi
+    * firejail
+        * https://firejail.wordpress.com/
+        * https://firejail.wordpress.com/documentation-2/basic-usage/
+        * https://firejail.wordpress.com/documentation-2/building-custom-profiles/
+        * https://firejail.wordpress.com/documentation-2/firefox-guide/
+        * https://github.com/netblue30/firejail/issues/1956
+        * https://github.com/netblue30/firejail/issues/1210
+        * https://github.com/netblue30/firejail/blob/master/etc/profile-a-l/latex-common.profile
 * Introspection
     * Add deeper Latex introspection
     * Compilation options introspection
@@ -11,6 +22,8 @@
 * Font catalog:
     * Also list fonts from Latex Font catalogue? (for use with pdflatex)
         * https://tug.org/FontCatalogue/
+    * Tell font types: T1, OpenType, TrueType, etc.
+    * Add usage instructions for each? (in the generated doc?)
 * Tmp site https://nicedoc.io/ytotech/latex-on-http
 * Find/create a std Hy formatter (like black for Python)
     * Uniformize Hy code formatting
