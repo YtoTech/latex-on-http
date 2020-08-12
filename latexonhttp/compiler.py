@@ -37,6 +37,11 @@ def run_command(directory, command):
     # TODO Security: add isolation mechanism.
     # - firejail? (https://firejail.wordpress.com/)
     # - Docker? (like https://github.com/overleaf/clsi)
+    # TODO Limit resource use by a given compilation job.
+    # https://tug.org/TUGboat/tb31-2/tb98doob.pdf
+    # https://unix.stackexchange.com/questions/151883/limiting-processes-to-not-exceed-more-than-10-of-cpu-usage
+    # https://scoutapm.com/blog/restricting-process-cpu-usage-using-nice-cpulimit-and-cgroups
+    # https://unix.stackexchange.com/questions/44985/limit-memory-usage-for-a-single-linux-process
     # TODO And if the command fails?
     # Currently it is stuck here!
     stdout = ""
