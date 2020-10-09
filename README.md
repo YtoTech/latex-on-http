@@ -2,6 +2,8 @@
 
 > Compiles LaTeX documents through an HTTP API.
 
+See [TUG2020 introduction](https://www.youtube.com/watch?v=tGD4upJIUgc) to LaTeX-on-HTTP genesis.
+
 # Open Alpha @ latex.ytotech.com
 
 Available on https://latex.ytotech.com as an open-alpha.
