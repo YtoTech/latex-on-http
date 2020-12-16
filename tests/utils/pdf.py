@@ -23,6 +23,10 @@ REGEX_CLEAN_LIST_RE = [
     {"target": r"R \/ID \[ <\.+> ]", "replace_by": "R /ID [ <id1> <id2> ]",},
 ]
 
+# We could also use diffpdf to compare PDFs:
+# https://askubuntu.com/questions/40813/diff-of-two-pdf-files
+# http://www.qtrac.eu/diffpdf.html
+
 
 def clean_pdf_bytes_for_compare(data_bytes):
     for clean_re in REGEX_CLEAN_LIST_RE:
