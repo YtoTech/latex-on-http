@@ -59,6 +59,8 @@
         * https://github.com/tectonic-typesetting/tectonic
         * https://tectonic-typesetting.github.io/en-US/install.html
         * https://tex.stackexchange.com/questions/372408/what-use-is-tectonic
+    * Add package documentation / introspection
+        * cf http://texdoc.net/
 * Upgrade filesystem layer
     * work with tar, git, etc.
         * allows to extract a git hierarchy from git/GitHub/GitLab links
