@@ -96,13 +96,19 @@
         * Java
         * Go
         * .NET
-* Allows to choose the Latex compiler (pdflatex, lualatex, xetex)
+* Allows to choose the LaTex compiler (pdflatex, lualatex, xetex)
     * Support more compilers?
         * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
     * Support Arara https://gitlab.com/islandoftex/arara
+        * Also:
+        * https://framagit.org/spalax/spix
+        * https://github.com/wtsnjp/llmk
+        * https://github.com/petrhosek/rubber
+        * https://github.com/aclements/latexrun (explicit use)
     * Allows non-pdf output (DVI, etc.).
 * Compilation options
     * Timeout
+    * Shell escape mode
 * Build output structure
     * Generic "outputFiles"
         * https://github.com/overleaf/clsi#example-response
