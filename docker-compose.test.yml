@@ -8,6 +8,8 @@ services:
      - "9898:8080"
     volumes:
      - .:/app/latex-on-http
+    environment:
+      CACHE_HOST: cache
   cache:
     build:
       context: .

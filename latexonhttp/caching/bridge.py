@@ -7,6 +7,7 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+import os
 import logging
 import msgpack
 import zmq
@@ -17,6 +18,9 @@ context = zmq.Context()
 req_socket = None
 dealer_socket = None
 
+# TODO Allows to disable cache if no host defined.
+# (Or not available?)
+CACHE_HOST = os.getenv("CACHE_HOST", "cache")
 
 # ; The caching is forwarded to a decicated process
 # ; for the whole LaTeX-On-HTTP node to ensure consistency.
@@ -32,7 +36,7 @@ def get_cache_process_sync_socket():
     global req_socket
     if not req_socket:
         req_socket = context.socket(zmq.REQ)
-        req_socket.connect("tcp://cache:10000")
+        req_socket.connect(f"tcp://{CACHE_HOST}:10000")
     return req_socket
 
 
@@ -42,7 +46,7 @@ def get_cache_process_async_socket():
     global dealer_socket
     if not dealer_socket:
         dealer_socket = context.socket(zmq.DEALER)
-        dealer_socket.connect("tcp://cache:10001")
+        dealer_socket.connect(f"tcp://{CACHE_HOST}:10001")
     return dealer_socket
 
 
