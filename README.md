@@ -296,6 +296,25 @@ Sample for `/packages/12many`
 }
 ```
 
+# Docker
+
+## Images
+
+Prebuilt Docker images exist to run the service on your own:
+* The Python+TexLive near complete LaTeX-on-HTTP image: [yoant/latexonhttp-python](https://hub.docker.com/r/yoant/latexonhttp-python)
+* The base TexLive image: [yoant/docker-texlive](https://hub.docker.com/r/yoant/docker-texlive)
+
+## Run the service
+
+You can use the default [`docker-compose.yml`](https://github.com/YtoTech/latex-on-http/blob/master/docker-compose.yml):
+
+```sh
+docker-compose up
+```
+
+The service will be available on http://localhost:2345.
+
+
 ----------------------------------
 
 ## Credits
