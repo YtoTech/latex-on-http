@@ -35,7 +35,7 @@ https://latex.ytotech.com/builds/sync?compiler=xelatex&url=https://raw.githubuse
 When you need to add annex resources (for eg. other LaTeX files or image files), you can specify them using `resource-path[]`, `resource-value[]` and `resource-type[]` parameters:
 
 
-[https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png)
+[https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png)
 
 
 ## Hello world POST Json API
@@ -54,7 +54,7 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
             },
             {
                 "path": "logo.png",
-                "url": "https://www.ytotech.com/static/images/ytotech_logo.png"
+                "url": "https://www.ytotech.com/images/ytotech_logo.png"
             },
             {
                 "path": "page2.tex",
@@ -139,7 +139,7 @@ Payload (json)
         },
         {
             "path": "logo.png",
-            "url": "https://www.ytotech.com/static/images/ytotech_logo.png"
+            "url": "https://www.ytotech.com/images/ytotech_logo.png"
         },
         {
             "path": "page2.tex",

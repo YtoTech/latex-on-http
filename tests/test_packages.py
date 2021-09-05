@@ -26,7 +26,12 @@ def test_api_packages_list(latex_on_http_api_url):
         assert "url_ctan" in package
         assert "installed" in package
         assert package["installed"] is True
-    assert len(packages) == 4042
+    # We use an interval, because number of packages
+    # can changes between TexLive updates / releases.
+    # (And the exact number is not so important,
+    # when the full scheme is installed)
+    assert len(packages) > 4240
+    assert len(packages) < 4260
 
 
 PACKAGE_INFO_MANDATORIES_PROPERTIES = [
