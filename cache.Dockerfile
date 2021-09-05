@@ -7,7 +7,7 @@
 
 # TODO Publish the final image?
 
-FROM python:3-alpine
+FROM python:3.8-alpine
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 # Set locales.

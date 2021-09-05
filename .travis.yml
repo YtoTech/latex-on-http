@@ -1,12 +1,12 @@
 language: python
 sudo: required
-dist: bionic
+dist: focal
 services:
   - docker
 before_install:
   - sudo ./container/install_tests.sh
 python:
-  - '3.7'
+  - '3.8'
 
 install:
   - pip install pipenv
