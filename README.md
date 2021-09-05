@@ -90,6 +90,30 @@ Use https://latex.ytotech.com/packages and https://latex.ytotech.com/fonts to se
 You miss something?
 Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/master/container/tl-distrib-debian.Dockerfile#L34) or [Latex/CTAN packages](https://github.com/YtoTech/latex-on-http/blob/master/container/install_latex_packages.sh#L22)!
 
+# Using CLI
+
+## lol
+
+[kpym](https://github.com/kpym) has created a CLI tool named [lol](https://github.com/kpym/lol) for using LaTeX-on-HTTP:
+
+```sh
+lol -s ytotech -c xelatex main.tex imgs/*.png
+```
+
+### Installing `lol`
+
+To install it, download the [latest release](https://github.com/kpym/lol/releases) for your platform and add it to your PATH.
+
+For eg. on most Linux distributions this should work (considering `$HOME/.local/bin` is in your PATH):
+
+```sh
+wget https://github.com/kpym/lol/releases/download/v0.1.3/lol_0.1.3_Linux_64bit.tar.gz
+tar -xf lol_0.1.3_Linux_64bit.tar.gz
+chmod +x ./lol
+mv ./lol ~/.local/bin
+lol -h
+```
+
 # API
 
 This project is in an experimental phase and the API is *very likely* to change.
