@@ -105,6 +105,7 @@
         * https://github.com/wtsnjp/llmk
         * https://github.com/petrhosek/rubber
         * https://github.com/aclements/latexrun (explicit use)
+        * & all https://www.ctan.org/topic/compilation
     * Allows non-pdf output (DVI, etc.).
 * Compilation options
     * Timeout
