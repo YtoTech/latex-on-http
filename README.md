@@ -35,7 +35,7 @@ https://latex.ytotech.com/builds/sync?compiler=xelatex&url=https://raw.githubuse
 When you need to add annex resources (for eg. other LaTeX files or image files), you can specify them using `resource-path[]`, `resource-value[]` and `resource-type[]` parameters:
 
 
-[https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png)
+[https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png)
 
 
 ## Hello world POST Json API
@@ -54,7 +54,7 @@ curl -v -X POST https://latex.ytotech.com/builds/sync \
             },
             {
                 "path": "logo.png",
-                "url": "https://www.ytotech.com/static/images/ytotech_logo.png"
+                "url": "https://www.ytotech.com/images/ytotech_logo.png"
             },
             {
                 "path": "page2.tex",
@@ -90,6 +90,30 @@ Use https://latex.ytotech.com/packages and https://latex.ytotech.com/fonts to se
 You miss something?
 Open a PR for [adding font(s)](https://github.com/YtoTech/latex-on-http/blob/master/container/tl-distrib-debian.Dockerfile#L34) or [Latex/CTAN packages](https://github.com/YtoTech/latex-on-http/blob/master/container/install_latex_packages.sh#L22)!
 
+# Using CLI
+
+## lol
+
+[kpym](https://github.com/kpym) has created a CLI tool named [lol](https://github.com/kpym/lol) for using LaTeX-on-HTTP:
+
+```sh
+lol -s ytotech -c xelatex main.tex imgs/*.png
+```
+
+### Installing `lol`
+
+To install it, download the [latest release](https://github.com/kpym/lol/releases) for your platform and add it to your PATH.
+
+For eg. on most Linux distributions this should work (considering `$HOME/.local/bin` is in your PATH):
+
+```sh
+wget https://github.com/kpym/lol/releases/download/v0.1.3/lol_0.1.3_Linux_64bit.tar.gz
+tar -xf lol_0.1.3_Linux_64bit.tar.gz
+chmod +x ./lol
+mv ./lol ~/.local/bin
+lol -h
+```
+
 # API
 
 This project is in an experimental phase and the API is *very likely* to change.
@@ -115,7 +139,7 @@ Payload (json)
         },
         {
             "path": "logo.png",
-            "url": "https://www.ytotech.com/static/images/ytotech_logo.png"
+            "url": "https://www.ytotech.com/images/ytotech_logo.png"
         },
         {
             "path": "page2.tex",
@@ -271,6 +295,25 @@ Sample for `/packages/12many`
   }
 }
 ```
+
+# Docker
+
+## Images
+
+Prebuilt Docker images exist to run the service on your own:
+* The Python+TexLive near complete LaTeX-on-HTTP image: [yoant/latexonhttp-python](https://hub.docker.com/r/yoant/latexonhttp-python)
+* The base TexLive image: [yoant/docker-texlive](https://hub.docker.com/r/yoant/docker-texlive)
+
+## Run the service
+
+You can use the default [`docker-compose.yml`](https://github.com/YtoTech/latex-on-http/blob/master/docker-compose.yml):
+
+```sh
+docker-compose up
+```
+
+The service will be available on http://localhost:2345.
+
 
 ----------------------------------
 

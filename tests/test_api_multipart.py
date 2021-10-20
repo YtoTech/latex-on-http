@@ -17,7 +17,7 @@ LATEX_HELLO_WORLD = (
 SAMPLE_HELLO_WORLD = "hello_world"
 LATEX_HELLO_WORLD_WITH_IMAGE = "\\documentclass{article}\n \\usepackage{graphicx}\n \\begin{document}\n Hello World\n \\includegraphics[height=2cm,width=7cm,keepaspectratio=true]{logo.png}\n \\end{document}"
 SAMPLE_IMAGE_CONTENT = requests.get(
-    "https://www.ytotech.com/static/images/ytotech_logo.png"
+    "https://www.ytotech.com/images/ytotech_logo.png"
 ).content
 
 
@@ -46,7 +46,7 @@ def test_multipart_api_full_spec_image(latex_on_http_api_url):
     files = {"file1": ("hello_world.tex", LATEX_HELLO_WORLD_WITH_IMAGE)}
     form = {
         "compiler": "pdflatex",
-        "resources": '[{"main": "true", "multipart": "file1"}, { "path": "logo.png", "url": "https://www.ytotech.com/static/images/ytotech_logo.png" }]',
+        "resources": '[{"main": "true", "multipart": "file1"}, { "path": "logo.png", "url": "https://www.ytotech.com/images/ytotech_logo.png" }]',
     }
     r = requests.post(latex_on_http_api_url + "/builds/sync", files=files, data=form)
     assert r.status_code == 201

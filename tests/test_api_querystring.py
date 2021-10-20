@@ -22,7 +22,7 @@ SAMPLE_HELLO_JAPANESE = "hello_japanese"
 
 LATEX_HELLO_WORLD_WITH_IMAGE = "\\documentclass{article}\n \\usepackage{graphicx}\n \\begin{document}\n Hello World\n \\includegraphics[height=2cm,width=7cm,keepaspectratio=true]{logo.png}\n \\end{document}"
 SAMPLE_IMAGE_CONTENT = requests.get(
-    "https://www.ytotech.com/static/images/ytotech_logo.png"
+    "https://www.ytotech.com/images/ytotech_logo.png"
 ).content
 
 LATEX_MULTI_RESOURCES = "\\documentclass{article}\n \\usepackage{graphicx}\n  \\begin{document}\n Hello World\\\\\n \\includegraphics[height=2cm,width=7cm,keepaspectratio=true]{logo.png}\n \\include{page2}\n \\end{document}"
@@ -68,7 +68,7 @@ def test_querystring_hello_japanese(latex_on_http_api_url):
 
 
 # Add resources
-# &resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/static/images/ytotech_logo.png
+# &resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png
 
 
 def test_querystring_full_spec_image(latex_on_http_api_url):
@@ -84,7 +84,7 @@ def test_querystring_full_spec_image(latex_on_http_api_url):
             "compiler": "pdflatex",
             "resource-path[]": "logo.png",
             "resource-type[]": "url",
-            "resource-value[]": "https://www.ytotech.com/static/images/ytotech_logo.png",
+            "resource-value[]": "https://www.ytotech.com/images/ytotech_logo.png",
         },
     )
     # import pprint
@@ -107,7 +107,7 @@ def test_querystring_multi_resources(latex_on_http_api_url):
             "resource-path[]": ["logo.png", "page2.tex"],
             "resource-type[]": ["url", "base64"],
             "resource-value[]": [
-                "https://www.ytotech.com/static/images/ytotech_logo.png",
+                "https://www.ytotech.com/images/ytotech_logo.png",
                 LATEX_MULTI_RESOURCES_PAGE2,
             ],
         },
