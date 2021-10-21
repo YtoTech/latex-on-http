@@ -6,7 +6,7 @@ name = "pypi"
 [dev-packages]
 pytest = "*"
 requests-futures = "*"
-black = "==21.8b0 "
+black = "==21.9b0"
 "pdf2image" = "*"
 hexdump = "*"
 
