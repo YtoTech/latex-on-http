@@ -107,6 +107,8 @@
         * https://github.com/aclements/latexrun (explicit use)
         * & all https://www.ctan.org/topic/compilation
     * Allows non-pdf output (DVI, etc.).
+* Add SILE support
+    * https://github.com/sile-typesetter/sile
 * Compilation options
     * Timeout
     * Shell escape mode
