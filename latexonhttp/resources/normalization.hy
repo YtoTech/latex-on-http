@@ -7,7 +7,7 @@
     to be used in actual filesystem implementation
     and caching mechanisms.
 
-    :copyright: (c) 2019 Yoan Tournade.
+    :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
 (import
