@@ -4,7 +4,7 @@
     ~~~~~~~~~~~~~~~~~~~~~
     LaTeX-On-HTTP input resource validation.
 
-    :copyright: (c) 2019 Yoan Tournade.
+    :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
 (import
