@@ -7,9 +7,8 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-(import [
-    latexonhttp.utils.fun [fun-count-pred get-default all-pred]
-])
+(import
+    latexonhttp.utils.fun [fun-count-pred get-default all-pred])
 
 ; --------------------------------------------
 ; Prefetch resource validation.

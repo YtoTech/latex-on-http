@@ -10,9 +10,8 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-(import [
-    latexonhttp.utils.fun [fun-sort get-default]
-])
+(import
+    latexonhttp.utils.fun [fun-sort get-default])
 
 ; --------------------------------------------
 ; Prefetch resource normalizsation.

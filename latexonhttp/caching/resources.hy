@@ -9,18 +9,14 @@
 """
 (import logging)
 (import datetime)
-(import [
-    latexonhttp.utils.fun [get-default fun-merge-dicts fun-dict-update fun-dict-remove-key fun-sort]
-])
-(import [
-    latexonhttp.caching.store [get-cache-metadata persist-cache-metadata]
-])
-(import [
-    latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS]
-])
-(import [
-    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-sync]
-])
+(import
+    latexonhttp.utils.fun [get-default fun-merge-dicts fun-dict-update fun-dict-remove-key fun-sort])
+(import
+    latexonhttp.caching.store [get-cache-metadata persist-cache-metadata])
+(import
+    latexonhttp.caching.filesystem [apply-cache-action get-cached-data apply-sanity-check MAX-RESOURCES-CACHE-SIZE ENABLE-SANITY-CHECKS])
+(import
+    latexonhttp.caching.bridge [request-cache-process-async request-cache-process-sync])
 
 (setv logger (.getLogger logging __name__))
 

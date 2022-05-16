@@ -7,9 +7,8 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-(import [
-    functools [reduce]
-])
+(import
+    functools [reduce])
 
 (defn fun-merge-dicts [dicts]
     (setv merged-dict {})
