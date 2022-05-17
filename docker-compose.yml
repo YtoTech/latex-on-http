@@ -10,6 +10,7 @@ services:
     volumes:
      - ./tmp:/app/latex-on-http/tmp
     environment:
+      # SENTRY_DSN: 
       CACHE_HOST: cache
   cache:
     build:
@@ -18,3 +19,5 @@ services:
     # restart: always
     volumes:
      - ./tmp:/app/latex-on-http/tmp
+    environment:
+      # SENTRY_DSN: 

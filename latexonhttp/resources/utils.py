@@ -24,7 +24,11 @@ def prune_resources_content_for_logging(input_spec):
     return {
         **input_spec,
         "resources": [
-            {**resource, "content": "content" in resource, "file": "file" in resource,}
+            {
+                **resource,
+                "content": "content" in resource,
+                "file": "file" in resource,
+            }
             for resource in input_spec.get("resources", [])
         ],
     }

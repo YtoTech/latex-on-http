@@ -61,7 +61,7 @@ def test_simple_compilation_body(latex_on_http_api_url):
 def test_concurrent_compilations(latex_on_http_api_url):
     """
     We can launch multiple compilation jobs concurrently.
-    
+
     TODO: This concurrent test is too instable in CI.
     How to ensure in a different way that the compilation requests
     are treated in concurrently and not sequentially?

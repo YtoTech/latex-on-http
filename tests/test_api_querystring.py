@@ -35,7 +35,8 @@ def test_querystring_hello_world(latex_on_http_api_url):
     """
     # Create a query string request.
     r = requests.get(
-        latex_on_http_api_url + "/builds/sync", params={"content": LATEX_HELLO_WORLD},
+        latex_on_http_api_url + "/builds/sync",
+        params={"content": LATEX_HELLO_WORLD},
     )
     assert r.status_code == 201
 

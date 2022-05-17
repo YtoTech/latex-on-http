@@ -36,7 +36,9 @@ def test_resource_fetch_file_404(latex_on_http_api_url):
 def test_resource_fetch_file_403(latex_on_http_api_url):
     r = requests.post(
         latex_on_http_api_url + "/builds/sync",
-        json={"resources": [{"url": "https://httpbin.org/status/403"}],},
+        json={
+            "resources": [{"url": "https://httpbin.org/status/403"}],
+        },
     )
     assert r.status_code == 400
     response_payload = r.json()
@@ -52,7 +54,9 @@ def test_resource_fetch_file_403(latex_on_http_api_url):
 def test_resource_fetch_file_500(latex_on_http_api_url):
     r = requests.post(
         latex_on_http_api_url + "/builds/sync",
-        json={"resources": [{"url": "https://httpbin.org/status/500"}],},
+        json={
+            "resources": [{"url": "https://httpbin.org/status/500"}],
+        },
     )
     assert r.status_code == 400
     response_payload = r.json()
@@ -68,7 +72,9 @@ def test_resource_fetch_file_500(latex_on_http_api_url):
 def test_resource_fetch_file_timeout(latex_on_http_api_url):
     r = requests.post(
         latex_on_http_api_url + "/builds/sync",
-        json={"resources": [{"url": "https://httpstat.us/200?sleep=15000"}],},
+        json={
+            "resources": [{"url": "https://httpstat.us/200?sleep=15000"}],
+        },
     )
     assert r.status_code == 400
     response_payload = r.json()

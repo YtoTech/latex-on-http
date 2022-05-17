@@ -8,7 +8,10 @@
     :copyright: (c) 2017-2018 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+import os
 import logging.config
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from latexonhttp.api.builds import builds_app
@@ -32,6 +35,17 @@ logging.config.dictConfig(
         "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
     }
 )
+
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        integrations=[FlaskIntegration()],
+        # By default the SDK will try to use the SENTRY_RELEASE
+        # environment variable, or infer a git commit
+        # SHA as release, however you may want to set
+        # something more human-readable.
+        release=get_api_version(),
+    )
 
 app = Flask(__name__)
 app.register_blueprint(builds_app, url_prefix="/builds")

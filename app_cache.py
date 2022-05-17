@@ -7,6 +7,8 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+import os
+import sentry_sdk
 import logging.config
 import sys
 import zmq
@@ -31,6 +33,17 @@ logging.config.dictConfig(
         "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
     }
 )
+
+if os.environ.get("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        integrations=[FlaskIntegration()],
+        # By default the SDK will try to use the SENTRY_RELEASE
+        # environment variable, or infer a git commit
+        # SHA as release, however you may want to set
+        # something more human-readable.
+        release=get_api_version(),
+    )
 
 logger = logging.getLogger("latexonhttp")
 

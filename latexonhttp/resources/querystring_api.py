@@ -90,7 +90,10 @@ def parse_querystring_resources_spec(params, multi_params):
                 )
             value_key = RESOURCE_TYPE_TO_VALUE_KEY[actual_resource_type]
             other_resources.append(
-                {value_key: resource_value, "path": resource_path,}
+                {
+                    value_key: resource_value,
+                    "path": resource_path,
+                }
             )
 
     # Indexed-based resources specification.

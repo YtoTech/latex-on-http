@@ -19,8 +19,14 @@ from PIL.ImageChops import difference
 
 SAMPLE_DIR = os.getcwd() + "/tests/samples/"
 REGEX_CLEAN_LIST_RE = [
-    {"target": r"<< \/Producer.+>>", "replace_by": "<</Producer cleaned>>",},
-    {"target": r"R \/ID \[ <\.+> ]", "replace_by": "R /ID [ <id1> <id2> ]",},
+    {
+        "target": r"<< \/Producer.+>>",
+        "replace_by": "<</Producer cleaned>>",
+    },
+    {
+        "target": r"R \/ID \[ <\.+> ]",
+        "replace_by": "R /ID [ <id1> <id2> ]",
+    },
 ]
 
 # We could also use diffpdf to compare PDFs:

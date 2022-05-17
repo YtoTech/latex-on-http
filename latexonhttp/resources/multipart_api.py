@@ -67,7 +67,10 @@ def parse_multipart_resources_spec(forms, files):
         except json.decoder.JSONDecodeError as jde:
             return (
                 None,
-                {"error": "INVALID_RESOURCES_JSON", "exception_content": str(jde),},
+                {
+                    "error": "INVALID_RESOURCES_JSON",
+                    "exception_content": str(jde),
+                },
             )
     else:
         # TODO Else reconstruct resources spec with best guest:

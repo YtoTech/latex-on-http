@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-05-17-3
+
+* Add an environment variable `SENTRY_DSN` for Sentry tracking
+
 ## 2022-05-17-2
 
 * Forget Alpine as Context seems [not to run](https://mailman.ntg.nl/pipermail/ntg-context/2021/101979.html) on it, keep to Debian
