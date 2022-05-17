@@ -3,19 +3,18 @@ version: '3'
 services:
   latex:
     build: .
-    restart: always
+    # restart: always
     command: make start
     ports:
      - "127.0.0.1:2345:8080"
     volumes:
-     - .:/app/latex-on-http
+     - ./tmp:/app/latex-on-http/tmp
     environment:
       CACHE_HOST: cache
   cache:
     build:
       context: .
       dockerfile: cache.Dockerfile
-    restart: always
-    command: make start-cache
+    # restart: always
     volumes:
-     - .:/app/latex-on-http
+     - ./tmp:/app/latex-on-http/tmp

@@ -24,7 +24,7 @@ RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
-COPY ./Makefile ./Pipfile ./Pipfile.lock /app/latex-on-http/
+COPY app.py Makefile Pipfile Pipfile.lock /app/latex-on-http/
 COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 # Install app dependencies.
