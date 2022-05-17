@@ -7,6 +7,7 @@
     :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+(require hyrule.control [unless])
 (import
     latexonhttp.utils.fun [fun-count-pred get-default all-pred])
 
@@ -43,7 +44,7 @@
     errors)
 
 ; TODO Function to allows to compose validation.
-; (defn apply-checks [resources checks &optional [fail-fast True]]
+; (defn apply-checks [resources checks [fail-fast True]]
 ;     ; TODO Apply sequentially all check functions;
 ;     ; TODO Allows for "shared" variables (eg. main-documents-occ): macro?
 ;     ; TODO On fail-fast, stop and return on first check failure.

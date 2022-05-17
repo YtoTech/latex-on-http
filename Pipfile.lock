@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "24015cac7605fa665391576464d189698d2e69ca0cc0a165b014beabeb3864ba"
+            "sha256": "59fcd05d85e0151e81fbb865de819338b649f32a2e40de0da9fd2ea4c8850a40"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -186,6 +186,14 @@
             ],
             "index": "pypi",
             "version": "==1.0a4"
+        },
+        "hyrule": {
+            "hashes": [
+                "sha256:9626be102a47ddb1cb61c2464560063f094541c7990d82e15ca312dd41385703",
+                "sha256:be7e09f285ef74a18f56a1686a87c7281df85e8a8113eceb0b575cdea40e7cd1"
+            ],
+            "index": "pypi",
+            "version": "==0.1"
         },
         "idna": {
             "hashes": [
