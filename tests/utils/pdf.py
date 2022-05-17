@@ -120,7 +120,7 @@ def snapshot_pdf_images(pdf, sample_dir, update_snapshot):
         # assert sample_image.tobytes() == generated_image.tobytes()
 
 
-def snapshot_pdf(pdf, sample, update_snapshot=False):
+def snapshot_pdf(pdf, sample, update_snapshot=True):
     sample_dir = "{}{}/".format(SAMPLE_DIR, sample)
     if update_snapshot and not os.path.exists(sample_dir):
         os.makedirs(sample_dir)

@@ -4,20 +4,14 @@
     ~~~~~~~~~~~~~~~~~~~~~
     LaTeX-On-HTTP miscellaneous utils.
 
-    :copyright: (c) 2019 Yoan Tournade.
+    :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
 import subprocess
 
-CURRENT_API_VERSION = None
+CURRENT_API_VERSION = "2022-05-17-1"
 
 
 def get_api_version():
     global CURRENT_API_VERSION
-    if not CURRENT_API_VERSION:
-        CURRENT_API_VERSION = (
-            subprocess.check_output(["git", "describe", "--always"])
-            .strip()
-            .decode("utf-8")
-        )
     return CURRENT_API_VERSION

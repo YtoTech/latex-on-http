@@ -12,6 +12,7 @@ LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 RUN apk --no-cache add \
     python3 \
+    py3-pip \
     git \
     make \
     python3-dev \

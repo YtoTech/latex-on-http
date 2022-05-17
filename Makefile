@@ -106,6 +106,9 @@ test-docker-compose-rm:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test rm
 
 test-docker-compose-build:
+	docker-compose -f docker-compose.test.yml -p latex-on-http-test build
+
+test-docker-compose-build-no-cache:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test build --no-cache
 
 ## -------------------------------
