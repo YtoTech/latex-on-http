@@ -11,7 +11,7 @@
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:debian
+FROM yoant/docker-texlive:alpine
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 
@@ -32,7 +32,7 @@ RUN apk --no-cache add \
     ttf-freefont \
     ttf-dejavu \
     ttf-inconsolata \
-    ttf-ubuntu-font-family \
+    ttf-freefont \
     ttf-droid \
     font-noto
 
