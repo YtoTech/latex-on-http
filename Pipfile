@@ -23,6 +23,7 @@ msgpack = "*"
 colorama = "*"
 glom = "*"
 flask-cors = "*"
+importlib-metadata = "*"
 
 [requires]
 python_version = "3"
