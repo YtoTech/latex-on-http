@@ -38,16 +38,16 @@ docker-pull-yoant-texlive-alpine:
 	docker pull yoant/docker-texlive:alpine
 
 docker-build-tl-distrib-debian:
-	docker build --no-cache -f container/tl-distrib-debian.Dockerfile -t yoant/latexonhttp-tl-distrib:debian .
+	docker build -f container/tl-distrib-debian.Dockerfile -t yoant/latexonhttp-tl-distrib:debian .
 
 docker-build-tl-distrib-alpine:
-	docker build --no-cache -f container/tl-distrib-alpine.Dockerfile -t yoant/latexonhttp-tl-distrib:alpine .
+	docker build -f container/tl-distrib-alpine.Dockerfile -t yoant/latexonhttp-tl-distrib:alpine .
 
 docker-build-python-debian:
-	docker build --no-cache -f container/python-debian.Dockerfile -t yoant/latexonhttp-python:debian .
+	docker build -f container/python-debian.Dockerfile -t yoant/latexonhttp-python:debian .
 
 docker-build-python-alpine:
-	docker build --no-cache -f container/python-alpine.Dockerfile -t yoant/latexonhttp-python:alpine .
+	docker build -f container/python-alpine.Dockerfile -t yoant/latexonhttp-python:alpine .
 
 docker-build-main:
 	docker build -f Dockerfile .
@@ -56,7 +56,7 @@ docker-build-all-debian: docker-pull-yoant-texlive-debian docker-build-tl-distri
 
 docker-build-all-alpine: docker-pull-yoant-texlive-alpine docker-build-tl-distrib-alpine docker-build-python-alpine docker-build-main
 
-docker-build-all: docker-build-all-alpine
+docker-build-all: docker-build-all-debian
 
 ## -------------------------------
 ## Docker push/images ##
