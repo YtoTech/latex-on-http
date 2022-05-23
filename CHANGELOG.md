@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-05-23-1
+
+* Fix Sentry Flask integration import
+
 ## 2022-05-17-3
 
 * Add an environment variable `SENTRY_DSN` for Sentry tracking

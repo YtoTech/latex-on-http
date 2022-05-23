@@ -9,6 +9,7 @@
 """
 import os
 import sentry_sdk
+import sentry_sdk.integrations.flask
 import logging.config
 import sys
 import zmq
@@ -37,7 +38,7 @@ logging.config.dictConfig(
 if os.environ.get("SENTRY_DSN"):
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
-        integrations=[FlaskIntegration()],
+        integrations=[sentry_sdk.integrations.flask.FlaskIntegration()],
         # By default the SDK will try to use the SENTRY_RELEASE
         # environment variable, or infer a git commit
         # SHA as release, however you may want to set
