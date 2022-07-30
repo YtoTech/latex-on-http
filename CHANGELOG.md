@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-07-30-1
+
+* Fix caching API
+
 ## 2022-05-23-1
 
 * Fix Sentry Flask integration import
