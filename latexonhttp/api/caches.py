@@ -24,7 +24,10 @@ caches_app = Blueprint("caches", __name__)
 
 @caches_app.route("/resources", methods=["GET"])
 def resources_metadata():
-    return (jsonify(map_cache_metadata_for_public(get_cache_metadata_snapshot())), 200)
+    is_ok, cache_response = get_cache_metadata_snapshot()
+    if not is_ok:
+        return (jsonify(cache_response), 500)
+    return (jsonify(map_cache_metadata_for_public(cache_response)), 200)
 
 
 @caches_app.route("/resources/check_cached", methods=["POST"])
@@ -37,12 +40,15 @@ def resources_check_cached():
     for resource in payload["resources"]:
         if not "hash" in resource:
             return jsonify("MISSING_RESOURCE_HASH"), 400
+    is_ok, cache_response = are_resources_in_cache(payload["resources"])
+    if not is_ok:
+        return (jsonify(cache_response), 500)
     return (
         jsonify(
             {
                 "resources": {
                     resource["hash"]: {"hit": resource["hit"]}
-                    for resource in are_resources_in_cache(payload["resources"])
+                    for resource in cache_response
                 }
             }
         ),

@@ -93,7 +93,9 @@ def fetcher_hash_cache(resource, get_from_cache):
     if not get_from_cache:
         return None, "NO_CACHE_PROVIDER_ENABLED"
     logger.debug("Trying to fetch from cache %s", resource)
-    cached_data = get_from_cache(resource)
+    is_ok, cached_data = get_from_cache(resource)
+    if not is_ok:
+        return None, "CACHE_PROCESS_ERROR"
     if not cached_data:
         return None, "CACHE_MISS"
     return cached_data, None

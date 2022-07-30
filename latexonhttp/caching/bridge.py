@@ -18,9 +18,8 @@ context = zmq.Context()
 req_socket = None
 dealer_socket = None
 
-# TODO Allows to disable cache if no host defined.
-# (Or not available?)
-CACHE_HOST = os.getenv("CACHE_HOST", "cache")
+# Allows to disable cache if no host defined.
+CACHE_HOST = os.getenv("CACHE_HOST")
 
 # ; The caching is forwarded to a decicated process
 # ; for the whole LaTeX-On-HTTP node to ensure consistency.
@@ -31,8 +30,11 @@ CACHE_HOST = os.getenv("CACHE_HOST", "cache")
 
 
 def get_cache_process_sync_socket():
+    if not CACHE_HOST:
+        return None
     # Connect only one time and let open.
     # (Does this can timeout? Will see)
+    # (Also mut try to re-connect on errors)
     global req_socket
     if not req_socket:
         req_socket = context.socket(zmq.REQ)
@@ -41,8 +43,11 @@ def get_cache_process_sync_socket():
 
 
 def get_cache_process_async_socket():
+    if not CACHE_HOST:
+        return None
     # Connect only one time and let open.
     # (Does this can timeout? Will see)
+    # (Also mut try to re-connect on errors)
     global dealer_socket
     if not dealer_socket:
         dealer_socket = context.socket(zmq.DEALER)
@@ -60,15 +65,20 @@ def deserialize_message(data):
 
 def request_cache_process_sync(message):
     socket = get_cache_process_sync_socket()
+    if not socket:
+        return False, {"error": "No cache process host defined"}
     socket.send(serialize_message(message))
     # Get reply.
     # TODO Manage timeout and server error.
-    return deserialize_message(socket.recv())
+    return True, deserialize_message(socket.recv())
 
 
 def request_cache_process_async(message):
     socket = get_cache_process_async_socket()
+    if not socket:
+        return False, {"error": "No cache process host defined"}
     socket.send(serialize_message(message))
+    return True, None
     # We do not expect a response.
     # We could have an async mode with responses,
     # which would requires to ask for responses

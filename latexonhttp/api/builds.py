@@ -188,9 +188,9 @@ def compiler_latex():
             if error:
                 return error
             # Input cache forwarding.
-            error = forward_resource_to_cache(resource, data)
-            if error:
-                return error
+            is_ok, cache_response = forward_resource_to_cache(resource, data)
+            if not is_ok or cache_response:
+                return cache_response
 
         # Input cache provider.
         error = fetch_resources(
