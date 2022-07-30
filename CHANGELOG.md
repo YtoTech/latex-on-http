@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-07-30-4
+
+* Fix missing import on `app_cache.py`
+
 ## 2022-07-30-1
 
 * Fix caching API
