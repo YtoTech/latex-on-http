@@ -30,8 +30,8 @@ def test_api_packages_list(latex_on_http_api_url):
     # can changes between TexLive updates / releases.
     # (And the exact number is not so important,
     # when the full scheme is installed)
-    assert len(packages) > 4300
-    assert len(packages) < 4400
+    assert len(packages) > 4000
+    assert len(packages) < 5000
 
 
 PACKAGE_INFO_MANDATORIES_PROPERTIES = [
