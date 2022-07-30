@@ -21,6 +21,7 @@ from latexonhttp.caching.resources import (
     do_reset_cache,
 )
 from latexonhttp.caching.store import get_cache_metadata
+from latexonhttp.utils.misc import get_api_version
 
 # Logging.
 logging.config.dictConfig(
