@@ -18,7 +18,7 @@ from latexonhttp.caching.resources import (
     do_forward_resource_to_cache,
     do_get_resource_from_cache,
     do_are_resources_in_cache,
-    reset_cache,
+    do_reset_cache,
 )
 from latexonhttp.caching.store import get_cache_metadata
 
@@ -55,6 +55,7 @@ ACTIONS_MAP = {
     "get_resource_from_cache": {"fn": do_get_resource_from_cache, "mode": "sync"},
     "get_cache_metadata": {"fn": get_cache_metadata, "mode": "sync"},
     "are_resources_in_cache": {"fn": do_are_resources_in_cache, "mode": "sync"},
+    "reset_cache": {"fn": do_reset_cache, "mode": "sync"},
 }
 
 # Other implementation ideas:
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     logger.info("Preparing cache...")
     # Reset cache.
     # (Flush cache on disk and init metadata).
-    reset_cache()
+    do_reset_cache()
     logger.info("Cache init process, done...")
     rep_socket = context.socket(zmq.REP)
     rep_socket.bind("tcp://*:10000")

@@ -28,8 +28,6 @@
 ; External API.
 ; --------------------------------
 
-; TODO What to do if cache process not available / error?
-
 (defn get-cache-metadata-snapshot []
   (request-cache-process-sync
     {
@@ -65,11 +63,18 @@
       }
     }))
 
+(defn reset-cache []
+  (request-cache-process-sync
+    {
+      "action" "reset_cache"
+      "args" {}
+    }))
+
 ; --------------------------------
 ; Implementation.
 ; --------------------------------
 
-(defn reset-cache []
+(defn do-reset-cache []
   (setv action {
     "name" "reset_cache"
   })
@@ -160,7 +165,7 @@
   })
 
 (defn free-space-from-first-rec [resources size-to-free actions]
-  (if (pos? size-to-free )
+  (if (> size-to-free 0)
     (free-space-from-first-rec
       (list (drop 1 resources))
       (- size-to-free (get (first resources) "size"))
@@ -170,7 +175,7 @@
 (defn free-space-from-old-entries [cache-metadata size-to-free]
   (setv ordered-resources (fun-sort (.values (get cache-metadata "cached_resources")) (fn [resource] (get resource "added_at"))))
   ; (logger.debug "Ordered resources: %s" ordered-resources)
-  (if (pos? size-to-free)
+  (if (> size-to-free 0)
     ; Order resources by timestamp.
     ; Remove until we have freed the specified size
     (free-space-from-first-rec
@@ -219,6 +224,7 @@
         "total_size" 0
         "free_remaining_size" MAX-RESOURCES-CACHE-SIZE
         "cached_resources" {}
+        "hashing_algorighm" "sha256"
     })
 
 (defn process-cache-total-size [resources]

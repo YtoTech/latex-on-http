@@ -12,9 +12,12 @@ import logging
 import msgpack
 import zmq
 
+RECV_TIMEOUT = 1500
+
 logger = logging.getLogger(__name__)
 
 context = zmq.Context()
+context.setsockopt(zmq.SocketOption.RCVTIMEO, RECV_TIMEOUT)
 req_socket = None
 dealer_socket = None
 
@@ -67,17 +70,29 @@ def request_cache_process_sync(message):
     socket = get_cache_process_sync_socket()
     if not socket:
         return False, {"error": "No cache process host defined"}
-    socket.send(serialize_message(message))
+    try:
+        socket.send(serialize_message(message), zmq.NOBLOCK)
+    except zmq.ZMQError as ze:
+        return False, {"error": "ZMQ socket failure", "message": str(ze)}
     # Get reply.
-    # TODO Manage timeout and server error.
-    return True, deserialize_message(socket.recv())
+    # TODO Use polling to handle timeouts
+    # and allow to choose timeout specific for the request.
+    # https://stackoverflow.com/questions/7538988/zeromq-how-to-prevent-infinite-wait
+    try:
+        response = socket.recv()
+        return True, deserialize_message(response)
+    except zmq.ZMQError as ze:
+        return False, {"error": "ZMQ socket failure", "message": str(ze)}
 
 
 def request_cache_process_async(message):
     socket = get_cache_process_async_socket()
     if not socket:
         return False, {"error": "No cache process host defined"}
-    socket.send(serialize_message(message))
+    try:
+        socket.send(serialize_message(message), zmq.NOBLOCK)
+    except zmq.ZMQError as ze:
+        return False, {"error": "ZMQ socket failure", "message": str(ze)}
     return True, None
     # We do not expect a response.
     # We could have an async mode with responses,

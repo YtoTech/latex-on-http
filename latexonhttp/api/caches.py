@@ -9,10 +9,11 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify
 from latexonhttp.caching.resources import (
     get_cache_metadata_snapshot,
     are_resources_in_cache,
+    reset_cache,
 )
 
 from pprint import pformat
@@ -21,6 +22,12 @@ logger = logging.getLogger(__name__)
 
 caches_app = Blueprint("caches", __name__)
 
+# TODO Name the cache?
+#    /caches/<cache name>/resources
+# For eg.
+#    /caches/input/resources
+#    /caches/output/resources
+
 
 @caches_app.route("/resources", methods=["GET"])
 def resources_metadata():
@@ -28,6 +35,14 @@ def resources_metadata():
     if not is_ok:
         return (jsonify(cache_response), 500)
     return (jsonify(map_cache_metadata_for_public(cache_response)), 200)
+
+
+@caches_app.route("/resources", methods=["DELETE"])
+def resources_reset_cache():
+    is_ok, cache_response = reset_cache()
+    if not is_ok:
+        return (jsonify(cache_response), 500)
+    return '', 204
 
 
 @caches_app.route("/resources/check_cached", methods=["POST"])
