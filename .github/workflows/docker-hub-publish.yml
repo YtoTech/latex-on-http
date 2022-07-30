@@ -1,15 +1,7 @@
-name: build-and-test
+name: docker-hub-publish
 on:
-  push:
-    paths-ignore:
-      - '**.md'
-    branches:
-      - master
-  pull_request:
-    paths-ignore:
-      - '**.md'
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
   build-ant-test:
@@ -33,4 +25,9 @@ jobs:
         run: make docker-build-all
       - name: Run tests (using locally built Docker images)
         run: make test-docker-compose
-   
+      - name: Docker Hub push
+        run: ./container/docker_push.sh
+        shell: bash
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
