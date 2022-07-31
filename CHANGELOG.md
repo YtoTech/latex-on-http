@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-07-31-1
+
+* Make sync cache socket more reliable with lazy pirate pattern (prevent dead-lock on server crash)
+
 ## 2022-07-30-4
 
 * Fix missing import on `app_cache.py`
