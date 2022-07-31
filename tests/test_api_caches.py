@@ -70,6 +70,8 @@ def test_resource_cache_file(latex_on_http_api_url):
     response_payload = r.json()
     print(response_payload)
     assert response_payload["resources"] == {
-        "sha256:683d205d5044f5822c01424189a96e710512f79fe322bbcd8a83a79c8d27cf70": {'hit': True},
-        "sha256:b9797e795d0c45e23671d6037fc77f81a0b4783b": {'hit': False},
+        "sha256:683d205d5044f5822c01424189a96e710512f79fe322bbcd8a83a79c8d27cf70": {
+            "hit": True
+        },
+        "sha256:b9797e795d0c45e23671d6037fc77f81a0b4783b": {"hit": False},
     }

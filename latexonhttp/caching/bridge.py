@@ -12,12 +12,12 @@ import logging
 import msgpack
 import zmq
 
-RECV_TIMEOUT = 1500
+REQUEST_RECV_TIMEOUT = 1500
+REQUEST_RETRIES = 2
 
 logger = logging.getLogger(__name__)
 
 context = zmq.Context()
-context.setsockopt(zmq.SocketOption.RCVTIMEO, RECV_TIMEOUT)
 req_socket = None
 dealer_socket = None
 
@@ -45,6 +45,14 @@ def get_cache_process_sync_socket():
     return req_socket
 
 
+def clore_cache_process_sync_socket(linger=0):
+    global req_socket
+    if req_socket:
+        socket.setsockopt(zmq.LINGER, linger)
+        socket.close()
+        req_socket = None
+
+
 def get_cache_process_async_socket():
     if not CACHE_HOST:
         return None
@@ -66,7 +74,11 @@ def deserialize_message(data):
     return msgpack.unpackb(data, raw=False)
 
 
-def request_cache_process_sync(message):
+def request_cache_process_sync(
+    message, timeout=REQUEST_RECV_TIMEOUT, retries=REQUEST_RETRIES
+):
+    # We implement a lazy pirate pattern.
+    # https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern
     socket = get_cache_process_sync_socket()
     if not socket:
         return False, {"error": "No cache process host defined"}
@@ -75,12 +87,24 @@ def request_cache_process_sync(message):
     except zmq.ZMQError as ze:
         return False, {"error": "ZMQ socket failure", "message": str(ze)}
     # Get reply.
-    # TODO Use polling to handle timeouts
+    # Use polling to handle timeouts
     # and allow to choose timeout specific for the request.
-    # https://stackoverflow.com/questions/7538988/zeromq-how-to-prevent-infinite-wait
     try:
-        response = socket.recv()
-        return True, deserialize_message(response)
+        retries_left = retries
+        while True:
+            if (socket.poll(REQUEST_RECV_TIMEOUT) & zmq.POLLIN) != 0:
+                response = socket.recv()
+                return True, deserialize_message(response)
+            retries_left = -1
+            # Socket is confused. Close and remove it.
+            clore_cache_process_sync_socket()
+            if retries_left == 0:
+                return False, {"error": "ZMQ socket timeout", "retries": retries}
+            socket = get_cache_process_sync_socket()
+            if not socket:
+                return False, {"error": "No cache process host defined"}
+            socket.send(serialize_message(message), zmq.NOBLOCK)
+
     except zmq.ZMQError as ze:
         return False, {"error": "ZMQ socket failure", "message": str(ze)}
 

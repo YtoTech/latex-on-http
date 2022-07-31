@@ -42,7 +42,7 @@ def resources_reset_cache():
     is_ok, cache_response = reset_cache()
     if not is_ok:
         return (jsonify(cache_response), 500)
-    return '', 204
+    return "", 204
 
 
 @caches_app.route("/resources/check_cached", methods=["POST"])
