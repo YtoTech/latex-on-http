@@ -1,0 +1,9 @@
+{
+    "compiler": "xelatex",
+    "resources": [
+        {
+            "main": true,
+            "url": "http://www.barsamian.am/Php/Exos/test3.tex"
+        }
+    ]
+}

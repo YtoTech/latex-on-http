@@ -1,0 +1,37 @@
+% Run with
+% curl -v -X POST http://localhost:9898/builds/sync -H "Content-Type:application/json" -d "$(cat tests/samples/pstricks/barsamian-test3.json)" --output test3.pdf
+\documentclass[a4paper]{article}
+
+\setlength{\textwidth} {17cm}
+\setlength{\textheight} {26cm}
+\addtolength{\topmargin} {-2.5cm}
+\setlength{\oddsidemargin} {-1cm}
+\setlength{\evensidemargin} {-1cm}
+
+\usepackage[T1]{fontenc}              %T1 needed for true type.
+\usepackage[utf8]{inputenc}           %utf8 is usually the standard for Unix
+\usepackage{babel}
+\usepackage{amsfonts, amsmath}        %dfrac
+\usepackage{graphicx}                 %includegraphics
+\usepackage{enumitem}                 %to customize enumerations
+\usepackage{tabularx}                 %Redefinition of arraybackslash
+\usepackage{textcomp}                 %For unicode symbols like °
+\usepackage{multicol}                 %multicols environment
+\usepackage{pstricks,pst-plot,pst-text,pst-tree,pst-eucl}
+
+\begin{document}
+
+\noindent Chapitre 4 --- Exercices d'annale \hfill Éléments de correction
+
+\bigskip
+
+\psset{unit=1cm}
+\def\xMin{0}
+\def\xMax{9}
+\def\yMin{0}
+\def\yMax{7}
+\begin{pspicture}(\xMin,\yMin)(\xMax,\yMax)
+\psgrid[gridlabels=0pt,subgriddiv=10,gridwidth=1pt,subgridwidth=0.2pt,gridcolor=orange,subgridcolor=orange](\xMin,\yMin)(\xMax,\yMax)
+\end{pspicture}
+
+\end{document}
