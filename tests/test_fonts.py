@@ -24,4 +24,5 @@ def test_api_fonts_list(latex_on_http_api_url):
         assert "name" in font
         assert "styles" in font
         assert isinstance(font["styles"], list) is True
-    assert len(fonts) == 2648
+    assert len(fonts) > 2600
+    assert len(fonts) < 2900
