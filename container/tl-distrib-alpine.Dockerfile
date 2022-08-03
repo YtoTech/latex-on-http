@@ -41,6 +41,14 @@ RUN update-ms-fonts && fc-cache -f
 
 
 #--------------------------------
+# Install additionnal runtimes.
+#--------------------------------
+
+RUN apk --no-cache add \
+    ghostscript
+
+
+#--------------------------------
 # Install Latex packages.
 #--------------------------------
 

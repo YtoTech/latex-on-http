@@ -77,6 +77,9 @@ dev:
 dev-build:
 	docker-compose -f docker-compose.dev.yml build --no-cache
 
+dev-sh-latex:
+	docker-compose -f docker-compose.dev.yml exec latex /bin/bash
+
 ## -------------------------------
 ## Tests ##
 ## -------------------------------

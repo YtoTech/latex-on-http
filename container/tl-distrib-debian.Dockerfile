@@ -52,6 +52,15 @@ RUN apt-get update -qq && apt-get install -y \
 
 
 #--------------------------------
+# Install additionnal runtimes.
+#--------------------------------
+
+RUN apt-get update -qq && apt-get install -y \
+    ghostscript \
+    && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+#--------------------------------
 # Install Latex packages.
 #--------------------------------
 

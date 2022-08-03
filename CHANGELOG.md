@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-08-03-1
+
+* Add ghostscript runtime to the base Docker image
+
 ## 2022-07-31-1
 
 * Make sync cache socket more reliable with lazy pirate pattern (prevent dead-lock on server crash)
