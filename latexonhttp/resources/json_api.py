@@ -17,6 +17,8 @@ PAYLOAD_KEYS_TO_COPY = ["compiler", "resources", "options"]
 
 
 def parse_json_resources_spec(json_payload):
+    if not json_payload:
+        return None, None
     json_spec = {}
 
     # Select / copy several keys.
