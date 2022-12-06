@@ -102,6 +102,21 @@ def compiler_latex():
     if not input_spec:
         return jsonify({"error": "MISSING_COMPILATION_SPECIFICATION"}), 400
 
+    # Payload validations.
+    # TODO Use a data validation library tu run checks?
+    #  (Write one in Hy?)
+    if "resources" in input_spec:
+        if not isinstance(input_spec, list):
+            return (
+                jsonify(
+                    {
+                        "error": "INVALID_PAYLOAD_SHAPE",
+                        "message": "resources must be a list",
+                    }
+                ),
+                400,
+            )
+
     # High-level normalizsation.
     logger.info(
         "Before normalization %s",
