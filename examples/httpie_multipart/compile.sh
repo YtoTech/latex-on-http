@@ -3,10 +3,7 @@
 # Requires https://github.com/jakubroztocil/httpie installed
 
 # Specify a compiler, the resource spec and the file to upload.
-http --download -f -v POST https://latex.ytotech.com/builds/sync \
+http --download --multipart --output sample.pdf -f -v POST https://latex.ytotech.com/builds/sync \
     file1@sample.tex \
     compiler=xelatex \
-    resources='[{"main": "true", "multipart": "file1"}]'
-
-# https://github.com/jakubroztocil/httpie#file-upload-forms
-# http -f POST http://localhost:8080 /jobs name='John Smith' cv@~/Documents/cv.pdf
+    resources='[{"main": true, "multipart": "file1"}]'

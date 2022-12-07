@@ -38,7 +38,7 @@ When you need to add annex resources (for eg. other LaTeX files or image files),
 [https://latex.ytotech.com/builds/sync?content=content=\documentclass{article} \usepackage{graphicx} \begin{document} Hello World \includegraphics[height%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue]{logo.png} \end{document}&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png](https://latex.ytotech.com/builds/sync?content=%5Cdocumentclass%7Barticle%7D%20%5Cusepackage%7Bgraphicx%7D%20%5Cbegin%7Bdocument%7D%20Hello%20World%20%5Cincludegraphics%5Bheight%3D2cm%2Cwidth%3D7cm%2Ckeepaspectratio%3Dtrue%5D%7Blogo.png%7D%20%5Cend%7Bdocument%7D&resource-type[]=url&resource-path[]=logo.png&resource-value[]=https://www.ytotech.com/images/ytotech_logo.png)
 
 
-## Hello world POST Json API
+## Hello world POST JSON API
 
 With Curl:
 
@@ -75,13 +75,14 @@ Also note how the first document is flag with the `main` property and how the de
 With [HTTPie](https://github.com/jakubroztocil/httpie):
 
 ```sh
-http --download -f -v POST https://latex.ytotech.com/builds/sync \
-    file1@sample.tex \
-    compiler=xelatex \
-    resources='[{"main": "true", "multipart": "file1"}]'
+http --multipart --download --output hello.pdf -v POST https://latex.ytotech.com/builds/sync \
+    compiler=pdflatex \
+    resources='[{"main": true, "content": "\\documentclass{article}\n \\begin{document}\n Hello World\n \\end{document}"}]'
 ```
 
 This multi-part API allows to send resource files to be compiled in a multipart HTTP query.
+
+[See more](https://github.com/YtoTech/latex-on-http/tree/master/examples/httpie_multipart).
 
 ## Available packages and fonts
 
