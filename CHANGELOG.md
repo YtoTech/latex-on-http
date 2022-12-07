@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2022-12-07-1
+
+* Add clearer input spec (payload) validation
+
 ## 2022-08-03-1
 
 * Add ghostscript runtime to the base Docker image
