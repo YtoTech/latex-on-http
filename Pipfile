@@ -26,6 +26,7 @@ flask-cors = "*"
 importlib-metadata = "*"
 hyrule = "*"
 sentry-sdk = {extras = ["flask"], version = "*"}
+cerberus = "*"
 
 [requires]
 python_version = "3"

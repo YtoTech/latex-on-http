@@ -33,6 +33,9 @@ def test_multipart_api_full_spec_simple(latex_on_http_api_url):
         "resources": '[{"main": "true", "multipart": "file1"}]',
     }
     r = requests.post(latex_on_http_api_url + "/builds/sync", files=files, data=form)
+    # import pprint
+
+    # pprint.pprint(r.json())
     assert r.status_code == 201
     snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
 

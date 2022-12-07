@@ -96,6 +96,9 @@ def parse_multipart_resources_spec(forms, files):
         multipart_file = files[resource["multipart"]]
         # We uses base64 for encoding file content.
         resource["file"] = base64.b64encode(multipart_file.read())
+        # We can delete the "multipart" entry in the spec,
+        # to keep it normalized.
+        del resource["multipart"]
         if "path" not in resource:
             resource["path"] = multipart_file.filename
     return json_spec, None

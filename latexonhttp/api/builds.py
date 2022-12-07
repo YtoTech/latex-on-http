@@ -9,7 +9,9 @@
 """
 import logging
 import pprint
+import json
 import glom
+import cerberus
 from flask import Blueprint, request, jsonify, Response
 from latexonhttp.compiler import (
     latexToPdf,
@@ -68,6 +70,54 @@ builds_app = Blueprint("builds", __name__)
 # signature of compilation spec -> in cache? -> directly return.
 
 
+class JSONInputSpecEncoderForDebug(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, bytes):
+            return "<binary-content>"
+        return json.JSONEncoder.default(self, obj)
+
+
+input_spec_schema = {
+    "compiler": {"type": "string", "allowed": AVAILABLE_LATEX_COMPILERS},
+    "resources": {
+        "type": "list",
+        "required": True,
+        "schema": {
+            "type": "dict",
+            # For now, we just check the keys.
+            "keysrules": {
+                "type": "string",
+                "allowed": [
+                    "url",
+                    "file",
+                    "git",
+                    "tar",
+                    "cache",
+                    "content",
+                    "main",
+                    "path",
+                ],
+            },
+        },
+    },
+    "options": {
+        "type": "dict",
+        "schema": {
+            "bibliography": {
+                "type": "dict",
+                "schema": {
+                    "command": {
+                        "type": "string",
+                        "allowed": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
+                    }
+                },
+            }
+        },
+    },
+}
+input_spec_validator = cerberus.Validator(input_spec_schema)
+
+
 @builds_app.route("/sync", methods=["GET", "POST"])
 def compiler_latex():
     input_spec = None
@@ -76,8 +126,10 @@ def compiler_latex():
     # for eg. using GET/param to specify the compiler
     # with a POST/json payload (POST:/builds/sync?compiler=xelatex)
 
+    input_spec_mode = None
     # Support for GET querystring requests.
     if request.method == "GET":
+        input_spec_mode = "querystring"
         logger.info(pprint.pformat(request.args.to_dict(False)))
         input_spec, error = parse_querystring_resources_spec(
             request.args.to_dict(True), request.args.to_dict(False)
@@ -87,6 +139,7 @@ def compiler_latex():
 
     # Support for multipart/form-data requests.
     if request.content_type and "multipart/form-data" in request.content_type:
+        input_spec_mode = "multipart/form-data"
         logger.info(request.content_type)
         logger.info(pprint.pformat(request.files))
         logger.info(pprint.pformat(request.form))
@@ -95,6 +148,7 @@ def compiler_latex():
             return jsonify(error), 400
 
     if not input_spec:
+        input_spec_mode = "json"
         input_spec, error = parse_json_resources_spec(request.get_json())
         if error:
             return jsonify(error), 400
@@ -103,19 +157,27 @@ def compiler_latex():
         return jsonify({"error": "MISSING_COMPILATION_SPECIFICATION"}), 400
 
     # Payload validations.
-    # TODO Use a data validation library tu run checks?
-    #  (Write one in Hy?)
-    if "resources" in input_spec:
-        if not isinstance(input_spec, list):
-            return (
-                jsonify(
+    logger.info(request.content_type)
+    logger.info(pprint.pformat(request.files))
+    logger.info(pprint.pformat(request.form))
+    logger.info(input_spec)
+
+    if not input_spec_validator.validate(input_spec):
+        return (
+            Response(
+                json.dumps(
                     {
                         "error": "INVALID_PAYLOAD_SHAPE",
-                        "message": "resources must be a list",
-                    }
+                        "shape_errors": input_spec_validator.errors,
+                        "input_spec_mode": input_spec_mode,
+                        "input_spec": input_spec,
+                    },
+                    cls=JSONInputSpecEncoderForDebug,
                 ),
-                400,
-            )
+                content_type="application/json",
+            ),
+            400,
+        )
 
     # High-level normalizsation.
     logger.info(
