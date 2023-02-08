@@ -4,6 +4,8 @@
 ## TODOs
 
 * Isolation / security for compilation jobs/runs
+    * Write a test that breaks isolation (eg indue fs access)
+        * Needs to enable --shell-escape?
     * Docker
         * Siblings for each run https://github.com/overleaf/clsi
     * firejail
@@ -14,6 +16,13 @@
         * https://github.com/netblue30/firejail/issues/1956
         * https://github.com/netblue30/firejail/issues/1210
         * https://github.com/netblue30/firejail/blob/master/etc/profile-a-l/latex-common.profile
+    * AppArmor
+        * https://gitlab.com/apparmor/apparmor/-/wikis/Profiling_with_tools
+        * https://docs.docker.com/engine/security/apparmor/#nginx-example-profile
+        * https://github.com/phalaaxx/aaprofiles/blob/master/opt.telegram.Telegram
+        * https://tbhaxor.com/writing-apparmor-profile-from-scratch/
+    * seccomp?
+        * See overleaf/clsi Seccomp profile
 * Introspection
     * Add deeper Latex introspection
     * Compilation options introspection
