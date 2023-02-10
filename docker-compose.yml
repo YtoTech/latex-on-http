@@ -19,5 +19,5 @@ services:
     # restart: always
     volumes:
      - ./tmp:/app/latex-on-http/tmp
-    environment:
+    # environment:
       # SENTRY_DSN: 
