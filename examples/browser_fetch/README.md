@@ -47,3 +47,5 @@ compileLaTeXSimpleDoc(`\documentclass{article}
 Hello LaTeX. \\
 \end{document}`);
 ```
+
+See `save-as-file.html` for a minimalist HTML page integrating the service to compile some LaTeX and download the PDF.
