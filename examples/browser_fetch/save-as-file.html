@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Compile and download a LaTeX doc</title>
+  <link rel="icon" type="image/png" href="https://www.ytotech.com/images/favicon.png">
+</head>
+
+<body>
+  <textarea id="latexdoc" rows="20" cols="40">\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+Hello LaTeX. \\
+\end{document}</textarea>
+  <button id="compileBtn">Compile</button>
+  <div id="error" style="display: none;">
+    <h1>Error</h1>
+    <code></code>
+  </div>
+  <script>
+    const saveBlobAsFile = (function () {
+      const a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      return function (blob, fileName) {
+          const url = window.URL.createObjectURL(blob);
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          window.URL.revokeObjectURL(url);
+      };
+  }());
+  
+    async function compileLaTeXSimpleDoc (latexDoc) {
+      console.log('Compiling...', latexDoc);
+      document.getElementById('compileBtn').textContent = 'Compiling...';
+      document.getElementById('error').style.display = 'none';
+      const response = await fetch('https://latex.ytotech.com/builds/sync', {
+          method: 'POST',
+          headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+          },
+          responseType: 'blob',
+          body: JSON.stringify({
+              compiler: 'pdflatex',
+              resources: [
+                  {
+                      main: true,
+                      content: latexDoc
+                  }
+              ]
+          }),
+      });
+      console.log(response);
+      try {
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(errorText);
+          document.getElementById('error').style.display = 'block';
+          document.querySelector('#error h1').textContent = `Error ${response.statusText}`;
+          document.querySelector('#error code').textContent = errorText;
+          return;
+        }
+        try {
+            const pdfBlob = await response.blob();
+            console.log('The PDF blob', pdfBlob);
+            saveBlobAsFile(pdfBlob, 'hello.pdf');
+        } catch(e) {
+            console.error(`Error LaTeX-on-HTTP response handling: ${e}`);
+        }
+      } finally {
+        document.getElementById('compileBtn').textContent = 'Compile';
+      }
+    }
+
+    document.getElementById('compileBtn').addEventListener('click', () => {
+      compileLaTeXSimpleDoc(document.getElementById('latexdoc').value);
+    });
+  </script>
+</body>
+</html>
