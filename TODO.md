@@ -84,6 +84,10 @@
         * endpoint to discover cache files hashes (so clients can optimize)
     * cache on outputs ?
         * when hash of input hashes match -> same output
+* "Registered" (user) cache
+    * for registered (and permitted) users, create endpoints to upload cached resources
+        * they could then be referenced by their hash in resources
+        * or put in a dedicated "shared" directory accessible from compilation?
 * Create client libraries (or samples codes)
     * For the moment in my get paid project
     * CLI API inspiration
