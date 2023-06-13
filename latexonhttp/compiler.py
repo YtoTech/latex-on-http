@@ -10,6 +10,7 @@
 """
 import subprocess
 import os
+import timeit
 import logging
 import glom
 
@@ -33,7 +34,7 @@ AVAILABLE_LATEX_COMPILERS = [
 AVAILABLE_BIBLIOGRAPHY_COMMANDS = ["bibtex", "biber"]
 
 
-def run_command(directory, command):
+def run_command(directory, command, timeout=100):
     # TODO Security: add isolation mechanism.
     # - firejail? (https://firejail.wordpress.com/)
     # - Docker? (like https://github.com/overleaf/clsi)
@@ -48,6 +49,7 @@ def run_command(directory, command):
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=directory
     )
+    started_at = timeit.default_timer()
     # TODO Always have a timeout to control max compilation time and in case the
     # process is stuck.
     # try:
@@ -57,19 +59,26 @@ def run_command(directory, command):
     #     process.kill()
     #     out, err = process.communicate()
     #     print(out)
-    # TODO Read output line by line in a thread (so we have a timeout if external process stucks?)
     while True:
-        output = process.stdout.readline()
+        stdout_line = process.stdout.readline()
         if process.poll() is not None:
             break
-        if output:
-            # TODO Don't need output on the terminal.
-            stdout += str(output) + "\n"
-            print(output.strip())
+        polled_at = timeit.default_timer()
+        if stdout_line:
+            stdout += str(stdout_line) + "\n"
+            logger.debug(stdout_line.strip())
+        if (polled_at - started_at) > timeout:
+            logger.warning("Process timeout, killing it")
+            process.kill()
+            break
     rc = process.poll()
+    ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
-    # TODO Does it return command output?
-    return {"return_code": rc, "stdout": stdout}
+    return {
+        "return_code": rc,
+        "stdout": stdout,
+        "duration": ended_at - started_at,
+    }
 
 
 def latexToPdf(compilerName, directory, main_resource, options={}):
@@ -128,8 +137,8 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
             input_path,
         ]
     logger.debug(command)
-    commandOutput = run_command(directory, command)
-    if commandOutput["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
+    commandOutputs = [run_command(directory, command)]
+    if commandOutputs[0]["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
         # We need a dvipdfmx pass.
         # https://tex.stackexchange.com/questions/295414/what-is-uptex-uplatex
         # TODO Use ptex2pdf?
@@ -144,9 +153,9 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
             log_dir, main_resource["build_path"].replace(".tex", ".pdf")
         )
         logger.debug(command)
-        run_command(log_dir, command)
+        commandOutputs.append(run_command(log_dir, command))
     # TODO Check for compilation errors.
-    # commandOutput['return_code'] is not 0
+    # commandOutputs[0]['return_code'] is not 0
     # Return both generated PDF and compile logs.
     # TODO Uses workspace.filesystem module read file back?
     pdf = None
@@ -157,5 +166,13 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
     return {
         "pdf": pdf,
         "output_path": main_resource["output_path"],
-        "logs": commandOutput["stdout"],
+        "duration": sum(commandOutput["duration"] for commandOutput in commandOutputs),
+        # TODO New endpoints for new API with structure compile steps.
+        "logs": "\n".join(
+            [
+                # TODO Display command header.
+                commandOutput["stdout"]
+                for commandOutput in commandOutputs
+            ]
+        ),
     }

@@ -32,7 +32,7 @@ def fetcher_base64_file(resource, _get_from_cache):
 
 # TODO Make it configurable.
 # (So we can - around other things - reduce the delay in test configuration)
-HTTP_REQUEST_TIMEOUT = 10
+HTTP_REQUEST_TIMEOUT = (15, 60)
 
 
 def fetcher_url_file(resource, _get_from_cache):

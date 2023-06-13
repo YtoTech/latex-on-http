@@ -12,7 +12,7 @@ import pprint
 import json
 import glom
 import cerberus
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request
 from latexonhttp.compiler import (
     latexToPdf,
     AVAILABLE_LATEX_COMPILERS,
@@ -135,7 +135,7 @@ def compiler_latex():
             request.args.to_dict(True), request.args.to_dict(False)
         )
         if error:
-            return jsonify(error), 400
+            return error, 400
 
     # Support for multipart/form-data requests.
     if request.content_type and "multipart/form-data" in request.content_type:
@@ -145,16 +145,16 @@ def compiler_latex():
         logger.info(pprint.pformat(request.form))
         input_spec, error = parse_multipart_resources_spec(request.form, request.files)
         if error:
-            return jsonify(error), 400
+            return error, 400
 
     if not input_spec:
         input_spec_mode = "json"
         input_spec, error = parse_json_resources_spec(request.get_json())
         if error:
-            return jsonify(error), 400
+            return error, 400
 
     if not input_spec:
-        return jsonify({"error": "MISSING_COMPILATION_SPECIFICATION"}), 400
+        return {"error": "MISSING_COMPILATION_SPECIFICATION"}, 400
 
     # Payload validations.
     logger.info(request.content_type)
@@ -164,19 +164,17 @@ def compiler_latex():
 
     if not input_spec_validator.validate(input_spec):
         return (
-            Response(
-                json.dumps(
-                    {
-                        "error": "INVALID_PAYLOAD_SHAPE",
-                        "shape_errors": input_spec_validator.errors,
-                        "input_spec_mode": input_spec_mode,
-                        "input_spec": input_spec,
-                    },
-                    cls=JSONInputSpecEncoderForDebug,
-                ),
-                content_type="application/json",
+            json.dumps(
+                {
+                    "error": "INVALID_PAYLOAD_SHAPE",
+                    "shape_errors": input_spec_validator.errors,
+                    "input_spec_mode": input_spec_mode,
+                    "input_spec": input_spec,
+                },
+                cls=JSONInputSpecEncoderForDebug,
             ),
             400,
+            {"Content-Type": "application/json"},
         )
 
     # High-level normalizsation.
@@ -204,19 +202,17 @@ def compiler_latex():
 
     # - resources (mandatory, must be an array).
     if not "resources" in input_spec:
-        return jsonify({"error": "MISSING_RESOURCES"}), 400
+        return {"error": "MISSING_RESOURCES"}, 400
     if type(input_spec["resources"]) != list:
-        return jsonify({"error": "RESOURCES_SPEC_MUST_BE_A_LIST"}), 400
+        return {"error": "RESOURCES_SPEC_MUST_BE_A_LIST"}, 400
 
     # - compiler
     if compilerName not in AVAILABLE_LATEX_COMPILERS:
         return (
-            jsonify(
-                {
-                    "error": "INVALID_COMPILER",
-                    "available_compilers": AVAILABLE_LATEX_COMPILERS,
-                }
-            ),
+            {
+                "error": "INVALID_COMPILER",
+                "available_compilers": AVAILABLE_LATEX_COMPILERS,
+            },
             400,
         )
 
@@ -226,12 +222,10 @@ def compiler_latex():
         not in AVAILABLE_BIBLIOGRAPHY_COMMANDS
     ):
         return (
-            jsonify(
-                {
-                    "error": "INVALID_BILIOGRAPHY_COMMAND",
-                    "available_commands": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
-                }
-            ),
+            {
+                "error": "INVALID_BILIOGRAPHY_COMMAND",
+                "available_commands": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
+            },
             400,
         )
 
@@ -245,7 +239,7 @@ def compiler_latex():
     # - Prefetch checks (paths, main document, ...);
     errors = check_resources_prefetch(normalized_resources)
     if errors:
-        return jsonify(errors[0]), 400
+        return errors[0], 400
 
     # -------------
     # Fetching, post-fetch normalization and checks, filesystem creation.
@@ -274,7 +268,7 @@ def compiler_latex():
             normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
         )
         if error:
-            return jsonify(error), 400
+            return error, 400
         # TODO
         # - Process build global signature/hash (compiler, resource hashes, other options...)
 
@@ -302,9 +296,7 @@ def compiler_latex():
         if not latexToPdfOutput["pdf"]:
             error_compilation = latexToPdfOutput["logs"]
             return (
-                jsonify(
-                    {"error": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]}
-                ),
+                {"error": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]},
                 400,
             )
         # TODO Also return compilation logs here.
@@ -319,10 +311,10 @@ def compiler_latex():
 
         # TODO Output cache management.
 
-        return Response(
+        return (
             latexToPdfOutput["pdf"],
-            status="201",
-            headers={
+            201,
+            {
                 "Content-Type": "application/pdf",
                 # TODO Pass an option for returning as attachment (instead of inline, which is the default).
                 "Content-Disposition": "inline;filename={}".format(
@@ -339,14 +331,17 @@ def compiler_latex():
         # TODO Report error to Sentry (create a hook for custom code?).
 
         error_in_try_block = e
+        logger.exception(e)
+        return ({"error": "SERVER_ERROR"}, 500)
 
     finally:
         # -------------
         # Cleanup.
         # -------------
 
-        # TODO Option to let workspace on failure.
-        let_workspace_on_error = True
+        # TODO Option to let workspace on failure
+        # from env.
+        let_workspace_on_error = False
 
         if let_workspace_on_error is False or (
             error_in_try_block is None and error_compilation is None

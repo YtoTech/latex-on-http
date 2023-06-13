@@ -12,7 +12,7 @@
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:debian
+FROM yoant/docker-texlive:debian-2023
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 
@@ -20,7 +20,7 @@ LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 # Install fonts.
 #--------------------------------
 
-RUN echo "deb http://deb.debian.org/debian stretch contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://deb.debian.org/debian bookworm contrib non-free" >> /etc/apt/sources.list
 
 # Accepts Microsoft EULA.
 RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections

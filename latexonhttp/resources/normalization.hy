@@ -42,42 +42,42 @@
 
 (defn get-resource-type [resource]
     (cond
-        [(in "url" resource) "url/file"]
-        [(in "file" resource) "base64/file"]
-        [(in "git" resource) "url/git"]
-        [(in "tar" resource) "url/tar"]
-        [(in "cache" resource) "hash/cache"]
-        [(in "content" resource) "utf8/string"]
+        (in "url" resource) "url/file"
+        (in "file" resource) "base64/file"
+        (in "git" resource) "url/git"
+        (in "tar" resource) "url/tar"
+        (in "cache" resource) "hash/cache"
+        (in "content" resource) "utf8/string"
         ; TODO How to support multi-part data for passing tar, file, zip, git, etc. in HTTP request body?
-        [True "unknow"]
+        True "unknow"
     ))
 
 (defn get-body-source [resource resource-type]
     (cond
-        [(= resource-type "url/file")
+        (= resource-type "url/file")
             {
                 "url" (get resource "url")
-            }]
-        [(= resource-type "base64/file")
+            }
+        (= resource-type "base64/file")
             {
                 "raw_base64" (get resource "file")
-            }]
-        [(= resource-type "url/git")
+            }
+        (= resource-type "url/git")
             {
                 "url" (get resource "git")
-            }]
-        [(= resource-type "url/tar")
+            }
+        (= resource-type "url/tar")
             {
                 "url" (get resource "tar")
-            }]
-        [(= resource-type "hash/cache")
+            }
+        (= resource-type "hash/cache")
             {
                 "hash" (get resource "cache")
-            }]
-        [(= resource-type "utf8/string")
+            }
+        (= resource-type "utf8/string")
             {
                 "raw_string" (get resource "content")
-            }]
+            }
     ))
 
 (defn is-resource-main-document [resource resources]

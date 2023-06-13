@@ -9,7 +9,7 @@
     :license: AGPL, see LICENSE for more details.
 """
 import logging
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from latexonhttp.caching.resources import (
     get_cache_metadata_snapshot,
     are_resources_in_cache,
@@ -33,15 +33,15 @@ caches_app = Blueprint("caches", __name__)
 def resources_metadata():
     is_ok, cache_response = get_cache_metadata_snapshot()
     if not is_ok:
-        return (jsonify(cache_response), 500)
-    return (jsonify(map_cache_metadata_for_public(cache_response)), 200)
+        return (cache_response, 500)
+    return (map_cache_metadata_for_public(cache_response), 200)
 
 
 @caches_app.route("/resources", methods=["DELETE"])
 def resources_reset_cache():
     is_ok, cache_response = reset_cache()
     if not is_ok:
-        return (jsonify(cache_response), 500)
+        return (cache_response, 500)
     return "", 204
 
 
@@ -49,24 +49,22 @@ def resources_reset_cache():
 def resources_check_cached():
     payload = request.get_json()
     if not payload:
-        return jsonify("MISSING_PAYLOAD"), 400
+        return {"error": "MISSING_PAYLOAD"}, 400
     if not "resources" in payload:
-        return jsonify("MISSING_RESOURCES"), 400
+        return {"error": "MISSING_RESOURCES"}, 400
     for resource in payload["resources"]:
         if not "hash" in resource:
-            return jsonify("MISSING_RESOURCE_HASH"), 400
+            return {"error": "MISSING_RESOURCE_HASH"}, 400
     is_ok, cache_response = are_resources_in_cache(payload["resources"])
     if not is_ok:
-        return (jsonify(cache_response), 500)
+        return (cache_response, 500)
     return (
-        jsonify(
-            {
-                "resources": {
-                    resource["hash"]: {"hit": resource["hit"]}
-                    for resource in cache_response
-                }
+        {
+            "resources": {
+                resource["hash"]: {"hit": resource["hit"]}
+                for resource in cache_response
             }
-        ),
+        },
         200,
     )
 

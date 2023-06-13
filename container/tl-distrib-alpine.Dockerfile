@@ -11,7 +11,7 @@
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:alpine
+FROM yoant/docker-texlive:alpine-2023
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 

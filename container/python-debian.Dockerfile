@@ -19,7 +19,8 @@ RUN apt-get update -qq && apt-get install -y \
     && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Update pip and install Pipenv.
-RUN pip3 install -U \
+# Yes --break-system-packages, we don't care your EXTERNALLY-MANAGED.
+RUN pip3 install -U --break-system-packages \
   pip \
   pipenv
 

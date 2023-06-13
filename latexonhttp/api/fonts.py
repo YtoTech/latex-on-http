@@ -7,7 +7,7 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from fclist import fclist
 
 fonts_app = Blueprint("fonts", __name__)
@@ -21,4 +21,4 @@ def fonts_list():
             {"family": font.family, "name": font.fullname, "styles": list(font.style)}
         )
     # TODO Group by families?
-    return (jsonify({"fonts": fonts}), 200)
+    return ({"fonts": fonts}, 200)

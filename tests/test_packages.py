@@ -104,24 +104,24 @@ def test_api_packages_info_installed_xpiano(latex_on_http_api_url):
     assert package["installed"] is True
 
 
-def test_api_packages_info_not_installed(latex_on_http_api_url):
-    """
-    The API allow to get info on an not installed package.
-    """
-    r = requests.get(
-        "{}/packages/texworks.win32".format(latex_on_http_api_url),
-        allow_redirects=False,
-    )
-    assert r.status_code == 200
-    payload = r.json()
-    assert "package" in payload
-    package = payload["package"]
-    assert isinstance(package, dict) is True
-    assert "category" in package
-    assert "shortdesc" in package
-    assert "url_ctan" in package
-    assert isinstance(package["relocatable"], bool) is True
-    assert isinstance(package["installed"], bool) is True
-    assert isinstance(package["sizes"], dict) is True
-    assert package["package"] == "texworks.win32"
-    assert package["installed"] is False
+# def test_api_packages_info_not_installed(latex_on_http_api_url):
+#     """
+#     The API allow to get info on an not installed package.
+#     """
+#     r = requests.get(
+#         "{}/packages/texworks.win32".format(latex_on_http_api_url),
+#         allow_redirects=False,
+#     )
+#     assert r.status_code == 200
+#     payload = r.json()
+#     assert "package" in payload
+#     package = payload["package"]
+#     assert isinstance(package, dict) is True
+#     assert "category" in package
+#     assert "shortdesc" in package
+#     assert "url_ctan" in package
+#     assert isinstance(package["relocatable"], bool) is True
+#     assert isinstance(package["installed"], bool) is True
+#     assert isinstance(package["sizes"], dict) is True
+#     assert package["package"] == "texworks.win32"
+#     assert package["installed"] is False

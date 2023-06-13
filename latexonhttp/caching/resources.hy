@@ -277,12 +277,15 @@
 (defn update-cache-metadata-for-action [cache-metadata action]
   (setv action-name (get action "name"))
   (cond
-    [(= action-name "reset_cache")
-      (init-cache-metadata)]
-    [(= action-name "add_resource")
-      (add-resource-to-cache-metadata cache-metadata (get action "resource"))]
-    [(= action-name "remove_resource")
-      (remove-resource-from-cache-metadata cache-metadata (get action "resource"))]
-    [True
-      (raise (RuntimeError (.format "Unsupported cache action '{}'" action-name)))]
+    (= action-name "reset_cache")
+    (init-cache-metadata)
+
+    (= action-name "add_resource")
+    (add-resource-to-cache-metadata cache-metadata (get action "resource"))
+
+    (= action-name "remove_resource")
+    (remove-resource-from-cache-metadata cache-metadata (get action "resource"))
+
+    True
+    (raise (RuntimeError (.format "Unsupported cache action '{}'" action-name)))
   ))

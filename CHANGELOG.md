@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2023-06-12-1
+
+* Timeout long LaTeX compilations and prevent zombie processes (the timeout is of 100 seconds for now)
+
 ## 2022-12-07-1
 
 * Add clearer input spec (payload) validation

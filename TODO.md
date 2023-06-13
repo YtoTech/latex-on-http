@@ -33,6 +33,7 @@
         * https://tug.org/FontCatalogue/
     * Tell font types: T1, OpenType, TrueType, etc.
     * Add usage instructions for each? (in the generated doc?)
+    * TODO Dynamically pull fonts from https://fonts.google.com/?
 * Tmp site https://nicedoc.io/ytotech/latex-on-http
 * Find/create a std Hy formatter (like black for Python)
     * Uniformize Hy code formatting

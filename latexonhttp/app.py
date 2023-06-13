@@ -12,7 +12,7 @@ import os
 import logging.config
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_cors import CORS
 from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
@@ -72,14 +72,12 @@ def hello():
     # TODO Return an OpenAPI specification
     # https://github.com/OAI/OpenAPI-Specification
     return (
-        jsonify(
-            {
-                "message": "Welcome to the LaTeX-On-HTTP API",
-                "version": get_api_version(),
-                "source": "https://github.com/YtoTech/latex-on-http",
-                "documentation": "https://github.com/YtoTech/latex-on-http",
-                "texlive_version": get_texlive_version_spec()["texlive"]["version"],
-            }
-        ),
+        {
+            "message": "Welcome to the LaTeX-On-HTTP API",
+            "version": get_api_version(),
+            "source": "https://github.com/YtoTech/latex-on-http",
+            "documentation": "https://github.com/YtoTech/latex-on-http",
+            "texlive_version": get_texlive_version_spec()["texlive"]["version"],
+        },
         200,
     )
