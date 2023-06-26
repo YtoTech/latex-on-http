@@ -23,6 +23,13 @@
         * https://tbhaxor.com/writing-apparmor-profile-from-scratch/
     * seccomp?
         * See overleaf/clsi Seccomp profile
+    * Systemd unit
+        * https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+        * See ReadOnlyPaths
+        * Sample: sudo mv borgmatic.service borgmatic.timer /etc/systemd/system/
+        * One shot unit template
+            * https://www.baeldung.com/linux/systemd-multiple-parameters
+            * https://superuser.com/questions/728951/systemd-giving-my-service-multiple-arguments
 * Introspection
     * Add deeper Latex introspection
     * Compilation options introspection
