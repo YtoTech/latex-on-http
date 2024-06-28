@@ -94,7 +94,9 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
     # TODO Uses workspace.filesystem module to these get paths.
     input_path = "{}/{}".format(directory, main_resource["build_path"])
     output_path = "{}/output.pdf".format(directory)
-    log_dir = "{}/latex.out".format(directory)
+    # Use the same root directory to prevent issues
+    # with filecontents and uploaded resources (path resolution).
+    log_dir = "{}".format(directory)
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
     # Use https://github.com/aclements/latexrun
     # to manage multiple runs of Latex compiler for us.

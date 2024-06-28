@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2024-06-28-2
+
+* Run all commands in same directory to simplify path resolution for `filecontents` and uploaded resources
+
 ## 2024-06-28-1
 
 * Set `cwd` for latexrun.py so the `filecontents` directives can work as expected #42
