@@ -7,8 +7,6 @@
     :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-import subprocess
-
 CURRENT_API_VERSION = "2024-06-28-2"
 
 
