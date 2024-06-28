@@ -132,6 +132,7 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
             "-W=all"
             # TODO Add -halt-on-error --interaction=nonstopmode
             # TODO Let user choose DVI (or other supported) output.
+            # TODO -shell-restricted / -shell-escape
             '--latex-args="--output-format=pdf"',
             "--bibtex-cmd={}".format(bibtexCommand),
             input_path,

@@ -27,6 +27,7 @@ importlib-metadata = "*"
 hyrule = "*"
 sentry-sdk = {extras = ["flask"], version = "*"}
 cerberus = "*"
+envparse = "*"
 
 [requires]
 python_version = "3"

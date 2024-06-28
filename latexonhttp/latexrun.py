@@ -1520,9 +1520,11 @@ class LaTeXFilter:
             stack_msg += (
                 "\n         " + (" " * trace) + "^"
                 if isinstance(trace, int)
-                else "\n      at " + trace.rstrip()
-                if i == 0
-                else "\n    from " + trace.rstrip()
+                else (
+                    "\n      at " + trace.rstrip()
+                    if i == 0
+                    else "\n    from " + trace.rstrip()
+                )
             )
 
         if is_fatal_error:

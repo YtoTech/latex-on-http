@@ -7,6 +7,7 @@
     :copyright: (c) 2017-2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+import envparse
 import logging
 import pprint
 import json
@@ -42,6 +43,10 @@ from latexonhttp.caching.resources import (
 logger = logging.getLogger(__name__)
 
 builds_app = Blueprint("builds", __name__)
+KEEP_WORKSPACE_DIR = envparse.env("KEEP_WORKSPACE_DIR", cast=bool, default=False)
+KEEP_WORKSPACE_DIR_ON_ERROR = envparse.env(
+    "KEEP_WORKSPACE_DIR_ON_ERROR", cast=bool, default=False
+)
 
 
 # TODO Extract the filesystem/workspace management in a module:
@@ -341,9 +346,8 @@ def compiler_latex():
 
         # TODO Option to let workspace on failure
         # from env.
-        let_workspace_on_error = False
-
-        if let_workspace_on_error is False or (
-            error_in_try_block is None and error_compilation is None
+        if KEEP_WORKSPACE_DIR is False and (
+            KEEP_WORKSPACE_DIR_ON_ERROR is False
+            or (error_in_try_block is None and error_compilation is None)
         ):
             remove_workspace(workspace_id)

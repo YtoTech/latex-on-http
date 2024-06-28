@@ -6,6 +6,7 @@
     :copyright: (c) 2018 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
+
 import os
 import re
 import difflib
