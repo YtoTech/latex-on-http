@@ -862,6 +862,7 @@ class LaTeX(Task):
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                cwd=self.__obj_dir,
             )
             stdout, has_errors, missing_includes = self.__feed_terminal(p.stdout)
             status = p.wait()

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2024-06-28-1
+
+* Set `cwd` for latexrun.py so the `filecontents` directives can work as expected #42
+
 ## 2023-06-12-1
 
 * Timeout long LaTeX compilations and prevent zombie processes (the timeout is of 100 seconds for now)
