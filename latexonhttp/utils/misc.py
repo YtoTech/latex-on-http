@@ -9,7 +9,7 @@
 """
 import subprocess
 
-CURRENT_API_VERSION = "2023-06-12-1"
+CURRENT_API_VERSION = "2024-06-28-2"
 
 
 def get_api_version():
