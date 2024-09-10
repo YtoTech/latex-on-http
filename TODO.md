@@ -24,7 +24,7 @@
     * seccomp?
         * See overleaf/clsi Seccomp profile
     * Systemd unit
-        * https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+        * https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#Sandboxing
         * https://gist.github.com/ageis/f5595e59b1cddb1513d1b425a323db04
         * See ReadOnlyPaths
         * Sample: sudo mv borgmatic.service borgmatic.timer /etc/systemd/system/
