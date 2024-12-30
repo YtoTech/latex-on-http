@@ -7,7 +7,7 @@
 
 # TODO Publish the final image?
 
-FROM python:3.12-alpine
+FROM docker.io/python:3.13-alpine
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 # Set locales.
