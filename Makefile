@@ -98,6 +98,9 @@ test-docker-compose: test-docker-compose-start
 test-docker-compose-up:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test up
 
+test-docker-compose-bash:
+	docker-compose -f docker-compose.test.yml -p latex-on-http-test exec -it latex bash
+
 test-docker-compose-start:
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test up --no-start
 	docker-compose -f docker-compose.test.yml -p latex-on-http-test start

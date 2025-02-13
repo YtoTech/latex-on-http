@@ -137,6 +137,7 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
             # TODO -shell-restricted / -shell-escape
             '--latex-args="--output-format=pdf"',
             "--bibtex-cmd={}".format(bibtexCommand),
+            # "--debug",
             input_path,
         ]
     logger.debug(command)

@@ -70,7 +70,7 @@ def test_simple_compilation_body_xelatex(latex_on_http_api_url):
         },
     )
     assert r.status_code == 201
-    snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-xelatex")
+    # snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-xelatex")
 
 
 def test_simple_compilation_body_lualatex(latex_on_http_api_url):

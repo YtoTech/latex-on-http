@@ -858,6 +858,7 @@ class LaTeX(Task):
             raise TaskError("failed to create %s: " % self.__obj_dir + str(e)) from e
         try:
             verbose_cmd(args)
+            # debug("lisdir: {}", os.listdir(self.__obj_dir))
             p = subprocess.Popen(
                 args,
                 stdin=subprocess.DEVNULL,
@@ -867,6 +868,9 @@ class LaTeX(Task):
             )
             stdout, has_errors, missing_includes = self.__feed_terminal(p.stdout)
             status = p.wait()
+            debug("{}", stdout)
+            debug("status {} has_errors {}", status, has_errors)
+            debug("lisdir: {}", os.listdir(self.__obj_dir))
         except OSError as e:
             raise TaskError("failed to execute latex task: " + str(e)) from e
 
