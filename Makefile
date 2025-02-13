@@ -96,26 +96,26 @@ test-docker-compose: test-docker-compose-start
 	make test-docker-compose-stop
 
 test-docker-compose-up:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test up
+	docker compose -f docker-compose.test.yml -p latex-on-http-test up
 
 test-docker-compose-bash:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test exec -it latex bash
+	docker compose -f docker-compose.test.yml -p latex-on-http-test exec -it latex bash
 
 test-docker-compose-start:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test up --no-start
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test start
+	docker compose -f docker-compose.test.yml -p latex-on-http-test up --no-start
+	docker compose -f docker-compose.test.yml -p latex-on-http-test start
 
 test-docker-compose-stop:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test stop
+	docker compose -f docker-compose.test.yml -p latex-on-http-test stop
 
 test-docker-compose-rm:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test rm
+	docker compose -f docker-compose.test.yml -p latex-on-http-test rm
 
 test-docker-compose-build:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test build
+	docker compose -f docker-compose.test.yml -p latex-on-http-test build
 
 test-docker-compose-build-no-cache:
-	docker-compose -f docker-compose.test.yml -p latex-on-http-test build --no-cache
+	docker compose -f docker-compose.test.yml -p latex-on-http-test build --no-cache
 
 ## -------------------------------
 ## Code conventions and formatting ##
