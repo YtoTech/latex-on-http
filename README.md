@@ -4,17 +4,11 @@
 
 See [TUG2020 introduction](https://www.youtube.com/watch?v=tGD4upJIUgc) to LaTeX-on-HTTP genesis.
 
-# Open Alpha @ latex.ytotech.com
+# Live @ latex.ytotech.com
 
-Available on https://latex.ytotech.com as an open-alpha.
-
-This alpha is open to everyone to test the API, collect as much feedbacks as possible and help develop the service. Feedbacks welcome! Mail me at y@yoantournade.com
+Available on https://latex.ytotech.com as an open beta.
 
 Try the interactive demo: https://latex-http-demo.ytotech.com
-
-## Notice
-
-As noted above, the API is likely to change along the way. There will be **no special notice** before changes are rolled out until the API is stabilized.
 
 # Getting started
 

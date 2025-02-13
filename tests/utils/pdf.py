@@ -11,7 +11,6 @@ import os
 import re
 import difflib
 import hexdump
-import pytest
 import pprint
 import subprocess
 from pdf2image import convert_from_bytes
@@ -23,6 +22,18 @@ REGEX_CLEAN_LIST_RE = [
     {
         "target": r"<< \/Producer.+>>",
         "replace_by": "<</Producer cleaned>>",
+    },
+    # {
+    #     "target": r"<<\.\/Producer.+>>",
+    #     "replace_by": "<</Producer cleaned>>",
+    # },
+    {
+        "target": r"CreationDate \(D:[\d]+Z\)",
+        "replace_by": "CreationDate cleaned",
+    },
+    {
+        "target": r"ModDate \(D:[\d]+Z\)",
+        "replace_by": "ModDate cleaned",
     },
     {
         "target": r"R \/ID \[ <\.+> ]",
@@ -45,6 +56,7 @@ def pdf_compare_bytes(reference, compared, sample_dir):
     # Generated binary PDF files differs.
     # This line changes on each compilation, which is expected:
     # <</Producer (LuaTeX-1.07.0)/Creator (TeX)/CreationDate (D:20180701130853Z)/ModDate (D:20180701130853Z)/Trapped/False/PTEX.FullBanner (This is LuaTeX, Version 1.07.0 (TeX Live 2018))>>
+    # <<./Producer (pdfTeX-1.40.26)./Creator (TeX)./CreationDate (D:20250213133648Z)./ModDate (D:20250213133648Z)./Trapped /False./PTEX.Fullbanner (This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) kpathsea version 6.4.0).>>
     # We just strip it out for the moment.
     reference_cleaned = clean_pdf_bytes_for_compare(str(reference))
     compared_cleaned = clean_pdf_bytes_for_compare(str(compared))
@@ -56,6 +68,14 @@ def pdf_compare_bytes(reference, compared, sample_dir):
         with open(sample_hex_path, "w") as f:
             f.write(hexdump_reference)
         with open(generated_hex_path, "w") as f:
+            f.write(hexdump_generated)
+        sample_hex_cleaned_path = "{}sample.cleaned.hexdump".format(sample_dir)
+        generated_hex_cleaned_path = "{}generated.cleaned.hexdump".format(sample_dir)
+        hexdump_reference = hexdump.hexdump(str.encode(reference_cleaned), result="return")
+        hexdump_generated = hexdump.hexdump(str.encode(compared_cleaned), result="return")
+        with open(sample_hex_cleaned_path, "w") as f:
+            f.write(hexdump_reference)
+        with open(generated_hex_cleaned_path, "w") as f:
             f.write(hexdump_generated)
         # differ = difflib.Differ
         compared = list(

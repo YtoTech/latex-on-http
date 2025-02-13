@@ -7,7 +7,6 @@
     :copyright: (c) 2020 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-import pytest
 import pprint
 import requests
 from .utils.pdf import snapshot_pdf
@@ -52,7 +51,7 @@ def test_querystring_hello_world_compiler(latex_on_http_api_url):
         params={"content": LATEX_HELLO_WORLD, "compiler": "lualatex"},
     )
     assert r.status_code == 201
-    snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
+    snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-multipart")
 
 
 def test_querystring_hello_japanese(latex_on_http_api_url):

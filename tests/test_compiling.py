@@ -7,14 +7,13 @@
     :copyright: (c) 2017-2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-import pytest
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from requests_futures.sessions import FuturesSession
 from .utils.pdf import snapshot_pdf
 
 COMPIL_HELLO_WORLD = {
-    "compiler": "lualatex",
+    "compiler": "pdflatex",
     "resources": [
         {
             "content": "\\documentclass{article}\n\\begin{document}\nHello World\n\\end{document}"
@@ -48,14 +47,46 @@ def test_no_payload_error(latex_on_http_api_url):
     }
 
 
-def test_simple_compilation_body(latex_on_http_api_url):
+def test_simple_compilation_body_pdflatex(latex_on_http_api_url):
     """
     Compile a simple Latex document, text-only, passed directly in document
     definition content entry.
     """
     r = requests.post(latex_on_http_api_url + "/builds/sync", json=COMPIL_HELLO_WORLD)
     assert r.status_code == 201
-    snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
+    # snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-pdflatex")
+
+
+def test_simple_compilation_body_xelatex(latex_on_http_api_url):
+    """
+    Compile a simple Latex document, text-only, passed directly in document
+    definition content entry.
+    """
+    r = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={
+            **COMPIL_HELLO_WORLD,
+            "compiler": "xelatex",
+        },
+    )
+    assert r.status_code == 201
+    snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-xelatex")
+
+
+def test_simple_compilation_body_lualatex(latex_on_http_api_url):
+    """
+    Compile a simple Latex document, text-only, passed directly in document
+    definition content entry.
+    """
+    r = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={
+            **COMPIL_HELLO_WORLD,
+            "compiler": "lualatex",
+        },
+    )
+    assert r.status_code == 201
+    snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-lualatex")
 
 
 def test_concurrent_compilations(latex_on_http_api_url):
@@ -76,7 +107,11 @@ def test_concurrent_compilations(latex_on_http_api_url):
     for i in range(0, concurrentSessions):
         requestsList.append(
             session.post(
-                latex_on_http_api_url + "/builds/sync", json=COMPIL_HELLO_WORLD
+                latex_on_http_api_url + "/builds/sync",
+                json={
+                    **COMPIL_HELLO_WORLD,
+                    "compiler": "lualatex",
+                },
             )
         )
     # Check the API ping during load.
@@ -87,7 +122,7 @@ def test_concurrent_compilations(latex_on_http_api_url):
         r = requestFuture.result()
         assert r.status_code == 201
         print(r.elapsed.total_seconds())
-        snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
+        snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-concurrent")
 
 
 def test_uplatex_compiler_japanese(latex_on_http_api_url):

@@ -7,7 +7,6 @@
     :copyright: (c) 2019 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-import pytest
 import requests
 from .utils.pdf import snapshot_pdf
 
@@ -37,7 +36,7 @@ def test_multipart_api_full_spec_simple(latex_on_http_api_url):
 
     # pprint.pprint(r.json())
     assert r.status_code == 201
-    snapshot_pdf(r.content, SAMPLE_HELLO_WORLD)
+    snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-multipart")
 
 
 def test_multipart_api_full_spec_image(latex_on_http_api_url):
