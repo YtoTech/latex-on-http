@@ -23,6 +23,7 @@
 import sys
 import os
 import errno
+import glob
 import argparse
 import shlex
 import json
@@ -1012,7 +1013,12 @@ class LaTeX(Task):
         # run won't depend on the .bbl file!  But maybe the .aux file
         # will always cause a re-run, at which point the .bbl will
         # exist?
-        filename = jobname + ".fls"
+        flsfiles = glob.glob(f"{jobname}*.fls")
+        if len(flsfiles) > 1:
+            raise TaskError("more than one .fls file: " + str(flsfiles))
+        if len(flsfiles) != 1:
+            raise TaskError("unable to find .fls file: " + f"{jobname}*.fls")
+        filename = flsfiles[0]
         try:
             recorder = open(filename)
         except OSError as e:
