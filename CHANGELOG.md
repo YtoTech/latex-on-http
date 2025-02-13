@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2025-02-13-1
+
+* Fix build with XelaTeX [#43](https://github.com/YtoTech/latex-on-http/issues/43)
+
 ## 2024-06-28-2
 
 * Run all commands in same directory to simplify path resolution for `filecontents` and uploaded resources

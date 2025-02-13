@@ -7,7 +7,7 @@
     :copyright: (c) 2019-2022 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
 """
-CURRENT_API_VERSION = "2024-06-28-2"
+CURRENT_API_VERSION = "2025-02-13-1"
 
 
 def get_api_version():
