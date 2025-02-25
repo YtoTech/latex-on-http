@@ -11,7 +11,6 @@ import os
 import sentry_sdk
 import sentry_sdk.integrations.flask
 import logging.config
-import sys
 import zmq
 from latexonhttp.caching.bridge import serialize_message, deserialize_message
 from latexonhttp.caching.resources import (

@@ -30,5 +30,20 @@ COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 # Install app dependencies.
 RUN make install
 
+# Add migration tool.
+RUN apt-get update -qq && apt-get install -y \
+    curl \
+    && curl -fsSL \
+        https://raw.githubusercontent.com/pressly/goose/master/install.sh |\
+        sh \
+    && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /app/latex-on-http/tools/migrations
+COPY ./tools/migrations/ /app/latex-on-http/tools/
+ENV GOOSE_MIGRATION_DIR /app/latex-on-http/tools/migrations
+ENV GOOSE_DRIVER postgres
+
+COPY ./tools/entrypoint.sh ./tools/
+
 EXPOSE 8080
-CMD ["make", "start"]
+ENTRYPOINT ["/bin/bash", "tools/entrypoint.sh"]
+CMD ["prod"]

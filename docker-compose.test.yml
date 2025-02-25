@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   latex:
     build: .
@@ -11,6 +9,7 @@ services:
     environment:
       CACHE_HOST: cache
       KEEP_WORKSPACE_DIR_ON_ERROR: 1
+      GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
   cache:
     build:
       context: .

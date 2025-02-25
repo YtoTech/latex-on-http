@@ -1,17 +1,20 @@
-version: '3'
-
 services:
   latex:
     build: .
     # restart: always
-    command: make start
+    # command: prod
     ports:
      - "127.0.0.1:2345:8080"
     volumes:
      - ./tmp:/app/latex-on-http/tmp
+     - ./tools:/app/latex-on-http/tools
     environment:
       # SENTRY_DSN: 
       CACHE_HOST: cache
+      GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
+    depends_on:
+      - cache
+      - postgres_db
   cache:
     build:
       context: .
@@ -21,3 +24,27 @@ services:
      - ./tmp:/app/latex-on-http/tmp
     # environment:
       # SENTRY_DSN: 
+    depends_on:
+      - postgres_db
+  postgres_db:
+    image: docker.io/postgres:17
+    environment:
+      POSTGRES_USER: latexonhttp
+      POSTGRES_PASSWORD: latexdev
+      POSTGRES_DB: latexonhttp
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+  adminer:
+    image: docker.io/shyim/adminerevo:4.8.4
+    ports:
+      - 8092:8080
+    environment:
+      ADMINER_DEFAULT_DRIVER: pgsql
+      ADMINER_DEFAULT_SERVER: postgres_db
+      ADMINER_DEFAULT_PASSWORD: latexdev
+      ADMINER_DEFAULT_DB: latex
+      # ADMINER_DESIGN: nette
+      # https://www.adminer.org/plugins/
+      ADMINER_PLUGINS: tables-filter tinymce json-column
+    links:
+      - postgres_db

@@ -80,6 +80,9 @@ dev-build:
 dev-sh-latex:
 	docker-compose -f docker-compose.dev.yml exec latex /bin/bash
 
+set-permissions-migrations:
+	chown -R $(SUDO_USER):$(SUDO_USER) ./tools/migrations
+
 ## -------------------------------
 ## Tests ##
 ## -------------------------------
