@@ -1,10 +1,10 @@
 """
-    tests.utils.pdf
-    ~~~~~~~~~~~~~~~~~~~~~
-    Helpers to snapshot and compare PDF files.
+tests.utils.pdf
+~~~~~~~~~~~~~~~~~~~~~
+Helpers to snapshot and compare PDF files.
 
-    :copyright: (c) 2018 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2018 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 
 import os
@@ -71,8 +71,12 @@ def pdf_compare_bytes(reference, compared, sample_dir):
             f.write(hexdump_generated)
         sample_hex_cleaned_path = "{}sample.cleaned.hexdump".format(sample_dir)
         generated_hex_cleaned_path = "{}generated.cleaned.hexdump".format(sample_dir)
-        hexdump_reference = hexdump.hexdump(str.encode(reference_cleaned), result="return")
-        hexdump_generated = hexdump.hexdump(str.encode(compared_cleaned), result="return")
+        hexdump_reference = hexdump.hexdump(
+            str.encode(reference_cleaned), result="return"
+        )
+        hexdump_generated = hexdump.hexdump(
+            str.encode(compared_cleaned), result="return"
+        )
         with open(sample_hex_cleaned_path, "w") as f:
             f.write(hexdump_reference)
         with open(generated_hex_cleaned_path, "w") as f:

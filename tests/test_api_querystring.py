@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_api_querystring
-    ~~~~~~~~~~~~~~~~~~~~~
-    Check Latex GET/querystring compiling API.
+tests.test_api_querystring
+~~~~~~~~~~~~~~~~~~~~~
+Check Latex GET/querystring compiling API.
 
-    :copyright: (c) 2020 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2020 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pprint
 import requests

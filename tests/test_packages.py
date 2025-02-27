@@ -1,10 +1,10 @@
 """
-    tests.test_packages
-    ~~~~~~~~~~~~~~~~~~~~~
-    Test packages API.
+tests.test_packages
+~~~~~~~~~~~~~~~~~~~~~
+Test packages API.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 
 import requests

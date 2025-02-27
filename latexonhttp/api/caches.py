@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.api.caches
-    ~~~~~~~~~~~~~~~~~~~~~
-    Caches endpoints, used to get a view on caches usage
-    and to allow smart-client optimization (server-cache use).
+latexonhttp.api.caches
+~~~~~~~~~~~~~~~~~~~~~
+Caches endpoints, used to get a view on caches usage
+and to allow smart-client optimization (server-cache use).
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import logging
 from flask import Blueprint, request

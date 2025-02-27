@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.api.fonts
-    ~~~~~~~~~~~~~~~~~~~~~
-    Manage LaTeX-On-HTTP fonts.
+latexonhttp.api.fonts
+~~~~~~~~~~~~~~~~~~~~~
+Manage LaTeX-On-HTTP fonts.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 from flask import Blueprint
 from fclist import fclist

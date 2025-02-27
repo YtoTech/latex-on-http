@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.resources.querystring_api
-    ~~~~~~~~~~~~~~~~~~~~~
-    HTTP GET querystring API for compilation resources specification.
+latexonhttp.resources.querystring_api
+~~~~~~~~~~~~~~~~~~~~~
+HTTP GET querystring API for compilation resources specification.
 
-    :copyright: (c) 2020 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2020 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import logging
 import json

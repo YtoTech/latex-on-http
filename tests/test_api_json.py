@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_api_json
-    ~~~~~~~~~~~~~~~~~~~~~
-    Check Latex POST/json compiling API.
+tests.test_api_json
+~~~~~~~~~~~~~~~~~~~~~
+Check Latex POST/json compiling API.
 
-    :copyright: (c) 2020 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2020 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pytest
 import json

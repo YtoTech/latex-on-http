@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.caching.bridge
-    ~~~~~~~~~~~~~~~~~~~~~
-    Bridge to LaTeX-On-HTTP cache process.
+latexonhttp.caching.bridge
+~~~~~~~~~~~~~~~~~~~~~
+Bridge to LaTeX-On-HTTP cache process.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import os
 import logging
