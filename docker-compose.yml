@@ -4,13 +4,15 @@ services:
     # restart: always
     # command: prod
     ports:
-     - "127.0.0.1:2345:8080"
+     - "8080:8080"
     volumes:
-     - ./tmp:/app/latex-on-http/tmp
+     - .:/app/latex-on-http
      - ./tools:/app/latex-on-http/tools
     environment:
       # SENTRY_DSN: 
       CACHE_HOST: cache
+      # KEEP_WORKSPACE_DIR: 1
+      KEEP_WORKSPACE_DIR_ON_ERROR: 1
       GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
     depends_on:
       - cache
@@ -21,7 +23,7 @@ services:
       dockerfile: cache.Dockerfile
     # restart: always
     volumes:
-     - ./tmp:/app/latex-on-http/tmp
+     - .:/app/latex-on-http
     # environment:
       # SENTRY_DSN: 
     depends_on:
@@ -41,8 +43,9 @@ services:
     environment:
       ADMINER_DEFAULT_DRIVER: pgsql
       ADMINER_DEFAULT_SERVER: postgres_db
+      ADMINER_DEFAULT_USER: latexonhttp
       ADMINER_DEFAULT_PASSWORD: latexdev
-      ADMINER_DEFAULT_DB: latex
+      ADMINER_DEFAULT_DB: latexonhttp
       # ADMINER_DESIGN: nette
       # https://www.adminer.org/plugins/
       ADMINER_PLUGINS: tables-filter tinymce json-column

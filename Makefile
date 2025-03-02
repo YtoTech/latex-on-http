@@ -61,13 +61,13 @@ docker-push-python-debian:
 ## Docker Compose for dev ##
 ## -------------------------------
 dev:
-	docker-compose -f docker-compose.dev.yml up
+	docker-compose up
 
 dev-build:
-	docker-compose -f docker-compose.dev.yml build --no-cache
+	docker-compose build --no-cache
 
 dev-sh-latex:
-	docker-compose -f docker-compose.dev.yml exec latex /bin/bash
+	docker-compose exec latex /bin/bash
 
 set-permissions-migrations:
 	chown -R $(SUDO_USER):$(SUDO_USER) ./tools/migrations
