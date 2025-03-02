@@ -2,30 +2,30 @@
 ## Running Python app ##
 ## -------------------------------
 install:
-	pipenv install
+	poetry install
 
 start:
-	pipenv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
+	poetry run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
-	pipenv run python app.py --verbose --debug
+	poetry run python app.py --verbose --debug
 
 
 ## -------------------------------
 ## Running cache app ##
 ## -------------------------------
 start-cache:
-	pipenv run python app_cache.py
+	poetry run python app_cache.py
 
 debug-cache:
-	pipenv run python -u app_cache.py --debug
+	poetry run python -u app_cache.py --debug
 
 
 ## -------------------------------
 ## Dev tools ##
 ## -------------------------------
 install-dev:
-	pipenv install --dev
+	poetry install --dev
 
 
 ## -------------------------------
@@ -34,27 +34,16 @@ install-dev:
 docker-pull-yoant-texlive-debian:
 	docker pull yoant/docker-texlive:debian
 
-docker-pull-yoant-texlive-alpine:
-	docker pull yoant/docker-texlive:alpine
-
 docker-build-tl-distrib-debian:
 	docker build -f container/tl-distrib-debian.Dockerfile -t yoant/latexonhttp-tl-distrib:debian .
 
-docker-build-tl-distrib-alpine:
-	docker build -f container/tl-distrib-alpine.Dockerfile -t yoant/latexonhttp-tl-distrib:alpine .
-
 docker-build-python-debian:
 	docker build -f container/python-debian.Dockerfile -t yoant/latexonhttp-python:debian .
-
-docker-build-python-alpine:
-	docker build -f container/python-alpine.Dockerfile -t yoant/latexonhttp-python:alpine .
 
 docker-build-main:
 	docker build -f Dockerfile .
 
 docker-build-all-debian: docker-pull-yoant-texlive-debian docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
-
-docker-build-all-alpine: docker-pull-yoant-texlive-alpine docker-build-tl-distrib-alpine docker-build-python-alpine docker-build-main
 
 docker-build-all: docker-build-all-debian
 
@@ -87,10 +76,10 @@ set-permissions-migrations:
 ## Tests ##
 ## -------------------------------
 test:
-	pipenv run pytest -vv
+	poetry run pytest -vv
 
 test-x:
-	pipenv run pytest -vv -x
+	poetry run pytest -vv -x
 
 test-docker-compose: test-docker-compose-start
 	sleep 3
@@ -124,4 +113,4 @@ test-docker-compose-build-no-cache:
 ## Code conventions and formatting ##
 ## -------------------------------
 format:
-	pipenv run black .
+	poetry run black .

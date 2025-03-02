@@ -24,9 +24,10 @@ RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
-COPY app.py Makefile Pipfile Pipfile.lock /app/latex-on-http/
+COPY app.py Makefile pyproject.toml poetry.lock /app/latex-on-http/
 COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
+# TODO curl -LsSf https://astral.sh/uv/install.sh | sh
 # Install app dependencies.
 RUN make install
 
