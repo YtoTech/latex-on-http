@@ -20,14 +20,6 @@ start-cache:
 debug-cache:
 	poetry run python -u app_cache.py --debug
 
-
-## -------------------------------
-## Dev tools ##
-## -------------------------------
-install-dev:
-	poetry install --dev
-
-
 ## -------------------------------
 ## Docker build/images ##
 ## -------------------------------
