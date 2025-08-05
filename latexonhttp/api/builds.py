@@ -251,6 +251,9 @@ def compiler_latex():
     # -------------
 
     workspace_id = create_workspace(normalized_resources)
+    # TODO Create entry in db, with: job id, IP and X-Forwarded-For,
+    # user-agent, size payload,
+    # compiler, payload cleaned of resources (?).
     error_in_try_block = None
     error_compilation = None
 
@@ -272,10 +275,14 @@ def compiler_latex():
         error = fetch_resources(
             normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
         )
+        # TODO Update entry in db with status (if error), nb and size of
+        # fetched resources, total resources size after fetched, fetch time,
+        # resources count and size from cache.
         if error:
             return error, 400
         # TODO
-        # - Process build global signature/hash (compiler, resource hashes, other options...)
+        # - Process build global signature/hash
+        # (compiler, resource hashes, other options...)
 
         # -------------
         # Compilation.
@@ -293,6 +300,8 @@ def compiler_latex():
             main_resource,
             input_spec["options"],
         )
+        # TODO Update entry in db with status, size of PDF or logs,
+        # compilation time.
 
         # -------------
         # Response creation.
