@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.app
-    ~~~~~~~~~~~~~~~~~~~~~
-    Server application for LaTeX-On-HTTP API.
-    Here are exposed the Rest API endpoints.
+latexonhttp.app
+~~~~~~~~~~~~~~~~~~~~~
+Server application for LaTeX-On-HTTP API.
+Here are exposed the Rest API endpoints.
 
-    :copyright: (c) 2017-2018 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2017-2018 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import os
 import logging.config

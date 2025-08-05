@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_inpuc_spec
-    ~~~~~~~~~~~~~~~~~~~~~
-    Tests on LaTeX-on-HTTP input spec.
+tests.test_inpuc_spec
+~~~~~~~~~~~~~~~~~~~~~
+Tests on LaTeX-on-HTTP input spec.
 
-    :copyright: (c) 2022 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2022 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pytest
 import json

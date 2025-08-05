@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.resources.json_api
-    ~~~~~~~~~~~~~~~~~~~~~
-    HTTP json API for compilation resources specification.
+latexonhttp.resources.json_api
+~~~~~~~~~~~~~~~~~~~~~
+HTTP json API for compilation resources specification.
 
-    :copyright: (c) 2020 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2020 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import logging
 import pprint

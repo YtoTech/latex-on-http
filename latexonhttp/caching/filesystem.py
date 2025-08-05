@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.caching.filesystem
-    ~~~~~~~~~~~~~~~~~~~~~
-    Filesystem driver / management for LaTeX-On-HTTP cache.
+latexonhttp.caching.filesystem
+~~~~~~~~~~~~~~~~~~~~~
+Filesystem driver / management for LaTeX-On-HTTP cache.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import logging
 import shutil

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.compiler
-    ~~~~~~~~~~~~~~~~~~~~~
-    The Latex compiler abstraction.
-    Get a compilation order (dict task spec) and compiles the order.
+latexonhttp.compiler
+~~~~~~~~~~~~~~~~~~~~~
+The Latex compiler abstraction.
+Get a compilation order (dict task spec) and compiles the order.
 
-    :copyright: (c) 2017-2018 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2017-2018 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import subprocess
 import os
@@ -47,31 +47,35 @@ def run_command(directory, command, timeout=100):
     # Currently it is stuck here!
     stdout = ""
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=directory
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        cwd=directory,
+        universal_newlines=True,
     )
     started_at = timeit.default_timer()
-    # TODO Always have a timeout to control max compilation time and in case the
+    # Always have a timeout to control max compilation time and in case the
     # process is stuck.
-    # try:
-    #     out, err = process.communicate(timeout=15)
-    #     print(out)
-    # except subprocess.TimeoutExpired:
-    #     process.kill()
-    #     out, err = process.communicate()
-    #     print(out)
     while True:
-        stdout_line = process.stdout.readline()
+        try:
+            polled_at = timeit.default_timer()
+            out, err = process.communicate(timeout=0.2)
+            if out:
+                stdout += str(out)
+                logger.debug(out.strip())
+        except subprocess.TimeoutExpired:
+            pass
         if process.poll() is not None:
             break
-        polled_at = timeit.default_timer()
-        if stdout_line:
-            stdout += str(stdout_line) + "\n"
-            logger.debug(stdout_line.strip())
         if (polled_at - started_at) > timeout:
             logger.warning("Process timeout, killing it")
             process.kill()
             break
-    rc = process.poll()
+    out, err = process.communicate()
+    if out:
+        stdout += str(out)
+        logger.debug(out.strip())
+    rc = process.wait()
     ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
     return {
