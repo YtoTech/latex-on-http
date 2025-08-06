@@ -1347,7 +1347,7 @@ class LaTeXFilter:
                 return self.__runaway()
             if lookingatre(r"(Overfull|Underfull|Loose|Tight) \\[hv]box \("):
                 return self.__bad_box()
-            if lookingatre("(Package |Class |LaTeX |pdfTeX )?(\w+ )?warning: ", re.I):
+            if lookingatre("(Package |Class |LaTeX |pdfTeX )?(\\w+ )?warning: ", re.I):
                 return self.__generic_warning()
             if lookingatre("No file .*\\.tex\\.$", re.M):
                 # This happens with \includes of missing files.  For
@@ -1501,7 +1501,7 @@ class LaTeXFilter:
         stack = []
         while self.__avail:
             m1 = self.__lookingatre(r"<([a-z ]+|\*|read [^ >]*)> |\\.*(->|...)")
-            m2 = self.__lookingatre("l\.[0-9]+ ")
+            m2 = self.__lookingatre("l\\.[0-9]+ ")
             if m1:
                 found_context = True
                 pre = self.__consume_line().rstrip("\n")
@@ -2005,7 +2005,7 @@ class BibTeXFilter:
             return ("warning", None, None, m.group(1))
 
         if match("^.*> ERROR - (.*)$"):
-            m2 = re.match("BibTeX subsystem: (.*?), line (\d+), (.*)$", m.group(1))
+            m2 = re.match("BibTeX subsystem: (.*?), line (\\d+), (.*)$", m.group(1))
             if m2:
                 return ("error", m2.group(1), m2.group(2), m2.group(3))
             return ("error", None, None, m.group(1))
