@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2025-08-06-1
+
+* Switch to TexLive 2025
+* Use `latexmk` as default runner instead of `latexrun`
+* Add PostgreSQL database in prevision of job status
+
 ## 2025-02-13-1
 
 * Fix build with XelaTeX [#43](https://github.com/YtoTech/latex-on-http/issues/43)
