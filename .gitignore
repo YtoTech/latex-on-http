@@ -114,4 +114,4 @@ examples/**/*.bcf
 examples/**/*.run.xml
 
 samples/**/*.log
-data/postgres
+data/postgres*
