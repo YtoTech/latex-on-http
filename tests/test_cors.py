@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_cors
-    ~~~~~~~~~~~~~~~~~~~~~
-    Ensures the API endpoints are accessible from cross-origin requests.
+tests.test_cors
+~~~~~~~~~~~~~~~~~~~~~
+Ensures the API endpoints are accessible from cross-origin requests.
 
-    :copyright: (c) 2020 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2020 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pytest
 import requests

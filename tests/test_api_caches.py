@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_cache
-    ~~~~~~~~~~~~~~~~~~~~~
-    Test the LaTeX-On-HTTP file fetchers.
+tests.test_cache
+~~~~~~~~~~~~~~~~~~~~~
+Test the LaTeX-On-HTTP file fetchers.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pytest
 import requests

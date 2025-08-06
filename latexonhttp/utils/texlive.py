@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.utils.texlive
-    ~~~~~~~~~~~~~~~~~~~~~
-    LaTeX-On-HTTP TeX Live utils.
+latexonhttp.utils.texlive
+~~~~~~~~~~~~~~~~~~~~~
+LaTeX-On-HTTP TeX Live utils.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import subprocess
 from texlivemetadata import get_texlive_version_information

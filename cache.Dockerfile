@@ -26,16 +26,14 @@ RUN apk add --no-cache \
     musl-dev \
     libffi-dev
 
-RUN pip3 install -U \
-  pip \
-  pipenv
+RUN pip3 install -U pip poetry
 
 # Create app directory.
 RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
-COPY app_cache.py Makefile Pipfile Pipfile.lock /app/latex-on-http/
+COPY app_cache.py Makefile pyproject.toml poetry.lock /app/latex-on-http/
 COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 # Install app dependencies.

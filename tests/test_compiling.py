@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.test_compiling
-    ~~~~~~~~~~~~~~~~~~~~~
-    Check Latex compiling results.
+tests.test_compiling
+~~~~~~~~~~~~~~~~~~~~~
+Check Latex compiling results.
 
-    :copyright: (c) 2017-2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2017-2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import requests
 from concurrent.futures import ThreadPoolExecutor

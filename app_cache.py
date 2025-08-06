@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.caching.process
-    ~~~~~~~~~~~~~~~~~~~~~
-    Manage LaTeX-On-HTTP cache process lifecycle.
+latexonhttp.caching.process
+~~~~~~~~~~~~~~~~~~~~~
+Manage LaTeX-On-HTTP cache process lifecycle.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import os
 import sentry_sdk
 import sentry_sdk.integrations.flask
 import logging.config
-import sys
 import zmq
 from latexonhttp.caching.bridge import serialize_message, deserialize_message
 from latexonhttp.caching.resources import (

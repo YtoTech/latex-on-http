@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.api.projects
-    ~~~~~~~~~~~~~~~~~~~~~
-    Manage LaTeX-On-HTTP projects / templates.
+latexonhttp.api.projects
+~~~~~~~~~~~~~~~~~~~~~
+Manage LaTeX-On-HTTP projects / templates.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 from flask import Blueprint, request
 

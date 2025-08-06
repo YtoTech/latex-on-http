@@ -1,10 +1,10 @@
 """
-    tests.test_fonts
-    ~~~~~~~~~~~~~~~~~~~~~
-    Test fonts API.
+tests.test_fonts
+~~~~~~~~~~~~~~~~~~~~~
+Test fonts API.
 
-    :copyright: (c) 2018 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2018 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 
 import requests

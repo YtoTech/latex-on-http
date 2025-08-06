@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    latexonhttp.workspaces.lifecycle
-    ~~~~~~~~~~~~~~~~~~~~~
-    Lifecycle management for build workspaces.
+latexonhttp.workspaces.lifecycle
+~~~~~~~~~~~~~~~~~~~~~
+Lifecycle management for build workspaces.
 
-    :copyright: (c) 2019 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2019 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import uuid
 from .filesystem import delete_workspace, make_workspace

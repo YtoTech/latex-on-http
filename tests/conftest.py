@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    tests.conftest
-    ~~~~~~~~~~~~~~~~~~~~~
-    Fixtures for tests.
+tests.conftest
+~~~~~~~~~~~~~~~~~~~~~
+Fixtures for tests.
 
-    :copyright: (c) 2017-2018 Yoan Tournade.
-    :license: AGPL, see LICENSE for more details.
+:copyright: (c) 2017-2018 Yoan Tournade.
+:license: AGPL, see LICENSE for more details.
 """
 import pytest
 import subprocess
