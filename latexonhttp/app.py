@@ -12,7 +12,7 @@ import os
 import logging.config
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 from latexonhttp.api.builds import builds_app
 from latexonhttp.api.fonts import fonts_app
@@ -32,7 +32,12 @@ logging.config.dictConfig(
         "handlers": {
             "console": {"class": "logging.StreamHandler", "formatter": "default"}
         },
-        "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
+        "loggers": {
+            "latexonhttp": {
+                "handlers": ["console"],
+                "level": os.getenv("LOGGING_LEVEL") or "DEBUG",
+            }
+        },
     }
 )
 

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2025-09-23-1
+
+* Fix timeout for compilation, with proper error return
+* Return compilation log files on failure (default true with option `options.response.log_files_on_failure`)
+
 ## 2025-08-06-1
 
 * Switch to TexLive 2025

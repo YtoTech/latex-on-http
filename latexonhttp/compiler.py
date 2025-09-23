@@ -12,9 +12,12 @@ import subprocess
 import os
 import timeit
 import logging
+import glob
 import glom
 
 logger = logging.getLogger(__name__)
+# In seconds.
+DEFAULT_COMPILE_TIMEOUT = int(os.getenv("DEFAULT_COMPILE_TIMEOUT", 100))
 
 # TODO Temporary dirty work.
 # Lol.
@@ -34,18 +37,16 @@ AVAILABLE_LATEX_COMPILERS = [
 AVAILABLE_BIBLIOGRAPHY_COMMANDS = ["bibtex", "biber"]
 
 
-def run_command(directory, command, timeout=100):
+def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
     # TODO Security: add isolation mechanism.
     # - firejail? (https://firejail.wordpress.com/)
     # - Docker? (like https://github.com/overleaf/clsi)
-    # TODO Limit resource use by a given compilation job.
-    # https://tug.org/TUGboat/tb31-2/tb98doob.pdf
+    # TODO Limit resource use by a given compilation job?
+    # Managed through Docker container, but we could add fine grained limits
+    # here too?
     # https://unix.stackexchange.com/questions/151883/limiting-processes-to-not-exceed-more-than-10-of-cpu-usage
-    # https://scoutapm.com/blog/restricting-process-cpu-usage-using-nice-cpulimit-and-cgroups
-    # https://unix.stackexchange.com/questions/44985/limit-memory-usage-for-a-single-linux-process
-    # TODO And if the command fails?
-    # Currently it is stuck here!
     stdout = ""
+    is_timeout = False
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -70,11 +71,16 @@ def run_command(directory, command, timeout=100):
         if (polled_at - started_at) > timeout:
             logger.warning("Process timeout, killing it")
             process.kill()
+            is_timeout = True
+            stdout += "Compilation timeout, process killed"
             break
-    out, err = process.communicate()
-    if out:
-        stdout += str(out)
-        logger.debug(out.strip())
+    try:
+        out, err = process.communicate(timeout=2)
+        if out:
+            stdout += str(out)
+            logger.debug(out.strip())
+    except subprocess.TimeoutExpired:
+        pass
     rc = process.wait()
     ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
@@ -82,6 +88,7 @@ def run_command(directory, command, timeout=100):
         "return_code": rc,
         "stdout": stdout,
         "duration": ended_at - started_at,
+        "is_timeout": is_timeout,
     }
 
 
@@ -96,7 +103,9 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
     # Should already be an absolute path (in our usage), but just to be sure.
     directory = os.path.abspath(directory)
     input_path = os.path.join(directory, main_resource["build_path"])
-    output_path = os.path.join(directory, main_resource["build_path"].replace(".tex", ".pdf"))
+    output_path = os.path.join(
+        directory, main_resource["build_path"].replace(".tex", ".pdf")
+    )
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
     if compilerName in ["context"]:
         # Here do not support multi runs or bibtex/biber commands.
@@ -129,7 +138,8 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
             main_resource["build_path"],
         ]
     logger.debug(command)
-    commandOutputs = [run_command(directory, command)]
+    mainCmdOutput = run_command(directory, command)
+    commandOutputs = [mainCmdOutput]
     # if commandOutputs[0]["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
     #     # We need a dvipdfmx pass.
     #     # https://tex.stackexchange.com/questions/295414/what-is-uptex-uplatex
@@ -155,9 +165,15 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
     if os.path.isfile(output_path):
         with open(output_path, "rb") as f:
             pdf = f.read()
-    # TODO Returns paths instead of data?
+    log_files = {}
+    if pdf is None:
+        # Get the log files.
+        for log_path in glob.glob("*.log", root_dir=directory):
+            with open(os.path.join(directory, log_path), "r") as f:
+                log_files[log_path] = f.read()
     return {
         "pdf": pdf,
+        "log_files": log_files,
         "output_path": main_resource["output_path"],
         "duration": sum(commandOutput["duration"] for commandOutput in commandOutputs),
         # TODO New endpoints for new API with structure compile steps.
@@ -167,5 +183,8 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
                 commandOutput["stdout"]
                 for commandOutput in commandOutputs
             ]
+        ),
+        "is_timeout": any(
+            commandOutput["is_timeout"] for commandOutput in commandOutputs
         ),
     }

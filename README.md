@@ -155,6 +155,7 @@ Payload (json)
         * URL to a file, with `url` (the resource pointed by the URL will be downloaded and decoded with UTF-8).
 * `options` properties:
     * `options.bibliography.command` defaults to `bibtex`. Available bibliography commands: `bibtex` and `biber`.
+    * `options.response.log_files_on_failure` to return full log files on compilation error. Defaults to `true`.
 
 
 > Response

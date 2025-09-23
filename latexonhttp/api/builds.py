@@ -202,13 +202,20 @@ def compiler_latex():
         glom.glom(input_spec, "options.bibliography.command", default="bibtex"),
         missing=dict,
     )
+    # -options.log_files_on_failure
+    glom.assign(
+        input_spec,
+        "options.response.log_files_on_failure",
+        glom.glom(input_spec, "options.response.log_files_on_failure", default=True),
+        missing=dict,
+    )
 
     # Pre-normalized data checks.
 
     # - resources (mandatory, must be an array).
-    if not "resources" in input_spec:
+    if "resources" not in input_spec:
         return {"error": "MISSING_RESOURCES"}, 400
-    if type(input_spec["resources"]) != list:
+    if type(input_spec["resources"]) is not list:
         return {"error": "RESOURCES_SPEC_MUST_BE_A_LIST"}, 400
 
     # - compiler
@@ -310,7 +317,23 @@ def compiler_latex():
         if not latexToPdfOutput["pdf"]:
             error_compilation = latexToPdfOutput["logs"]
             return (
-                {"error": "COMPILATION_ERROR", "logs": latexToPdfOutput["logs"]},
+                {
+                    "error": (
+                        "COMPILATION_TIMEOUT"
+                        if latexToPdfOutput["is_timeout"]
+                        else "COMPILATION_ERROR"
+                    ),
+                    "logs": latexToPdfOutput["logs"],
+                    **(
+                        {
+                            "log_files": latexToPdfOutput["log_files"],
+                        }
+                        if glom.glom(
+                            input_spec, "options.response.log_files_on_failure"
+                        )
+                        else {}
+                    ),
+                },
                 400,
             )
         # TODO Also return compilation logs here.
