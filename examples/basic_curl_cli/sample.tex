@@ -1,107 +1,153 @@
-% !TeX program = pdflatex
-\documentclass[varwidth=210mm, border=0pt]{standalone}
-\usepackage[utf8]{inputenc}
-\usepackage[T2A]{fontenc}
-\usepackage[russian]{babel}
-\usepackage{tikz}
-\usepackage{xcolor}
-\usepackage{pagecolor}
-\usetikzlibrary{decorations.text, shapes.geometric, backgrounds}
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
 
-% Цвета
-\definecolor{bgred}{HTML}{B71C1C}
-\definecolor{badge}{HTML}{7A0F0F}
-\definecolor{wood}{HTML}{8B5A2B}
-\definecolor{wood2}{HTML}{D0A06A}
-\definecolor{metal}{HTML}{2B2B2B}
-\definecolor{fire1}{HTML}{FF6F00}
-\definecolor{fire2}{HTML}{FFD54F}
-\definecolor{spike}{HTML}{111111}
+\documentclass[10pt, a4paper]{article}
 
-\pagecolor{bgred}
+% LAYOUT
+%--------------------------------
+\usepackage{geometry}
+\geometry{a4paper, left=43mm, right=43mm, top=51mm, bottom=17mm}
+
+% No page numbers
+\pagenumbering{gobble}
+
+% Left align
+\usepackage[document]{ragged2e}
+
+
+% TYPOGRAPHY
+%--------------------------------
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+
+% converts LaTeX specials (quotes, dashes etc.) to Unicode
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Linux Libertine O}
+\setsansfont[Scale=0.9]{Liberation Sans}
+
+% Set paragraph break
+\setlength{\parskip}{1em}
+
+% Custom ampersand
+\newcommand{\amper}{{\fontspec[Scale=.95]{Linux Libertine O}\selectfont\itshape\&}}
+
+\setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{Linux Libertine O}
+    \setsansfont{Liberation Sans}
+
+% Command required by how Pandoc handles the list conversion
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% TABLE CUSTOMIZATION
+%--------------------------------
+\usepackage{spreadtab}
+\usepackage[compact]{titlesec} % For customizing title sections
+\titlespacing*{\section}{0pt}{3pt}{-7pt} % Remove margin bottom from the title
+\usepackage{arydshln} % For the dotted line on the table
+\renewcommand{\arraystretch}{1.5} % Apply vertical padding to table cells
+\usepackage{hhline} % For single-cell borders
+\usepackage{enumitem} % For customizing lists
+\setlist{nolistsep} % No whitespace around list items
+\setlist[itemize]{leftmargin=0.5cm} % Reduce list left indent
+\setlength{\tabcolsep}{9pt} % Larger gutter between columns
+
+
+% LANGUAGE
+%--------------------------------
+\usepackage{polyglossia}
+\setmainlanguage{english}
+
+% PDF SETUP
+%--------------------------------
+\usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
+\hypersetup
+{
+  pdfauthor=Max Mustermann,
+  pdfsubject=Invoice Nr. 2015-11-04,
+  pdftitle=Invoice Nr. 2015-11-04,
+  linkcolor=blue,
+  citecolor=blue,
+  filecolor=black,
+  urlcolor=blue
+}
+
+% To display custom date
+% \usepackage[nodayofweek]{datetime}
+% \newdate{date}{01}{12}{1867}
+% \date{\displaydate{date}}
+% Use this instead of \today: % \displaydate{date}
+
+% DOCUMENT
+%--------------------------------
 \begin{document}
-\begin{tikzpicture}[scale=2, every node/.style={transform shape}]
-  % Центр и размеры
-  \coordinate (C) at (0,0);
-  \def\R{2} % радиус круглого бэйджа
+\small
+\textsc{\textbf{Max Mustermann}}
+\textbullet{} \textsc{Musterstraße 37}
+\textbullet{} \textsc{12345 Musterstadt}
 
-  % Круглый бэйдж (слегка тон-у тон)
-  \shade[ball color=badge!90!black] (C) circle (\R);
-  \fill[white, opacity=0.02] (C) circle (\R-0.02);
+\vspace{1em}
 
-  % Внутренний круг для контраста
-  \fill[black!8, draw=black!30, line width=0.6pt] (C) circle (\R-0.3);
+\normalsize \sffamily
+Erika Mustermann\\
+Musterallee 1\\
+12345 Musterstadt\\
+Germany\\
 
-  % Крест-накрест: два деревянных молотка
-  % Параметры молотка
-  \def\handlelen{2.2}
-  \def\handlewid{0.12}
-  \def\headlen{0.7}
-  \def\headwid{0.45}
-  \def\spikecount{5}
+\vspace{6em}
 
-  % Функция: рисуем один молоток, ориентированный по углу #1 градусов, сдвиг по центру
-  \newcommand{\drawmallet}[2]{% #1 = angle, #2 = scale sign (1 or -1) for minor offset
-    \begin{scope}[rotate=#1]
-      % Ручка
-      \shade[bottom color=wood!60, top color=wood2] ( -\handlelen, -\handlewid) rectangle (0, \handlewid);
-      \draw[line width=0.6pt, brown!60] ( -\handlelen, -\handlewid) rectangle (0, \handlewid);
-      % Скругление хвоста ручки
-      \fill[wood] (-\handlelen-0.08,-\handlewid) ++(0,0) circle (0.08);
-      % Головка молотка
-      \begin{scope}[shift={( -0.1,0)}, xshift=0pt]
-        \fill[metal!15!black] (0.05, -\headwid) rectangle (\headlen, \headwid);
-        \draw[line width=0.8pt] (0.05, -\headwid) rectangle (\headlen, \headwid);
-        % Шипы сверху
-        \foreach \i in {0,...,4} {
-          \pgfmathsetmacro{\x}{0.05 + (\i+0.3)*(\headlen-0.05)/\spikecount}
-          \path[fill=spike] (\x, \headwid) -- (\x+0.06, \headwid+0.18) -- (\x+0.12, \headwid) -- cycle;
-        }
-        % Шипы снизу
-        \foreach \i in {0,...,4} {
-          \pgfmathsetmacro{\x}{0.05 + (\i+0.3)*(\headlen-0.05)/\spikecount}
-          \path[fill=spike] (\x, -\headwid) -- (\x+0.06, -\headwid-0.18) -- (\x+0.12, -\headwid) -- cycle;
-        }
-      \end{scope}
+\begin{flushright}
+  \small
+  Musterstadt, \today
+\end{flushright}
 
-      % Небольшие трещины и текстура на ручке
-      \draw[line width=0.4pt, brown!40] (-0.4,0.05) to[out=10,in=190] (-1.0,0.06);
-      \draw[line width=0.4pt, brown!40] (-0.9,-0.03) to[out=-10,in=210] (-1.6,-0.04);
-    \end{scope}
-  }
+\vspace{1em}
 
-  % Рисуем два молотка крест-накрест
-  \begin{scope}
-    \drawmallet{30}{1}
-    \drawmallet{-35}{-1}
-  \end{scope}
 
-  % Огонь, исходящий из-за молотков
-  \begin{scope}
-    \clip (C) circle (\R-0.35);
-    % Слой огня — несколько форм
-    \fill[fire2] (-1.1,-0.15) .. controls (-0.9,0.8) and (-0.4,1.2) .. (0,1.05) .. controls (0.35,0.95) and (0.7,0.6) .. (0.9,0.15) -- (0.9,-0.6) .. controls (0.55,-0.2) and (0.2,-0.4) .. (-0.1,-0.25) -- cycle;
-    \fill[fire1] (-0.95,-0.05) .. controls (-0.75,0.6) and (-0.35,0.9) .. (0,0.85) .. controls (0.3,0.78) and (0.6,0.5) .. (0.75,0.18) -- (0.75,-0.4) .. controls (0.45,-0.05) and (0.15,-0.25) .. (-0.05,-0.15) -- cycle;
-    % Внутренние языки
-    \fill[yellow!80!orange] (-0.5,0.03) .. controls (-0.3,0.45) and (-0.12,0.6) .. (0,0.55) .. controls (0.09,0.52) and (0.22,0.4) .. (0.28,0.3) -- (0.28,-0.05) .. controls (0.05,0.1) and (-0.15,0.0) .. (-0.3,0.01) -- cycle;
-  \end{scope}
+\section*{\textsc{Invoice} \textsc{\#2015-11-04}}
+\footnotesize
+\newcounter{pos}
+\setcounter{pos}{0}
+\STautoround*{2} % Get spreadtab to always display the decimal part
+ % Use comma as decimal separator
 
-  % Текст по дуге внизу (название)
-  \begin{scope}
-    \def\textstr{КОЛОТУШКИ}
-    \draw[white] (0,-1.2) arc (200:340:1.4) node[midway, sloped, below, text=white, font=\bfseries\Large]{\textstr};
-    % Более аккуратно — с использованием decorations.text
-    \path[decorate, decoration={text along path, text={\bfseries\Large \textstr}, raise=3pt}] (180:-1.45) arc (180:0:1.45);
-  \end{scope}
+\begin{spreadtab}{{tabular}[t t t]{lp{8.2cm}r}}
+  \hdashline[1pt/1pt]
+  @ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Prices in EUR} \\ \hline
+       @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ The first service provided
+         & 320\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ And another one, with a list of details
+        \newline \begin{itemize}
+          \scriptsize \item Some more detailed explanation
+          \scriptsize \item of the service provided
+          \scriptsize \item Looking good
+           \end{itemize}
+           & 245\\ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+        & @ The last service provided
+         & 65\\ \noalign{\vskip 2mm} \hline
+  @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
+  @ & @ \multicolumn{1}{r}{VAT 20\%:}               & 20/100*[0,-1] \\ \hhline{~~-}
+  @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={[0,-1]+[0,-2]}} \\ \hhline{~~-}
+\end{spreadtab}
 
-  % Маленькая центральная эмблема (опционально)
-  \fill[black!10] (0,0.9) circle (0.18);
-  \draw[line width=0.6pt, white] (0,0.9) circle (0.18);
-  \node[text=white, font=\bfseries\small] at (0,0.9) {KS};
+\vspace{15mm}
 
-  % Контур внешнего круга
-  \draw[line width=1.2pt, color=black!50] (C) circle (\R);
+\sffamily
+\small
+Please transfer the due amount to the following bank account within the
+next 14 days:
 
-\end{tikzpicture}
+Mustermann GmbH Kreditinstitut: Deutsche Postbank AG IBAN: DE18 3601
+0043 9999 9999 99 BIC: PBNKDEFF
+
+We really appreciate your business and look forward to future projects
+together.
+
+Best regards,
+
+\medskip
+
+Max Mustermann
+
 \end{document}
-

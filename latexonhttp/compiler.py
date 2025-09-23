@@ -64,7 +64,7 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
             out, err = process.communicate(timeout=0.2)
             if out:
                 stdout += str(out)
-                logger.debug(out.strip())
+                # logger.debug(out.strip())
         except subprocess.TimeoutExpired:
             pass
         if process.poll() is not None:
@@ -74,13 +74,13 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
             # Kill the whole process group.
             kill_all_children_processes(process.pid)
             is_timeout = True
-            stdout += "Compilation timeout, process killed"
+            stdout += "Compilation timeout, process killed\n"
             break
     try:
         out, err = process.communicate(timeout=2)
         if out:
             stdout += str(out)
-            logger.debug(out.strip())
+            # logger.debug(out.strip())
     except subprocess.TimeoutExpired:
         pass
     rc = process.wait()
@@ -94,7 +94,7 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
     }
 
 
-def latexToPdf(compilerName, directory, main_resource, options={}):
+def latexToPdf(compilerName, directory, main_resource, workspace_id, options={}):
     bibtexCommand = glom.glom(options, "bibliography.command", default="bibtex")
     if bibtexCommand not in AVAILABLE_BIBLIOGRAPHY_COMMANDS:
         raise ValueError("Invalid bibtex command")
@@ -125,20 +125,30 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
         # to manage multiple runs of Latex compiler for us.
         # (Cross-references, page numbers, etc.)
         # Create the .latexmkrc configuration file.
-        # TODO We could enable -synctex=1, only usefil if we
-        # return the whole directory.
+        # We enable -synctex=1 (only useful if we
+        # return the whole directory).
         # TODO Let the config be provided? (dangerous)
         #  -> After the process is hardened.
         mainLatexCmd = "latex" if compilerName in ["platex", "uplatex"] else "pdflatex"
-        latexmkrc = f"""${mainLatexCmd} = '{compilerName} -interaction=nonstopmode -file-line-error %O %S';
-        """
+        # TODO Option to use -shell-escape ft. -no-shell-escape
+        #  -> Only in premium / connected mode.
+        # Option to use -halt-on-error to stop on first error.
+        halt_on_error = glom.glom(options, "compiler.halt_on_error", default=False)
+        silent = glom.glom(options, "compiler.silent", default=False)
+        interaction_mode = "batchmode" if silent else "nonstopmode"
+        halt_on_error_str = " -halt-on-error" if halt_on_error else ""
+        latexmkrc = f"""${mainLatexCmd} = '{compilerName} -interaction={interaction_mode}{halt_on_error_str} -file-line-error -synctex=1 %O %S';
+"""
+        logger.debug(".latexmkrc: %s", latexmkrc)
         with open(os.path.join(directory, ".latexmkrc"), "w") as fd:
             fd.write(latexmkrc)
+        # As an option, use -silent (aka -interaction=batchmode)
         command = [
             "latexmk",
             "-pdfps" if compilerName in ["platex", "uplatex"] else "-pdf",
-            main_resource["build_path"],
         ]
+        command += ["-silent"] if silent else []
+        command += [main_resource["build_path"]]
     logger.debug(command)
     mainCmdOutput = run_command(directory, command)
     commandOutputs = [mainCmdOutput]
@@ -158,22 +168,31 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
     #     )
     #     logger.debug(command)
     #     commandOutputs.append(run_command(log_dir, command))
-    # TODO Check for compilation errors.
-    # commandOutputs[0]['return_code'] is not 0
     # Return both generated PDF and compile logs.
     # TODO Uses workspace.filesystem module read file back?
     pdf = None
+    commandsStatusCodes = [
+        commandOutput["return_code"] for commandOutput in commandOutputs
+    ]
+    # We do not check status codes, they are not reliable with Latexmk.
+    # all(
+    #     commandOutput["return_code"] in [0] for commandOutput in commandOutputs
+    # )
     logger.info(output_path)
     if os.path.isfile(output_path):
         with open(output_path, "rb") as f:
             pdf = f.read()
+    is_timeout = any(commandOutput["is_timeout"] for commandOutput in commandOutputs)
+    status = "ok" if pdf and not is_timeout else "ko"
+    logger.info("Compilation %s is %s: %s", workspace_id, status, commandsStatusCodes)
     log_files = {}
-    if pdf is None:
-        # Get the log files.
-        for log_path in glob.glob("*.log", root_dir=directory):
-            with open(os.path.join(directory, log_path), "r") as f:
-                log_files[log_path] = f.read()
+    # Get the log files.
+    for log_path in glob.glob("*.log", root_dir=directory):
+        with open(os.path.join(directory, log_path), "r") as f:
+            log_files[log_path] = f.read()
     return {
+        # TODO Also return each command metadatas for db.
+        "status": status,
         "pdf": pdf,
         "log_files": log_files,
         "output_path": main_resource["output_path"],
@@ -186,7 +205,5 @@ def latexToPdf(compilerName, directory, main_resource, options={}):
                 for commandOutput in commandOutputs
             ]
         ),
-        "is_timeout": any(
-            commandOutput["is_timeout"] for commandOutput in commandOutputs
-        ),
+        "is_timeout": is_timeout,
     }

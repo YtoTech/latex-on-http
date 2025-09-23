@@ -116,11 +116,38 @@ input_spec_schema = {
                         "allowed": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
                     }
                 },
-            }
+            },
+            "response": {
+                "type": "dict",
+                "schema": {
+                    "log_files_on_failure": {
+                        "type": ["boolean", "string", "integer"],
+                    }
+                },
+            },
+            "compiler": {
+                "type": "dict",
+                "schema": {
+                    "halt_on_error": {
+                        "type": ["boolean", "string", "integer"],
+                    },
+                    "silent": {
+                        "type": ["boolean", "string", "integer"],
+                    },
+                },
+            },
         },
     },
 }
 input_spec_validator = cerberus.Validator(input_spec_schema)
+
+
+def parse_bool_str_arg(value):
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    return str(value).lower() in ["true", "1", "t"]
 
 
 @builds_app.route("/sync", methods=["GET", "POST"])
@@ -202,11 +229,31 @@ def compiler_latex():
         glom.glom(input_spec, "options.bibliography.command", default="bibtex"),
         missing=dict,
     )
+    # -options.compiler.halt_on_error
+    glom.assign(
+        input_spec,
+        "options.compiler.halt_on_error",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.halt_on_error", default=False)
+        ),
+        missing=dict,
+    )
+    # -options.compiler.silent
+    glom.assign(
+        input_spec,
+        "options.compiler.silent",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.silent", default=False)
+        ),
+        missing=dict,
+    )
     # -options.log_files_on_failure
     glom.assign(
         input_spec,
         "options.response.log_files_on_failure",
-        glom.glom(input_spec, "options.response.log_files_on_failure", default=True),
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.response.log_files_on_failure", default=True)
+        ),
         missing=dict,
     )
 
@@ -305,6 +352,7 @@ def compiler_latex():
             compilerName,
             get_workspace_root_path(workspace_id),
             main_resource,
+            workspace_id,
             input_spec["options"],
         )
         # TODO Update entry in db with status, size of PDF or logs,
@@ -314,7 +362,7 @@ def compiler_latex():
         # Response creation.
         # -------------
 
-        if not latexToPdfOutput["pdf"]:
+        if latexToPdfOutput["status"] != "ok":
             error_compilation = latexToPdfOutput["logs"]
             return (
                 {
@@ -323,6 +371,7 @@ def compiler_latex():
                         if latexToPdfOutput["is_timeout"]
                         else "COMPILATION_ERROR"
                     ),
+                    "duration": round(latexToPdfOutput["duration"], 2),
                     "logs": latexToPdfOutput["logs"],
                     **(
                         {

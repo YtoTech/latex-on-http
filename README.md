@@ -155,6 +155,8 @@ Payload (json)
         * URL to a file, with `url` (the resource pointed by the URL will be downloaded and decoded with UTF-8).
 * `options` properties:
     * `options.bibliography.command` defaults to `bibtex`. Available bibliography commands: `bibtex` and `biber`.
+    * `options.compiler.halt_on_error` to enable `-halt-on-error` option (stop on first error, even if non fatal). Default to `false`.
+    * `options.compiler.silent` to enable `-interaction=batchmode` option and Latexmk `-silent` (non verbose mode). Default to `false` (will use `-interaction=nonstopmode`).
     * `options.response.log_files_on_failure` to return full log files on compilation error. Defaults to `true`.
 
 

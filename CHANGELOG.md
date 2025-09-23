@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2025-09-23-2
+
+* Kill all children processes on timeout
+* Do not return partial PDF on timeout
+* Add option `options.compiler.halt_on_error`
+* Add option `options.compiler.silent`
+
 ## 2025-09-23-1
 
 * Fix timeout for compilation, with proper error return
