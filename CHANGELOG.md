@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2025-09-23-3
+
+* Bump Python dependencies
+
 ## 2025-09-23-2
 
 * Kill all children processes on timeout
