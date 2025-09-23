@@ -14,6 +14,7 @@ import timeit
 import logging
 import glob
 import glom
+from latexonhttp.utils.processes import kill_all_children_processes
 
 logger = logging.getLogger(__name__)
 # In seconds.
@@ -70,7 +71,8 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
             break
         if (polled_at - started_at) > timeout:
             logger.warning("Process timeout, killing it")
-            process.kill()
+            # Kill the whole process group.
+            kill_all_children_processes(process.pid)
             is_timeout = True
             stdout += "Compilation timeout, process killed"
             break
