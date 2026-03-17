@@ -33,11 +33,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.4,<9",
-    "requests-futures>=1.0.2,<2",
-    "black>=25.1.0,<26",
-    "pdf2image>=1.17.0,<2",
-    "hexdump>=3.3,<4",
+    "pytest>=8.3.4",
+    "requests-futures>=1.0.2",
+    "black>=25.1.0",
+    "pdf2image>=1.17.0",
+    "hexdump>=3.3",
 ]
 
 [tool.uv]
