@@ -6,6 +6,8 @@ services:
      - "9898:8080"
     volumes:
      - .:/app/latex-on-http
+     #  Ignore .venv with an anonymous volume.
+     - /app/latex-on-http/.venv
     environment:
       CACHE_HOST: cache
       KEEP_WORKSPACE_DIR_ON_ERROR: 1
@@ -17,6 +19,8 @@ services:
     command: make start-cache
     volumes:
      - .:/app/latex-on-http
+     #  Ignore .venv with an anonymous volume.
+     - /app/latex-on-http/.venv
   postgres_db:
     image: docker.io/postgres:17
     environment:

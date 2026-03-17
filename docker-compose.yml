@@ -8,6 +8,8 @@ services:
     volumes:
      - .:/app/latex-on-http
      - ./tools:/app/latex-on-http/tools
+      #  Ignore .venv with an anonymous volume.
+     - /app/latex-on-http/.venv
     environment:
       # SENTRY_DSN: 
       CACHE_HOST: cache
@@ -26,6 +28,8 @@ services:
     # restart: always
     volumes:
      - .:/app/latex-on-http
+     #  Ignore .venv with an anonymous volume.
+     - /app/latex-on-http/.venv
     # environment:
       # SENTRY_DSN: 
     depends_on:

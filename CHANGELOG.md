@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-03-17-1
+
+* TeXLive 2026 base image
+
 ## 2025-09-23-3
 
 * Bump Python dependencies

@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip pipx
-          pipx install poetry
+          pipx install uv
           make install
       - name: Build Docker images
         run: make docker-build-all

@@ -12,7 +12,7 @@
 #--------------------------------
 # Start from our docker-texlive distribution.
 # https://hub.docker.com/r/yoant/docker-texlive
-FROM yoant/docker-texlive:debian-2025
+FROM yoant/docker-texlive:debian-2026
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 

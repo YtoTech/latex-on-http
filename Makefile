@@ -2,23 +2,23 @@
 ## Running Python app ##
 ## -------------------------------
 install:
-	poetry install
+	uv sync
 
 start:
-	poetry run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
+	uv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
 
 debug:
-	poetry run python app.py --verbose --debug
+	uv run python app.py --verbose --debug
 
 
 ## -------------------------------
 ## Running cache app ##
 ## -------------------------------
 start-cache:
-	poetry run python app_cache.py
+	uv run python app_cache.py
 
 debug-cache:
-	poetry run python -u app_cache.py --debug
+	uv run python -u app_cache.py --debug
 
 ## -------------------------------
 ## Docker build/images ##
@@ -48,6 +48,7 @@ docker-push-tl-distrib-debian:
 docker-push-python-debian:
 	docker push yoant/latexonhttp-python:debian
 
+docker-push-all: docker-push-tl-distrib-debian docker-push-python-debian
 
 ## -------------------------------
 ## Docker Compose for dev ##
@@ -68,10 +69,10 @@ set-permissions-migrations:
 ## Tests ##
 ## -------------------------------
 test:
-	poetry run pytest -vv
+	uv run pytest -vv
 
 test-x:
-	poetry run pytest -vv -x
+	uv run pytest -vv -x
 
 test-docker-compose: test-docker-compose-start
 	sleep 3
@@ -105,4 +106,4 @@ test-docker-compose-build-no-cache:
 ## Code conventions and formatting ##
 ## -------------------------------
 format:
-	poetry run black .
+	uv run black .

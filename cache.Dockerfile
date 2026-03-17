@@ -11,8 +11,8 @@ FROM docker.io/python:3.13-alpine
 LABEL maintainer="Yoan Tournade <yoan@ytotech.com>"
 
 # Set locales.
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
+ENV LC_ALL="C.UTF-8"
+ENV LANG="C.UTF-8"
 
 # Install libmq, but also packages required for pip install.
 RUN apk add --no-cache \
@@ -26,18 +26,18 @@ RUN apk add --no-cache \
     musl-dev \
     libffi-dev
 
-RUN pip3 install -U pip poetry
+RUN pip3 install -U pip uv
 
 # Create app directory.
 RUN mkdir -p /app/latex-on-http
 WORKDIR /app/latex-on-http/
 
 # Copy application source code.
-COPY app_cache.py Makefile pyproject.toml poetry.lock /app/latex-on-http/
+COPY app_cache.py Makefile pyproject.toml uv.lock /app/latex-on-http/
 COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 # Install app dependencies.
-RUN make install
+RUN uv venv && uv sync --no-dev
 
 EXPOSE 8080
 CMD ["make", "start-cache"]
