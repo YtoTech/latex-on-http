@@ -107,6 +107,7 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         directory, main_resource["build_path"].replace(".tex", ".pdf")
     )
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
+    force_latexmk = glom.glom(options, "compiler.force", default=False)
     if compilerName in ["context"]:
         # Here do not support multi runs or bibtex/biber commands.
         # --> do not pass nonstopmode
@@ -134,7 +135,6 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         halt_on_error = glom.glom(options, "compiler.halt_on_error", default=False)
         bibtex_latexmk = glom.glom(options, "compiler.bibliography", default=False)
         silent = glom.glom(options, "compiler.silent", default=False)
-        force_latexmk = glom.glom(options, "compiler.force", default=False)
         interaction_mode = "batchmode" if silent else "nonstopmode"
         halt_on_error_str = " -halt-on-error" if halt_on_error else ""
         latexmkrc = f"""${mainLatexCmd} = '{compilerName} -interaction={interaction_mode}{halt_on_error_str} -file-line-error -synctex=1 %O %S';

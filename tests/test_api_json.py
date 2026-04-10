@@ -17,7 +17,8 @@ from .utils.pdf import snapshot_pdf
 
 COMPIL_BIBLATEX_SPEC = {
     "compiler": "lualatex",
-    "options": {"bibliography": {"command": "biber"}},
+    # Now default options.compiler.bibliogaphy is True.
+    # "options": {"bibliography": {"command": "biber"}},
     "resources": [
         {
             "main": True,
