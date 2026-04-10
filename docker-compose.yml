@@ -13,11 +13,11 @@ services:
     environment:
       # SENTRY_DSN: 
       CACHE_HOST: cache
-      # KEEP_WORKSPACE_DIR: 1
+      KEEP_WORKSPACE_DIR: 1
       KEEP_WORKSPACE_DIR_ON_ERROR: 1
       GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
       LOGGING_LEVEL: DEBUG
-      DEFAULT_COMPILE_TIMEOUT: 15
+      DEFAULT_COMPILE_TIMEOUT: 30
     depends_on:
       - cache
       - postgres_db

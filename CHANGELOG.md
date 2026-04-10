@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-04-10-1
+
+* Add `options.compiler.force` to try to fore compilation (Latexmk `-f` option)
+and always return the generated PDF
+* Remove `options.bibliography.command`, as Latexmk select automatically either `bibtex` or `biber`
+* Add `options.compiler.bibliography` to enable or disable automatic Latexmk bibliography compilation step (default to true)
+* Add `commands` property on error output when `options.response.commands` is enabled, which detail of each command runned and its outputs
+
 ## 2026-03-17-1
 
 * TeXLive 2026 base image

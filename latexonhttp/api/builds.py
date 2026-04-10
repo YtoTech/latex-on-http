@@ -7,6 +7,7 @@ Manage Latex builds / compilations.
 :copyright: (c) 2017-2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import envparse
 import logging
 import pprint
@@ -17,7 +18,6 @@ from flask import Blueprint, request
 from latexonhttp.compiler import (
     latexToPdf,
     AVAILABLE_LATEX_COMPILERS,
-    AVAILABLE_BIBLIOGRAPHY_COMMANDS,
 )
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
@@ -38,7 +38,6 @@ from latexonhttp.caching.resources import (
     forward_resource_to_cache,
     get_resource_from_cache,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -108,21 +107,15 @@ input_spec_schema = {
     "options": {
         "type": "dict",
         "schema": {
-            "bibliography": {
-                "type": "dict",
-                "schema": {
-                    "command": {
-                        "type": "string",
-                        "allowed": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
-                    }
-                },
-            },
             "response": {
                 "type": "dict",
                 "schema": {
                     "log_files_on_failure": {
                         "type": ["boolean", "string", "integer"],
-                    }
+                    },
+                    "commands": {
+                        "type": ["boolean", "string", "integer"],
+                    },
                 },
             },
             "compiler": {
@@ -132,6 +125,12 @@ input_spec_schema = {
                         "type": ["boolean", "string", "integer"],
                     },
                     "silent": {
+                        "type": ["boolean", "string", "integer"],
+                    },
+                    "bibliography": {
+                        "type": ["boolean", "string", "integer"],
+                    },
+                    "force": {
                         "type": ["boolean", "string", "integer"],
                     },
                 },
@@ -220,15 +219,6 @@ def compiler_latex():
     # We default to pdflatex.
     compilerName = input_spec.get("compiler", "pdflatex")
 
-    # -options.bibliography.command
-    # Choose bibliography command: bibtex, biber.
-    # We default to bibtex.
-    glom.assign(
-        input_spec,
-        "options.bibliography.command",
-        glom.glom(input_spec, "options.bibliography.command", default="bibtex"),
-        missing=dict,
-    )
     # -options.compiler.halt_on_error
     glom.assign(
         input_spec,
@@ -247,12 +237,39 @@ def compiler_latex():
         ),
         missing=dict,
     )
-    # -options.log_files_on_failure
+    # -options.compiler.force
+    glom.assign(
+        input_spec,
+        "options.compiler.force",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.force", default=False)
+        ),
+        missing=dict,
+    )
+    # -options.compiler.bibliography
+    glom.assign(
+        input_spec,
+        "options.compiler.bibliography",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.bibliography", default=True)
+        ),
+        missing=dict,
+    )
+    # -options.response.log_files_on_failure
     glom.assign(
         input_spec,
         "options.response.log_files_on_failure",
         parse_bool_str_arg(
             glom.glom(input_spec, "options.response.log_files_on_failure", default=True)
+        ),
+        missing=dict,
+    )
+    # -options.response.commands
+    glom.assign(
+        input_spec,
+        "options.response.commands",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.response.commands", default=False)
         ),
         missing=dict,
     )
@@ -271,19 +288,6 @@ def compiler_latex():
             {
                 "error": "INVALID_COMPILER",
                 "available_compilers": AVAILABLE_LATEX_COMPILERS,
-            },
-            400,
-        )
-
-    # -options.bibliography.command
-    if (
-        glom.glom(input_spec, "options.bibliography.command")
-        not in AVAILABLE_BIBLIOGRAPHY_COMMANDS
-    ):
-        return (
-            {
-                "error": "INVALID_BILIOGRAPHY_COMMAND",
-                "available_commands": AVAILABLE_BIBLIOGRAPHY_COMMANDS,
             },
             400,
         )
@@ -382,11 +386,19 @@ def compiler_latex():
                         )
                         else {}
                     ),
+                    **(
+                        {
+                            "commands": latexToPdfOutput["commands"],
+                        }
+                        if glom.glom(input_spec, "options.response.commands")
+                        else {}
+                    ),
                 },
                 400,
             )
         # TODO Also return compilation logs here.
         # (So return a json. Include the PDF as base64 data?)
+        #  -> Yes, but as an option.
         # (In the long term it will be better to give a static URL to download
         # the generated PDF. We begin to talk about caching. This requires
         # lifecycle management. With something like a Redis.)

@@ -8,6 +8,7 @@ Get a compilation order (dict task spec) and compiles the order.
 :copyright: (c) 2017-2018 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import subprocess
 import os
 import timeit
@@ -35,7 +36,6 @@ AVAILABLE_LATEX_COMPILERS = [
     "uplatex",
     "context",
 ]
-AVAILABLE_BIBLIOGRAPHY_COMMANDS = ["bibtex", "biber"]
 
 
 def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
@@ -87,6 +87,7 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
     ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
     return {
+        "command": command,
         "return_code": rc,
         "stdout": stdout,
         "duration": ended_at - started_at,
@@ -95,9 +96,6 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
 
 
 def latexToPdf(compilerName, directory, main_resource, workspace_id, options={}):
-    bibtexCommand = glom.glom(options, "bibliography.command", default="bibtex")
-    if bibtexCommand not in AVAILABLE_BIBLIOGRAPHY_COMMANDS:
-        raise ValueError("Invalid bibtex command")
     if compilerName not in AVAILABLE_LATEX_COMPILERS:
         raise ValueError("Invalid compiler")
     # TODO Choose appropriate options following the compiler.
@@ -134,7 +132,9 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         #  -> Only in premium / connected mode.
         # Option to use -halt-on-error to stop on first error.
         halt_on_error = glom.glom(options, "compiler.halt_on_error", default=False)
+        bibtex_latexmk = glom.glom(options, "compiler.bibliography", default=False)
         silent = glom.glom(options, "compiler.silent", default=False)
+        force_latexmk = glom.glom(options, "compiler.force", default=False)
         interaction_mode = "batchmode" if silent else "nonstopmode"
         halt_on_error_str = " -halt-on-error" if halt_on_error else ""
         latexmkrc = f"""${mainLatexCmd} = '{compilerName} -interaction={interaction_mode}{halt_on_error_str} -file-line-error -synctex=1 %O %S';
@@ -148,6 +148,8 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
             "-pdfps" if compilerName in ["platex", "uplatex"] else "-pdf",
         ]
         command += ["-silent"] if silent else []
+        command += ["-bibtex"] if bibtex_latexmk else []
+        command += ["-f"] if force_latexmk else []
         command += [main_resource["build_path"]]
     logger.debug(command)
     mainCmdOutput = run_command(directory, command)
@@ -183,7 +185,18 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         with open(output_path, "rb") as f:
             pdf = f.read()
     is_timeout = any(commandOutput["is_timeout"] for commandOutput in commandOutputs)
-    status = "ok" if pdf and not is_timeout else "ko"
+    status = None
+    if force_latexmk:
+        status = "ok" if pdf and not is_timeout else "ko"
+    else:
+        status = (
+            "ok"
+            if all(
+                commandOutput["return_code"] in [0] for commandOutput in commandOutputs
+            )
+            and pdf
+            else "ko"
+        )
     logger.info("Compilation %s is %s: %s", workspace_id, status, commandsStatusCodes)
     log_files = {}
     # Get the log files.
@@ -205,5 +218,6 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
                 for commandOutput in commandOutputs
             ]
         ),
+        "commands": commandOutputs,
         "is_timeout": is_timeout,
     }

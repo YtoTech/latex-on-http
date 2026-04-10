@@ -154,10 +154,13 @@ Payload (json)
         * Inline file format, with `file` (value must be [base64](https://en.wikipedia.org/wiki/Base64) encoded)
         * URL to a file, with `url` (the resource pointed by the URL will be downloaded and decoded with UTF-8).
 * `options` properties:
-    * `options.bibliography.command` defaults to `bibtex`. Available bibliography commands: `bibtex` and `biber`.
+    * `options.compiler.bibliography` to enable Latexmk [`-bibtex` option](https://man.archlinux.org/man/latexmk.1#bibtex) (run bibtex or biber
+    as needed to regenerate bbl files). Default to `true`.
     * `options.compiler.halt_on_error` to enable `-halt-on-error` option (stop on first error, even if non fatal). Default to `false`.
     * `options.compiler.silent` to enable `-interaction=batchmode` option and Latexmk `-silent` (non verbose mode). Default to `false` (will use `-interaction=nonstopmode`).
+    * `options.compiler.force` to enable Latexmk [`-f` (force mode)](https://man.archlinux.org/man/latexmk.1#f). Default to `false`.
     * `options.response.log_files_on_failure` to return full log files on compilation error. Defaults to `true`.
+    * `options.response.commands` to return commands run details. Defaults to `false`.
 
 
 > Response
