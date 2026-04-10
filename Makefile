@@ -74,7 +74,7 @@ test:
 test-x:
 	uv run pytest -vv -x
 
-test-docker compose: test-docker compose-start
+test-docker-compose: test-docker-compose-start
 	sleep 3
 	make test
 	sleep 2
