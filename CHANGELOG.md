@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-04-10-3
+
+* Add CHANGELOG link
+
 ## 2026-04-10-2
 
 * Option `options.compiler.force` as default to match old behavior

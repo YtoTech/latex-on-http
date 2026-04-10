@@ -23,6 +23,7 @@ def test_api_index(latex_on_http_api_url):
         "message": "Welcome to the LaTeX-On-HTTP API",
         "source": "https://github.com/YtoTech/latex-on-http",
         "documentation": "https://github.com/YtoTech/latex-on-http",
+        "changelog": "https://github.com/YtoTech/latex-on-http/blob/master/CHANGELOG.md",
         "texlive_version": "2026",
         "version": get_api_version(),
     }

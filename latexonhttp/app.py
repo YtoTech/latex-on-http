@@ -83,6 +83,7 @@ def hello():
             "version": get_api_version(),
             "source": "https://github.com/YtoTech/latex-on-http",
             "documentation": "https://github.com/YtoTech/latex-on-http",
+            "changelog": "https://github.com/YtoTech/latex-on-http/blob/master/CHANGELOG.md",
             "texlive_version": get_texlive_version_spec()["texlive"]["version"],
         },
         200,

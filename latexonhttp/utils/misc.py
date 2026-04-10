@@ -8,7 +8,7 @@ LaTeX-On-HTTP miscellaneous utils.
 :license: AGPL, see LICENSE for more details.
 """
 
-CURRENT_API_VERSION = "2025-09-23-1"
+CURRENT_API_VERSION = "2026-04-10-3"
 
 
 def get_api_version():
