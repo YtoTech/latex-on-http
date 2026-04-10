@@ -7,6 +7,7 @@ Ensures the service is running and test basic functions.
 :copyright: (c) 2017-2020 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import pytest
 import requests
 from latexonhttp.utils.misc import get_api_version

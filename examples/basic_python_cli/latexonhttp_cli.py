@@ -8,4 +8,5 @@ See https://github.com/YtoTech/latex-on-http
 :copyright: (c) 2019 Yoan Tournade <y@yoantournade.com>.
 :license: MIT
 """
+
 import sys

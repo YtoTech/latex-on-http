@@ -7,6 +7,7 @@ Resources utils.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import hashlib
 import sys
 

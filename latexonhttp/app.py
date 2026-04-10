@@ -8,6 +8,7 @@ Here are exposed the Rest API endpoints.
 :copyright: (c) 2017-2018 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import os
 import logging.config
 import sentry_sdk

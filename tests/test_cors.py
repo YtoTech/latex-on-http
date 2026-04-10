@@ -7,6 +7,7 @@ Ensures the API endpoints are accessible from cross-origin requests.
 :copyright: (c) 2020 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import pytest
 import requests
 

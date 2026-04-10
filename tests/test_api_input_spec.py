@@ -7,6 +7,7 @@ Tests on LaTeX-on-HTTP input spec.
 :copyright: (c) 2022 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import pytest
 import json
 import requests

@@ -7,6 +7,7 @@ Caching metadata store for LaTeX-On-HTTP.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 
 logger = logging.getLogger(__name__)

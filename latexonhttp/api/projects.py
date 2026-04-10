@@ -7,6 +7,7 @@ Manage LaTeX-On-HTTP projects / templates.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 from flask import Blueprint, request
 
 projects_app = Blueprint("projects", __name__)

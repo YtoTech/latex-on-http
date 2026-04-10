@@ -7,6 +7,7 @@ Fetchers for resources.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import base64
 import requests
 import logging

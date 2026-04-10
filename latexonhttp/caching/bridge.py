@@ -7,6 +7,7 @@ Bridge to LaTeX-On-HTTP cache process.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import os
 import logging
 import msgpack

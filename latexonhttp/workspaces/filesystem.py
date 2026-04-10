@@ -7,6 +7,7 @@ Filesystem driver / management for build workspaces.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 import os.path
 import shutil

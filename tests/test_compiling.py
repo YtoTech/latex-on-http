@@ -7,6 +7,7 @@ Check Latex compiling results.
 :copyright: (c) 2017-2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from requests_futures.sessions import FuturesSession

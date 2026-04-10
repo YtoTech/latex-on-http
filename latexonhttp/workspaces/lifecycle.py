@@ -7,6 +7,7 @@ Lifecycle management for build workspaces.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import uuid
 from .filesystem import delete_workspace, make_workspace
 

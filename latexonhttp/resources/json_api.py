@@ -7,6 +7,7 @@ HTTP json API for compilation resources specification.
 :copyright: (c) 2020 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 import pprint
 import glom

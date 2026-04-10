@@ -7,6 +7,7 @@ Check Latex GET/querystring compiling API.
 :copyright: (c) 2020 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import pprint
 import requests
 from .utils.pdf import snapshot_pdf

@@ -7,6 +7,7 @@ Fixtures for tests.
 :copyright: (c) 2017-2018 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import pytest
 import subprocess
 import time

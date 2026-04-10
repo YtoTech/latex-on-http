@@ -7,12 +7,12 @@ Filesystem driver / management for LaTeX-On-HTTP cache.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 import shutil
 import os.path
 from latexonhttp.caching.store import get_cache_metadata
 from latexonhttp.resources.utils import process_resource_data_spec
-
 
 logger = logging.getLogger(__name__)
 

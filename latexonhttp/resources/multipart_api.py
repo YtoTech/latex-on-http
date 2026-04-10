@@ -7,6 +7,7 @@ HTTP multipart/form-data API for compilation resources specification.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 import json
 import base64

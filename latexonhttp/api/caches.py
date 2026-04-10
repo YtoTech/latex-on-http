@@ -8,6 +8,7 @@ and to allow smart-client optimization (server-cache use).
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import logging
 from flask import Blueprint, request
 from latexonhttp.caching.resources import (

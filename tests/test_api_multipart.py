@@ -7,6 +7,7 @@ Check Latex multipart compiling API.
 :copyright: (c) 2019 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
+
 import requests
 from .utils.pdf import snapshot_pdf
 
