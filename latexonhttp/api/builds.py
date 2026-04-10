@@ -242,7 +242,7 @@ def compiler_latex():
         input_spec,
         "options.compiler.force",
         parse_bool_str_arg(
-            glom.glom(input_spec, "options.compiler.force", default=False)
+            glom.glom(input_spec, "options.compiler.force", default=True)
         ),
         missing=dict,
     )

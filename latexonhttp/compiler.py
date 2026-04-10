@@ -107,7 +107,7 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         directory, main_resource["build_path"].replace(".tex", ".pdf")
     )
     logger.info("Compiling %s from %s", main_resource["build_path"], directory)
-    force_latexmk = glom.glom(options, "compiler.force", default=False)
+    force_latexmk = glom.glom(options, "compiler.force", default=True)
     if compilerName in ["context"]:
         # Here do not support multi runs or bibtex/biber commands.
         # --> do not pass nonstopmode

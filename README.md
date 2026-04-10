@@ -158,7 +158,7 @@ Payload (json)
     as needed to regenerate bbl files). Default to `true`.
     * `options.compiler.halt_on_error` to enable `-halt-on-error` option (stop on first error, even if non fatal). Default to `false`.
     * `options.compiler.silent` to enable `-interaction=batchmode` option and Latexmk `-silent` (non verbose mode). Default to `false` (will use `-interaction=nonstopmode`).
-    * `options.compiler.force` to enable Latexmk [`-f` (force mode)](https://man.archlinux.org/man/latexmk.1#f). Default to `false`.
+    * `options.compiler.force` to enable Latexmk [`-f` (force mode)](https://man.archlinux.org/man/latexmk.1#f). Default to `true`.
     * `options.response.log_files_on_failure` to return full log files on compilation error. Defaults to `true`.
     * `options.response.commands` to return commands run details. Defaults to `false`.
 

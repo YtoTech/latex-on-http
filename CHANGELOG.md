@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-04-10-2
+
+* Option `options.compiler.force` as default to match old behavior
+
 ## 2026-04-10-1
 
 * Add `options.compiler.force` to try to fore compilation (Latexmk `-f` option)
