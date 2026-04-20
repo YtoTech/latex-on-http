@@ -315,6 +315,19 @@ docker-compose up
 
 The service will be available on http://localhost:2345.
 
+# Starred Use cases
+
+## Max Model [Interactive TikZ Editor](https://max-models.github.io/tikzfigure/editor/)
+
+A [Tikz visual editor](https://max-models.github.io/tikzfigure/tikz-editor.html) for generating Python or LaTeX Tikz code for several style of figures.
+
+## Yann Barsamian [Maths Exams](https://www.barsamian.am/mathsexams/)
+
+Yann Barsamian uses LaTeX-on-HTTP to compile PDFs of its [Math Exam database](https://www.barsamian.am/mathsexams/) (sources not open).
+
+## Repository [Examples](/examples/)
+
+Look at the repository set of examples, that showcase usages from Curl, HTTPie, GitLab CI, etc.
 
 ----------------------------------
 
