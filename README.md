@@ -12,7 +12,7 @@ Try the interactive demo: https://latex-http-demo.ytotech.com
 
 # Getting started
 
-## Hello world GET Querystring API (experimental)
+## Hello world GET Querystring API
 
 You can pass your LaTeX document to compile in a `content` GET parameter:
 
