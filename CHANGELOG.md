@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-25-3
+
+* Log to Sentry in case of ZMQ socket failure
+
 ## 2026-10-25-2
 
 * Add log for Sentry SDK init

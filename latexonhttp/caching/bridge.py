@@ -12,6 +12,7 @@ import os
 import logging
 import msgpack
 import zmq
+import sentry_sdk
 
 REQUEST_RECV_TIMEOUT = 1500
 REQUEST_RETRIES = 2
@@ -86,6 +87,7 @@ def request_cache_process_sync(
     try:
         socket.send(serialize_message(message), zmq.NOBLOCK)
     except zmq.ZMQError as ze:
+        sentry_sdk.capture_exception(ze)
         return False, {"error": "ZMQ socket failure", "message": str(ze)}
     # Get reply.
     # Use polling to handle timeouts
@@ -107,6 +109,7 @@ def request_cache_process_sync(
             socket.send(serialize_message(message), zmq.NOBLOCK)
 
     except zmq.ZMQError as ze:
+        sentry_sdk.capture_exception(ze)
         return False, {"error": "ZMQ socket failure", "message": str(ze)}
 
 
@@ -117,6 +120,7 @@ def request_cache_process_async(message):
     try:
         socket.send(serialize_message(message), zmq.NOBLOCK)
     except zmq.ZMQError as ze:
+        sentry_sdk.capture_exception(ze)
         return False, {"error": "ZMQ socket failure", "message": str(ze)}
     return True, None
     # We do not expect a response.
