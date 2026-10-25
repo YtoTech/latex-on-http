@@ -35,19 +35,19 @@ logging.config.dictConfig(
         "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
     }
 )
+logger = logging.getLogger("latexonhttp")
 
 if os.environ.get("SENTRY_DSN"):
+    logger.info("Init Sentry with DSN: %s", os.environ["SENTRY_DSN"])
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
-        integrations=[sentry_sdk.integrations.flask.FlaskIntegration()],
         # By default the SDK will try to use the SENTRY_RELEASE
         # environment variable, or infer a git commit
         # SHA as release, however you may want to set
         # something more human-readable.
         release=get_api_version(),
+        auto_session_tracking=False,
     )
-
-logger = logging.getLogger("latexonhttp")
 
 context = zmq.Context()
 

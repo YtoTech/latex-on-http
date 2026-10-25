@@ -41,8 +41,10 @@ logging.config.dictConfig(
         },
     }
 )
+logger = logging.getLogger("latexonhttp")
 
 if os.environ.get("SENTRY_DSN"):
+    logger.info("Init Sentry with DSN: %s", os.environ["SENTRY_DSN"])
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
         integrations=[FlaskIntegration()],
@@ -51,6 +53,7 @@ if os.environ.get("SENTRY_DSN"):
         # SHA as release, however you may want to set
         # something more human-readable.
         release=get_api_version(),
+        auto_session_tracking=False,
     )
 
 app = Flask(__name__)

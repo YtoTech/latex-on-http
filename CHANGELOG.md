@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-25-2
+
+* Add log for Sentry SDK init
+
 ## 2026-10-25-1
 
 * Fix function `drop` not defined anymore in Hy ; now import from toolz
