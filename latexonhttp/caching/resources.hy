@@ -9,6 +9,7 @@
 """
 (import logging)
 (import datetime)
+(import toolz.itertoolz [drop])
 (import
     latexonhttp.utils.fun [get-default fun-merge-dicts fun-dict-update fun-dict-remove-key fun-sort])
 (import

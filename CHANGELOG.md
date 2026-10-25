@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-25-1
+
+* Fix function `drop` not defined anymore in Hy ; now import from toolz
+
 ## 2026-04-10-3
 
 * Add CHANGELOG link
