@@ -14,7 +14,7 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api.builds import builds_app
-from latexonhttp.resources.fetching import fetcher_base64_file
+from latexonhttp.resources.fetching import fetcher_base64_file, fetcher_utf8_string
 
 
 def build_client():
@@ -93,4 +93,55 @@ def test_valid_base64_is_still_decoded():
     )
 
     assert data == b"hello"
+    assert error is None
+
+
+def test_object_content_returns_400_instead_of_server_error():
+    content = {"unexpected": "object"}
+    response = build_client().post(
+        "/builds/sync",
+        json={"resources": [{"main": True, "content": content}]},
+    )
+
+    assert response.status_code == 400
+    payload = response.get_json()
+    assert payload["error"] == "INVALID_STRING_CONTENT"
+    assert payload["message"] == "The resource content field must contain a string."
+    assert payload["fetch_error"] == {
+        "type": "invalid_content_type",
+        "content_type": "dict",
+    }
+    assert payload["resource"]["body_source"]["raw_string"] == content
+
+
+@pytest.mark.parametrize(
+    ("content", "content_type"),
+    [
+        (None, "NoneType"),
+        (42, "int"),
+        (3.14, "float"),
+        (True, "bool"),
+        (["not", "a", "string"], "list"),
+        ({"not": "a string"}, "dict"),
+    ],
+)
+def test_non_string_content_is_rejected(content, content_type):
+    data, error = fetcher_utf8_string(
+        {"type": "utf8/string", "body_source": {"raw_string": content}},
+        None,
+    )
+
+    assert data is None
+    assert error["error"] == "INVALID_STRING_CONTENT"
+    assert error["fetch_error"]["type"] == "invalid_content_type"
+    assert error["fetch_error"]["content_type"] == content_type
+
+
+def test_valid_string_content_is_still_encoded():
+    data, error = fetcher_utf8_string(
+        {"type": "utf8/string", "body_source": {"raw_string": "Hello \\LaTeX"}},
+        None,
+    )
+
+    assert data == b"Hello \\LaTeX"
     assert error is None

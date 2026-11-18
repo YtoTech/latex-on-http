@@ -24,8 +24,21 @@ logger = logging.getLogger(__name__)
 
 
 def fetcher_utf8_string(resource, _get_from_cache):
-    # TODO encode useful? Why we got an str here instead of unicode?
-    return resource["body_source"]["raw_string"].encode("utf-8"), None
+    raw_string = resource["body_source"]["raw_string"]
+    if not isinstance(raw_string, str):
+        return (
+            None,
+            {
+                "error": "INVALID_STRING_CONTENT",
+                "message": "The resource content field must contain a string.",
+                "fetch_error": {
+                    "type": "invalid_content_type",
+                    "content_type": type(raw_string).__name__,
+                },
+                "resource": resource,
+            },
+        )
+    return raw_string.encode("utf-8"), None
 
 
 def fetcher_base64_file(resource, _get_from_cache):
