@@ -3,6 +3,8 @@
 ## 2026-11-18-1
 
 * Handle invalid UTF8 bytes / encoding issues in compiler issue
+* Return HTTP 400 for invalid Base64 resources instead of HTTP 500
+* Reject resources with multiple source fields
 
 ## 2026-10-25-3
 

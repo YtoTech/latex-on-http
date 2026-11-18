@@ -9,6 +9,7 @@ Fetchers for resources.
 """
 
 import base64
+import binascii
 import requests
 import logging
 
@@ -28,7 +29,26 @@ def fetcher_utf8_string(resource, _get_from_cache):
 
 
 def fetcher_base64_file(resource, _get_from_cache):
-    return base64.b64decode(resource["body_source"]["raw_base64"]), None
+    try:
+        return (
+            base64.b64decode(resource["body_source"]["raw_base64"], validate=True),
+            None,
+        )
+    except (binascii.Error, TypeError, ValueError) as exc:
+        return (
+            None,
+            {
+                "error": "INVALID_BASE64_CONTENT",
+                "message": (
+                    "The resource file field must contain valid Base64-encoded content."
+                ),
+                "fetch_error": {
+                    "type": "invalid_base64",
+                    "exception_content": str(exc),
+                },
+                "resource": resource,
+            },
+        )
 
 
 # TODO Make it configurable.
