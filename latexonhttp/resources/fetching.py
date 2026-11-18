@@ -9,6 +9,7 @@ Fetchers for resources.
 """
 
 import base64
+import binascii
 import requests
 import logging
 
@@ -23,12 +24,44 @@ logger = logging.getLogger(__name__)
 
 
 def fetcher_utf8_string(resource, _get_from_cache):
-    # TODO encode useful? Why we got an str here instead of unicode?
-    return resource["body_source"]["raw_string"].encode("utf-8"), None
+    raw_string = resource["body_source"]["raw_string"]
+    if not isinstance(raw_string, str):
+        return (
+            None,
+            {
+                "error": "INVALID_STRING_CONTENT",
+                "message": "The resource content field must contain a string.",
+                "fetch_error": {
+                    "type": "invalid_content_type",
+                    "content_type": type(raw_string).__name__,
+                },
+                "resource": resource,
+            },
+        )
+    return raw_string.encode("utf-8"), None
 
 
 def fetcher_base64_file(resource, _get_from_cache):
-    return base64.b64decode(resource["body_source"]["raw_base64"]), None
+    try:
+        return (
+            base64.b64decode(resource["body_source"]["raw_base64"], validate=True),
+            None,
+        )
+    except (binascii.Error, TypeError, ValueError) as exc:
+        return (
+            None,
+            {
+                "error": "INVALID_BASE64_CONTENT",
+                "message": (
+                    "The resource file field must contain valid Base64-encoded content."
+                ),
+                "fetch_error": {
+                    "type": "invalid_base64",
+                    "exception_content": str(exc),
+                },
+                "resource": resource,
+            },
+        )
 
 
 # TODO Make it configurable.
@@ -82,6 +115,24 @@ def fetcher_url_file(resource, _get_from_cache):
                 "fetch_error": {
                     "type": "connection_error",
                     "exception_content": str(cee),
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            },
+        )
+    except (
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.InvalidURL,
+        requests.exceptions.MissingSchema,
+    ) as ue:
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "type": "invalid_url",
+                    "exception_content": str(ue),
                     "http_code": None,
                     "http_response_content": None,
                 },

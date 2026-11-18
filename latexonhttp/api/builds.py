@@ -140,6 +140,25 @@ input_spec_schema = {
 }
 input_spec_validator = cerberus.Validator(input_spec_schema)
 
+RESOURCE_SOURCE_FIELDS = ("url", "file", "git", "tar", "cache", "content")
+
+
+def check_resource_source_fields(resources):
+    """Reject ambiguous resources before normalization chooses a source."""
+    for resource_index, resource in enumerate(resources):
+        source_fields = [field for field in RESOURCE_SOURCE_FIELDS if field in resource]
+        if len(source_fields) > 1:
+            return {
+                "error": "MULTIPLE_RESOURCE_SOURCES",
+                "message": (
+                    "Use only one source field per resource: "
+                    "url, file, git, tar, cache or content."
+                ),
+                "resource_index": resource_index,
+                "source_fields": source_fields,
+            }
+    return None
+
 
 def parse_bool_str_arg(value):
     if value is None:
@@ -295,6 +314,10 @@ def compiler_latex():
     # -------------
     # Pre-fetch normalization and checks.
     # -------------
+
+    source_fields_error = check_resource_source_fields(input_spec["resources"])
+    if source_fields_error:
+        return source_fields_error, 400
 
     normalized_resources = normalize_resources_input(input_spec["resources"])
     # if logger.isEnabledFor(logging.DEBUG):
