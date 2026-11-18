@@ -62,6 +62,5 @@ def test_cache_eviction_is_a_no_op_when_there_is_enough_space():
 
     assert free_space_from_first_rec([resource], 0, []) == []
     assert (
-        free_space_from_old_entries({"cached_resources": {"cached": resource}}, 0)
-        == []
+        free_space_from_old_entries({"cached_resources": {"cached": resource}}, 0) == []
     )

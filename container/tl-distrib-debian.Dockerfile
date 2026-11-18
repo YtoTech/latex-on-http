@@ -42,12 +42,14 @@ RUN apt-get update -qq && apt-get install -y \
     fonts-font-awesome \
     fonts-gfs-baskerville \
     fonts-gfs-didot \
+    fonts-hosny-amiri \
     fonts-inconsolata \
     fonts-jura \
     fonts-lato \
     fonts-linuxlibertine \
     fonts-noto \
     fonts-roboto \
+    && fc-cache -f \
     && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 

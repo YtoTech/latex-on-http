@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-11-18-2
+
+* Add Amiri as a system font for XeLaTeX and the `/fonts` API [#59](https://github.com/YtoTech/latex-on-http/issues/59)
+
 ## 2026-11-18-1
 
 * Handle invalid UTF8 bytes / encoding issues in compiler issue

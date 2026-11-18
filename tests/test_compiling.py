@@ -8,9 +8,11 @@ Check Latex compiling results.
 :license: AGPL, see LICENSE for more details.
 """
 
-import requests
 from concurrent.futures import ThreadPoolExecutor
+
+import requests
 from requests_futures.sessions import FuturesSession
+
 from .utils.pdf import snapshot_pdf
 
 COMPIL_HELLO_WORLD = {
@@ -22,6 +24,16 @@ COMPIL_HELLO_WORLD = {
     ],
 }
 SAMPLE_HELLO_WORLD = "hello_world"
+
+COMPIL_XELATEX_AMIRI = {
+    "compiler": "xelatex",
+    "resources": [
+        {
+            "content": "\\documentclass{article}\n\\usepackage{fontspec}\n\\setmainfont{Amiri}\n\\begin{document}\nمرحباً بالعالم\n\\end{document}"
+        }
+    ],
+}
+SAMPLE_XELATEX_AMIRI = "hello_amiri"
 
 COMPIL_UPLATEX_JAPANESE = {
     "compiler": "uplatex",
@@ -72,6 +84,13 @@ def test_simple_compilation_body_xelatex(latex_on_http_api_url):
     )
     assert r.status_code == 201
     # snapshot_pdf(r.content, f"{SAMPLE_HELLO_WORLD}-xelatex")
+
+
+def test_xelatex_with_amiri_font(latex_on_http_api_url):
+    """Amiri is registered with Fontconfig and available to XeLaTeX."""
+    r = requests.post(latex_on_http_api_url + "/builds/sync", json=COMPIL_XELATEX_AMIRI)
+    assert r.status_code == 201
+    # snapshot_pdf(r.content, f"{SAMPLE_XELATEX_AMIRI}")
 
 
 def test_simple_compilation_body_lualatex(latex_on_http_api_url):
