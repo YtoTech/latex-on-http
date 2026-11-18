@@ -14,7 +14,11 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api.builds import builds_app
-from latexonhttp.resources.fetching import fetcher_base64_file, fetcher_utf8_string
+from latexonhttp.resources.fetching import (
+    fetcher_base64_file,
+    fetcher_url_file,
+    fetcher_utf8_string,
+)
 
 
 def build_client():
@@ -145,3 +149,39 @@ def test_valid_string_content_is_still_encoded():
 
     assert data == b"Hello \\LaTeX"
     assert error is None
+
+
+def test_url_without_scheme_returns_400_instead_of_server_error():
+    url = "/raw/YtoTech/latex-on-http/master/examples/templates/moderncv.tex"
+    response = build_client().get("/builds/sync", query_string={"url": url})
+
+    assert response.status_code == 400
+    payload = response.get_json()
+    assert payload["error"] == "RESOURCE_FETCH_FAILURE"
+    assert payload["fetch_error"]["type"] == "invalid_url"
+    assert "No scheme supplied" in payload["fetch_error"]["exception_content"]
+    assert payload["fetch_error"]["http_code"] is None
+    assert payload["fetch_error"]["http_response_content"] is None
+    assert payload["resource"]["body_source"]["url"] == url
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "/raw/YtoTech/latex-on-http/master/examples/templates/moderncv.tex",
+        "example.com/main.tex",
+        "https://",
+        "ftp://example.com/main.tex",
+    ],
+)
+def test_malformed_or_unsupported_urls_are_rejected(url):
+    data, error = fetcher_url_file(
+        {"type": "url/file", "body_source": {"url": url}},
+        None,
+    )
+
+    assert data is None
+    assert error["error"] == "RESOURCE_FETCH_FAILURE"
+    assert error["fetch_error"]["type"] == "invalid_url"
+    assert error["fetch_error"]["exception_content"]
+    assert error["fetch_error"]["http_code"] is None

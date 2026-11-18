@@ -121,6 +121,24 @@ def fetcher_url_file(resource, _get_from_cache):
                 "resource": resource,
             },
         )
+    except (
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.InvalidURL,
+        requests.exceptions.MissingSchema,
+    ) as ue:
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "type": "invalid_url",
+                    "exception_content": str(ue),
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            },
+        )
 
 
 def fetcher_hash_cache(resource, get_from_cache):

@@ -5,6 +5,7 @@
 * Handle invalid UTF8 bytes / encoding issues in compiler issue
 * Return HTTP 400 for invalid Base64 resources instead of HTTP 500
 * Return HTTP 400 for non-string `content` resources instead of HTTP 500
+* Return HTTP 400 for malformed resource URLs instead of HTTP 500
 * Fix cache eviction after Hy update by importing `first` from Toolz
 * Reject resources with multiple source fields
 
