@@ -4,7 +4,7 @@ tests.test_compiling
 ~~~~~~~~~~~~~~~~~~~~~
 Check Latex compiling results.
 
-:copyright: (c) 2017-2019 Yoan Tournade.
+:copyright: (c) 2017-2026 Yoan Tournade.
 :license: AGPL, see LICENSE for more details.
 """
 

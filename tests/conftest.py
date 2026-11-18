@@ -8,9 +8,9 @@ Fixtures for tests.
 :license: AGPL, see LICENSE for more details.
 """
 
+import os
+
 import pytest
-import subprocess
-import time
 
 
 @pytest.fixture(scope="function")
@@ -27,6 +27,4 @@ def latex_on_http_api_url():
     # To let Docker takes care of itself, simply use:
     # make test-docker-compose
 
-    # TODO Make the port configurable.
-    # Use an env variable.
-    yield "http://localhost:9898"
+    yield os.getenv("LATEX_ON_HTTP_API_URL", "http://localhost:9898")

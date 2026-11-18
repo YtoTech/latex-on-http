@@ -69,10 +69,10 @@ set-permissions-migrations:
 ## Tests ##
 ## -------------------------------
 test:
-	uv run pytest -vv
+	docker compose -f docker-compose.test.yml -p latex-on-http-test exec latex uv run pytest -vv
 
 test-x:
-	uv run pytest -vv -x
+	docker compose -f docker-compose.test.yml -p latex-on-http-test exec latex uv run pytest -vv -x
 
 test-docker-compose: test-docker-compose-start
 	sleep 3

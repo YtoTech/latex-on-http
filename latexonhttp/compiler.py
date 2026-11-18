@@ -53,7 +53,9 @@ def run_command(directory, command, timeout=DEFAULT_COMPILE_TIMEOUT):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         cwd=directory,
-        universal_newlines=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     started_at = timeit.default_timer()
     # Always have a timeout to control max compilation time and in case the
@@ -201,7 +203,9 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
     log_files = {}
     # Get the log files.
     for log_path in glob.glob("*.log", root_dir=directory):
-        with open(os.path.join(directory, log_path), "r") as f:
+        with open(
+            os.path.join(directory, log_path), "r", encoding="utf-8", errors="replace"
+        ) as f:
             log_files[log_path] = f.read()
     return {
         # TODO Also return each command metadatas for db.
