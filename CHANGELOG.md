@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-11-18-1
+
+* Handle invalid UTF8 bytes / encoding issues in compiler issue
+
 ## 2026-10-25-3
 
 * Log to Sentry in case of ZMQ socket failure
