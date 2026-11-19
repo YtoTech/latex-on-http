@@ -93,6 +93,7 @@ venv/
 venv_tests/
 ENV/
 .venv/
+.venv-cline/
 
 # Spyder project settings
 .spyderproject

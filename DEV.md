@@ -8,6 +8,20 @@ sudo
 make set-permissions-migrations
 ```
 
+## Running tests without Docker (agent/LLM containers)
+
+A dedicated virtualenv (`.venv-cline`, git-ignored) allows running the unit
+tier without Docker, LaTeX or a database — the main `.venv` is left untouched:
+
+```sh
+make test-env   # create/refresh .venv-cline from pyproject.toml
+make test-unit  # unit tier; integration tests skip when LATEX_ON_HTTP_API_URL is unset
+```
+
+Integration tests using `latex_on_http_api_url` are skipped unless
+`LATEX_ON_HTTP_API_URL` is configured; `make test` (docker compose) sets it.
+See `.cline/skills/testing/SKILL.md` for the full testing guide.
+
 ## Compilation job tracking
 
 The application reads PostgreSQL from `DATABASE_URL` (falling back to
@@ -29,3 +43,4 @@ control the lazy psycopg pool. The Compose test service sets
 `TEST_DATABASE_URL`; tests using it truncate the jobs and user-agent tables, so
 it must only point to a disposable test database. The PostgreSQL integration
 tests are skipped when this variable is absent.
+

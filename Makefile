@@ -79,6 +79,21 @@ set-permissions-migrations:
 ## -------------------------------
 ## Tests ##
 ## -------------------------------
+# Dedicated virtual environment for unit-tier tests, usable in
+# agent/LLM containers (no Docker, no LaTeX, possibly unsupported Python).
+# Leaves the main .venv untouched.
+TEST_VENV ?= .venv-cline
+
+test-env:
+	python3 -m venv $(TEST_VENV)
+	$(TEST_VENV)/bin/pip install --quiet --upgrade pip
+	$(TEST_VENV)/bin/pip install --quiet $$($(TEST_VENV)/bin/python -c "import tomllib; data = tomllib.load(open('pyproject.toml', 'rb')); deps = data['project']['dependencies'] + data['dependency-groups']['dev']; print(' '.join(dep.replace(' ', '') for dep in deps))")
+
+# Unit tier: no running app, no LaTeX, no database needed.
+# Integration tests skip automatically when LATEX_ON_HTTP_API_URL is unset.
+test-unit:
+	LATEX_ON_HTTP_API_URL= $(TEST_VENV)/bin/python -m pytest -q tests/
+
 test:
 	$(DOCKER_COMPOSE_TEST) exec latex uv run pytest -vv
 
