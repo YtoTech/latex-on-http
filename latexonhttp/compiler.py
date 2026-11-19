@@ -11,7 +11,6 @@ Get a compilation order (dict task spec) and compiles the order.
 
 import subprocess
 import os
-import stat
 import timeit
 import logging
 import glob
@@ -23,6 +22,7 @@ from latexonhttp.sandbox import (
     prepare_workspace,
     sandbox_enabled,
 )
+from latexonhttp.workspaces.filesystem import read_generated_file
 from latexonhttp.sandbox_diagnostics import (
     find_sandbox_process_issue,
     report_sandbox_diagnostic,
@@ -142,26 +142,6 @@ MAX_PDF_SIZE = int(os.getenv("MAX_PDF_SIZE", 100 * 1024 * 1024))
 MAX_LOG_FILE_SIZE = int(os.getenv("MAX_LOG_FILE_SIZE", 10 * 1024 * 1024))
 
 
-def _read_generated_file(path, max_size):
-    """Read a regular output without following compiler-created symlinks."""
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        file_descriptor = os.open(path, flags)
-        with os.fdopen(file_descriptor, "rb") as fd:
-            if not stat.S_ISREG(os.fstat(fd.fileno()).st_mode):
-                logger.warning("Ignoring non-regular compilation output %s", path)
-                return None
-            data = fd.read(max_size + 1)
-            if len(data) > max_size:
-                logger.warning("Ignoring oversized compilation output %s", path)
-                return None
-            return data
-    except OSError as error:
-        # This includes missing files and ELOOP for symbolic links.
-        logger.warning("Cannot safely read compilation output %s: %s", path, error)
-        return None
-
-
 def latexToPdf(compilerName, directory, main_resource, workspace_id, options={}):
     if compilerName not in AVAILABLE_LATEX_COMPILERS:
         raise ValueError("Invalid compiler")
@@ -241,8 +221,7 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
     #     logger.debug(command)
     #     commandOutputs.append(run_command(log_dir, command))
     # Return both generated PDF and compile logs.
-    # TODO Uses workspace.filesystem module read file back?
-    pdf = _read_generated_file(output_path, MAX_PDF_SIZE)
+    pdf = read_generated_file(directory, output_path, MAX_PDF_SIZE)
     commandsStatusCodes = [
         commandOutput["return_code"] for commandOutput in commandOutputs
     ]
@@ -268,8 +247,8 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
     log_files = {}
     # Get the log files.
     for log_path in glob.glob("*.log", root_dir=directory):
-        log_data = _read_generated_file(
-            os.path.join(directory, log_path), MAX_LOG_FILE_SIZE
+        log_data = read_generated_file(
+            directory, os.path.join(directory, log_path), MAX_LOG_FILE_SIZE
         )
         if log_data is not None:
             log_files[log_path] = log_data.decode("utf-8", errors="replace")

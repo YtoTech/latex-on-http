@@ -11,6 +11,7 @@ Filesystem driver / management for build workspaces.
 import logging
 import os.path
 import shutil
+import stat
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,29 @@ def persist_resource_to_workspace(workspace_id, resource, data):
         logger.debug("Wrote %d bytes to %s", bytes_written, resource_full_path)
     if CHECK_DATA_SPEC_SIZE_ESTIMATE:
         check_data_spec_size_estimate(workspace_id, resource)
+
+
+def read_generated_file(workspace_root, path, max_size):
+    """Read a regular workspace output without following compiler-created symlinks."""
+    if not is_safe_path(workspace_root, path):
+        logger.warning("Ignoring compilation output outside workspace %s", path)
+        return None
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        file_descriptor = os.open(path, flags)
+        with os.fdopen(file_descriptor, "rb") as fd:
+            if not stat.S_ISREG(os.fstat(fd.fileno()).st_mode):
+                logger.warning("Ignoring non-regular compilation output %s", path)
+                return None
+            data = fd.read(max_size + 1)
+            if len(data) > max_size:
+                logger.warning("Ignoring oversized compilation output %s", path)
+                return None
+            return data
+    except OSError as error:
+        # This includes missing files and ELOOP for symbolic links.
+        logger.warning("Cannot safely read compilation output %s: %s", path, error)
+        return None
 
 
 def make_workspace(workspace_id):

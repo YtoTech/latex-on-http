@@ -150,23 +150,6 @@ def test_missing_bubblewrap_executable_raises_sandbox_error(tmp_path, monkeypatc
         compiler.run_command(tmp_path, ["latexmk", "main.tex"])
 
 
-def test_generated_pdf_symlink_is_not_followed(tmp_path):
-    secret = tmp_path / "secret"
-    secret.write_bytes(b"host secret")
-    workspace = tmp_path / "workspace"
-    workspace.mkdir()
-    (workspace / "main.pdf").symlink_to(secret)
-
-    assert compiler._read_generated_file(workspace / "main.pdf", 100) is None
-
-
-def test_generated_file_size_is_bounded(tmp_path):
-    output = tmp_path / "main.pdf"
-    output.write_bytes(b"0123456789")
-
-    assert compiler._read_generated_file(output, 9) is None
-
-
 def test_timeout_kills_descendant_processes(tmp_path):
     result = compiler.run_command(
         tmp_path,

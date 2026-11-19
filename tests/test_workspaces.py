@@ -54,3 +54,38 @@ def test_persist_resource_accepts_nested_job_path(tmp_path, monkeypatch):
     assert result is None
     workspace = Path(filesystem.get_workspace_root_path("job"))
     assert (workspace / "chapters" / "main.tex").read_bytes() == b"x"
+
+
+def test_read_generated_file_returns_regular_file_bytes(tmp_path):
+    output = tmp_path / "main.pdf"
+    output.write_bytes(b"%PDF-1.7")
+
+    assert filesystem.read_generated_file(tmp_path, output, 100) == b"%PDF-1.7"
+
+
+def test_generated_file_outside_workspace_is_not_read(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    outside = tmp_path / "outside.pdf"
+    outside.write_bytes(b"not a workspace output")
+
+    assert filesystem.read_generated_file(workspace, outside, 100) is None
+
+
+def test_generated_pdf_symlink_is_not_followed(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    original = workspace / "original.pdf"
+    original.write_bytes(b"original output")
+    (workspace / "main.pdf").symlink_to(original)
+
+    assert (
+        filesystem.read_generated_file(workspace, workspace / "main.pdf", 100) is None
+    )
+
+
+def test_generated_file_size_is_bounded(tmp_path):
+    output = tmp_path / "main.pdf"
+    output.write_bytes(b"0123456789")
+
+    assert filesystem.read_generated_file(tmp_path, output, 9) is None
