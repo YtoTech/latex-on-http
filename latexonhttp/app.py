@@ -8,7 +8,7 @@ Here are exposed the Rest API endpoints.
 :license: AGPL, see LICENSE for more details.
 """
 
-import logging.config
+import logging
 import os
 
 import sentry_sdk
@@ -23,26 +23,11 @@ from latexonhttp.api.packages import packages_app
 from latexonhttp.api.projects import projects_app
 from latexonhttp.api.texlive import texlive_app
 from latexonhttp.docs import docs_app
-from latexonhttp.utils.misc import get_api_version
+from latexonhttp.utils.misc import configure_logging, get_api_version
 from latexonhttp.utils.texlive import get_texlive_version_spec
 
 # Logging.
-logging.config.dictConfig(
-    {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {"default": {"format": "[%(levelname)s %(module)s] %(message)s"}},
-        "handlers": {
-            "console": {"class": "logging.StreamHandler", "formatter": "default"}
-        },
-        "loggers": {
-            "latexonhttp": {
-                "handlers": ["console"],
-                "level": os.getenv("LOGGING_LEVEL") or "DEBUG",
-            }
-        },
-    }
-)
+configure_logging()
 logger = logging.getLogger("latexonhttp")
 
 if os.environ.get("SENTRY_DSN"):

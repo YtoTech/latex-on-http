@@ -106,7 +106,15 @@ def run_command(
     if is_sandboxed and rc != 0 and stdout.lstrip().startswith("bwrap:"):
         raise SandboxUnavailable(stdout.strip())
     ended_at = timeit.default_timer()
-    logger.debug("Program returned with status code %d", rc)
+    # The full command output (LaTeX/latexmk transcript) is only useful
+    # for diagnosis, so it is logged at DEBUG: it must not reach
+    # the console at LOGGING_LEVEL=INFO.
+    logger.debug(
+        "Command %r finished with return code %d. Command output:\n%s",
+        original_command,
+        rc,
+        stdout or "<no output>",
+    )
     if is_sandboxed and rc != 0:
         diagnostic = find_sandbox_process_issue(
             stdout, _configured_commands(shell_escape)
@@ -121,10 +129,9 @@ def run_command(
             )
     if rc != 0:
         logger.warning(
-            "Command %r failed with return code %d. Command output:\n%s",
+            "Command %r failed with return code %d",
             original_command,
             rc,
-            stdout or "<no output>",
         )
     return {
         "command": original_command,

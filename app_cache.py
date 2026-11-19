@@ -7,7 +7,7 @@ Manage LaTeX-On-HTTP cache process lifecycle.
 :license: AGPL, see LICENSE for more details.
 """
 
-import logging.config
+import logging
 import os
 
 import sentry_sdk
@@ -21,20 +21,10 @@ from latexonhttp.caching.resources import (
 
 from latexonhttp.caching.bridge import deserialize_message, serialize_message
 from latexonhttp.caching.store import get_cache_metadata
-from latexonhttp.utils.misc import get_api_version
+from latexonhttp.utils.misc import configure_logging, get_api_version
 
 # Logging.
-logging.config.dictConfig(
-    {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {"default": {"format": "[%(levelname)s %(module)s] %(message)s"}},
-        "handlers": {
-            "console": {"class": "logging.StreamHandler", "formatter": "default"}
-        },
-        "loggers": {"latexonhttp": {"handlers": ["console"], "level": "DEBUG"}},
-    }
-)
+configure_logging()
 logger = logging.getLogger("latexonhttp")
 
 if os.environ.get("SENTRY_DSN"):

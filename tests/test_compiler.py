@@ -70,6 +70,32 @@ def test_failed_command_logs_full_output(tmp_path, caplog):
     assert "SECOND_DIAGNOSTIC_LINE" in caplog.text
 
 
+def test_failed_command_hides_full_output_at_info_level(tmp_path, caplog):
+    # The failing output lives in a script file so the command line itself
+    # does not contain the diagnostic text.
+    script = tmp_path / "fail_script.py"
+    script.write_text(
+        "import sys\n"
+        "sys.stderr.write('LATEX_DIAGNOSTIC\\nSECOND_DIAGNOSTIC_LINE')\n"
+        "raise SystemExit(12)\n"
+    )
+    caplog.set_level(logging.INFO, logger="latexonhttp.compiler")
+
+    result = compiler.run_command(
+        tmp_path,
+        [sys.executable, str(script)],
+        isolate=False,
+    )
+
+    assert result["return_code"] == 12
+    # The concise failure warning is still visible at INFO level...
+    assert "failed with return code 12" in caplog.text
+    # ...but the full command output is only logged at DEBUG.
+    assert "LATEX_DIAGNOSTIC" not in caplog.text
+    assert "SECOND_DIAGNOSTIC_LINE" not in caplog.text
+    assert "Command output:" not in caplog.text
+
+
 def test_latex_to_pdf_replaces_invalid_utf8_in_log_files(tmp_path, monkeypatch):
     (tmp_path / "main.log").write_bytes(b"latex log: \x9d\n")
 
