@@ -2,11 +2,13 @@
 % repository (samples/quotes/mrzool-inspired/logo.png): "Yto" in red,
 % "Tech" in blue, set in Computer Modern.
 %
+% Both words live in one TikZ node, so the wordmark cannot collide when it
+% is regenerated with a different TikZ version.
+%
 % Build the light and dark variants with ./build.sh (see README.md).
 \documentclass[tikz,border=2pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usetikzlibrary{positioning}
 
 \ifdefined\DarkLogo
   \definecolor{logored}{HTML}{E39A96}
@@ -18,10 +20,10 @@
 
 \begin{document}
 \begin{tikzpicture}
-  \node[anchor=base west, inner sep=0pt, text=logored,
-        font=\fontsize{44}{44}\selectfont] (yto) at (0,0) {Yto};
-  \node[anchor=base west, inner sep=0pt, text=logoblue,
-        font=\fontsize{44}{44}\selectfont,
-        right=0.04em of yto.base east] (tech) {Tech};
+  \node[inner sep=0pt, outer sep=0pt, anchor=base west] at (0,0) {%
+    {\color{logored}\fontsize{44}{44}\selectfont Yto}%
+    \hspace{0.04em}%
+    {\color{logoblue}\fontsize{44}{44}\selectfont Tech}%
+  };
 \end{tikzpicture}
 \end{document}

@@ -41,6 +41,8 @@ build_wordmark ytotech.tex dark ytotech-logo-dark.svg
 
 latex -interaction=nonstopmode -halt-on-error \
   -output-directory="$work" 'favicon.tex' >/dev/null
-dvisvgm --no-fonts --exact-bbox --optimize \
+# Keep the full 64×64 TeX bounding box here: older dvisvgm releases can
+# shrink --exact-bbox to the glyph only, dropping the coloured background.
+dvisvgm --no-fonts --optimize \
   "$work/favicon.dvi" -o "$out/favicon.svg" >/dev/null
 echo "Regenerated $out/favicon.svg"

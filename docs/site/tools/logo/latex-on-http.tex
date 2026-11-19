@@ -1,14 +1,17 @@
 % LaTeX-on-HTTP wordmark, drawn with TikZ.
 %
-% The colours and the red/blue split are borrowed from the YtoTech logo:
+% The colours are borrowed from the YtoTech logo:
 %   red  #b14040  — "LaTeX"
-%   blue #383866  — "on-HTTP"
+%   blue #383866  — "on HTTP"
+%
+% The stacked lockup is built inside a single TikZ node so it renders the
+% same way across TeX/TikZ versions: no relative node positioning is used.
 %
 % Build the light and dark variants with ./build.sh (see README.md).
 \documentclass[tikz,border=2pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usetikzlibrary{positioning}
+\usepackage{calc}
 
 \ifdefined\DarkLogo
   % Lighter tints, for the dark documentation theme.
@@ -19,14 +22,17 @@
   \definecolor{logoblue}{HTML}{383866}
 \fi
 
+\newcommand{\logotitle}{{\fontsize{44}{44}\selectfont\LaTeX}}
+\newcommand{\logotagline}{{\fontsize{26}{29}\selectfont on HTTP}}
+
 \begin{document}
 \begin{tikzpicture}
-  % The red and blue words share one baseline, like the "Yto" / "Tech"
-  % split in the YtoTech wordmark.
-  \node[anchor=base west, inner sep=0pt, text=logored,
-        font=\fontsize{44}{44}\selectfont] (latex) at (0,0) {\LaTeX};
-  \node[anchor=base west, inner sep=0pt, text=logoblue,
-        font=\fontsize{44}{44}\selectfont,
-        right=0.08em of latex.base east] (suffix) {-on-HTTP};
+  \node[inner sep=0pt, outer sep=0pt, anchor=base west] (logo) at (0,0) {%
+    \begin{tabular}{@{}c@{}}
+      {\color{logored}\logotitle}\\[3pt]
+      {\color{logored}\rule{\widthof{\logotitle}}{1.1pt}}\\[3pt]
+      {\color{logoblue}\logotagline}
+    \end{tabular}%
+  };
 \end{tikzpicture}
 \end{document}

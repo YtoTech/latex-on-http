@@ -362,7 +362,7 @@ a:hover {
 .brand-logo {
   display: block;
   width: 100%;
-  max-width: 230px;
+  max-width: 190px;
   height: auto;
 }
 
@@ -393,7 +393,7 @@ html[data-theme="dark"] .brand-logo-dark {
   font-family: var(--font-mono);
   font-size: 0.69rem;
   color: var(--accent-blue);
-  margin-top: 0.35rem;
+  margin-top: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }
@@ -466,7 +466,7 @@ html[data-theme="dark"] .brand-logo-dark {
 
 .ytotech-logo {
   display: block;
-  width: 78px;
+  width: 92px;
   height: auto;
 }
 
