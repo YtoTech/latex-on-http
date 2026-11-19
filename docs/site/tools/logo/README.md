@@ -8,11 +8,12 @@ The wordmark and favicon are generated with LaTeX + TikZ, using Computer
 Modern (Latin Modern) and the two YtoTech brand colours:
 
 - red `#b14040` for “LaTeX”
-- blue `#383866` for “on-HTTP”
+- blue `#383866` for “on HTTP”
 
 Sources:
 
-- `latex-on-http.tex` — the product wordmark
+- `latex-on-http.tex` — the stacked product wordmark: `LaTeX` over `on HTTP`,
+  separated by a red rule
 - `ytotech.tex` — the YtoTech wordmark, recreated from the logo included in
   the repository (`samples/quotes/mrzool-inspired/logo.png`)
 - `favicon.tex` — the square favicon

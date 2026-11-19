@@ -97,6 +97,9 @@ docker-push-all: docker-push-tl-distrib-debian docker-push-python-debian
 dev:
 	docker compose up
 
+dev-recreate:
+	docker compose up --force-recreate
+
 dev-build:
 	docker compose build --no-cache
 
