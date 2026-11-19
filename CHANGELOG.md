@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 2026-11-19-1
 
 * Track synchronous compilation jobs in PostgreSQL with sanitized request metadata, lifecycle status and timestamps, resource/cache metrics, PDF metadata, and `X-Job-ID` responses.
 * Add deterministic SHA-256 `compilation_hash` values based on the compiler, effective options, fetched resource paths, and actual contents, independent of transport format or resource order.
