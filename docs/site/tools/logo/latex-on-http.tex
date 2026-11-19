@@ -22,16 +22,18 @@
   \definecolor{logoblue}{HTML}{383866}
 \fi
 
-\newcommand{\logotitle}{{\fontsize{44}{44}\selectfont\LaTeX}}
-\newcommand{\logotagline}{{\fontsize{26}{29}\selectfont on HTTP}}
+% Compact lockup: Latin Modern Roman for the name, Latin Modern Sans for
+% the smaller tagline, indented from the left edge of the name.
+\newcommand{\logotitle}{{\fontsize{40}{40}\selectfont\LaTeX}}
+\newcommand{\logotagline}{{\sffamily\fontsize{17}{19}\selectfont on HTTP}}
 
 \begin{document}
 \begin{tikzpicture}
   \node[inner sep=0pt, outer sep=0pt, anchor=base west] (logo) at (0,0) {%
-    \begin{tabular}{@{}c@{}}
-      {\color{logored}\logotitle}\\[3pt]
-      {\color{logored}\rule{\widthof{\logotitle}}{1.1pt}}\\[3pt]
-      {\color{logoblue}\logotagline}
+    \begin{tabular}{@{}l@{}}
+      {\color{logored}\logotitle}\\[2pt]
+      {\color{logored}\rule{\widthof{\logotitle}}{1pt}}\\[2pt]
+      \hspace*{7pt}{\color{logoblue}\logotagline}
     \end{tabular}%
   };
 \end{tikzpicture}

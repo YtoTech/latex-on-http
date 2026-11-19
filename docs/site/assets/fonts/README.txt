@@ -1,23 +1,39 @@
-Latin Modern web fonts
-======================
+Documentation web fonts
+=======================
 
-The documentation site uses Latin Modern, the descendant of Knuth's Computer
-Modern, so the pages share the typographic voice of the LaTeX ecosystem.
+The documentation site uses locally-hosted open-source fonts so the pages keep
+their voice offline and without third-party requests.
 
-The .woff2 files in this directory were converted from the OpenType fonts
-shipped with TeX Live:
+Body text
+---------
 
-  lmroman10-regular.woff2     <- lmroman10-regular.otf
-  lmroman10-italic.woff2      <- lmroman10-italic.otf
-  lmroman10-bold.woff2        <- lmroman10-bold.otf
-  lmroman10-bolditalic.woff2  <- lmroman10-bolditalic.otf
-  lmmono10-regular.woff2      <- lmmono10-regular.otf
-  lmmono10-italic.woff2       <- lmmono10-italic.otf
-  lmmonolt10-bold.woff2       <- lmmonolt10-bold.otf
+Computer Modern Unicode Sans Serif (CMU Sans Serif), the OpenType/METATYPE1
+revival of Knuth's Computer Modern.
 
-Conversion command:
+  cmusans10-regular.woff2       <- cmunss.ttf  (CMU Sans Serif Medium)
+  cmusans10-oblique.woff2       <- cmunsi.ttf  (CMU Sans Serif Oblique)
+  cmusans10-bold.woff2          <- cmunsx.ttf  (CMU Sans Serif Bold)
+  cmusans10-boldoblique.woff2   <- cmunso.ttf  (CMU Sans Serif BoldOblique)
 
-  python3 -m fontTools.ttLib.woff2 compress input.otf -o output.woff2
+Source: https://www.fontsquirrel.com/fonts/computer-modern
+License: SIL Open Font License 1.1 (SIL-OPEN-FONT-LICENSE.txt)
 
-Latin Modern is released under the GUST Font License (GUST-FONT-LICENSE.txt),
-which is legally identical to the LaTeX Project Public License v1.3c or later.
+Code / monospace
+----------------
+
+JetBrains Mono, a modern variable-width monospace typeface designed for code
+readability. It contrasts with CMU Sans Serif while remaining clear at small
+sizes.
+
+  jetbrainsmono-variable.woff2        <- JetBrainsMono[wght].ttf
+  jetbrainsmono-italic-variable.woff2 <- JetBrainsMono-Italic[wght].ttf
+
+Source: https://github.com/JetBrains/JetBrainsMono
+License: SIL Open Font License 1.1 (OFL-JetBrainsMono.txt)
+
+Conversion
+----------
+
+TrueType fonts were converted to WOFF2 with fontTools:
+
+  python3 -m fontTools.ttLib.woff2 compress input.ttf -o output.woff2

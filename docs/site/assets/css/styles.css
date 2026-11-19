@@ -1,76 +1,71 @@
 /* ==========================================================================
    LaTeX-on-HTTP documentation — YtoTech design system.
-   Computer Modern (Latin Modern) typography, red/blue YtoTech palette,
-   squared corners, light/dark themes. All assets are served from this site.
+   CMU Sans Serif body text + JetBrains Mono code typography, red/blue YtoTech
+   palette, squared corners, light/dark themes. All assets are served from this
+   site.
    ========================================================================== */
 
 /* -------------------------------- Fonts --------------------------------- */
 
-/* Latin Modern, the contemporary Computer Modern family. Hosted locally so
-   the docs keep their LaTeX voice offline and without third-party requests. */
+/* Computer Modern Unicode, the OpenType/METATYPE1 revival of Knuth's Computer
+   Modern. Hosted locally so the docs keep their LaTeX voice offline and without
+   third-party requests. */
+
 @font-face {
-  font-family: "Latin Modern Roman";
-  src: url("../fonts/lmroman10-regular.woff2") format("woff2");
+  font-family: "CMU Sans Serif";
+  src: url("../fonts/cmusans10-regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Latin Modern Roman";
-  src: url("../fonts/lmroman10-italic.woff2") format("woff2");
-  font-style: italic;
+  font-family: "CMU Sans Serif";
+  src: url("../fonts/cmusans10-oblique.woff2") format("woff2");
+  font-style: oblique;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Latin Modern Roman";
-  src: url("../fonts/lmroman10-bold.woff2") format("woff2");
+  font-family: "CMU Sans Serif";
+  src: url("../fonts/cmusans10-bold.woff2") format("woff2");
   font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CMU Sans Serif";
+  src: url("../fonts/cmusans10-boldoblique.woff2") format("woff2");
+  font-style: oblique;
   font-weight: 700;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Latin Modern Roman";
-  src: url("../fonts/lmroman10-bolditalic.woff2") format("woff2");
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Latin Modern Mono";
-  src: url("../fonts/lmmono10-regular.woff2") format("woff2");
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrainsmono-variable.woff2") format("woff2-variations");
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 800;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Latin Modern Mono";
-  src: url("../fonts/lmmono10-italic.woff2") format("woff2");
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrainsmono-italic-variable.woff2") format("woff2-variations");
   font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Latin Modern Mono";
-  src: url("../fonts/lmmonolt10-bold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 700;
+  font-weight: 100 800;
   font-display: swap;
 }
 
 /* ------------------------------- Tokens --------------------------------- */
 
 :root {
-  --font-serif: "Latin Modern Roman", "Computer Modern Serif", "CMU Serif",
-    Georgia, "Times New Roman", serif;
-  --font-mono: "Latin Modern Mono", "Computer Modern Typewriter",
-    "CMU Typewriter Text", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-sans: "CMU Sans Serif", "Computer Modern Sans Serif", "Latin Modern Sans",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Source Code Pro", ui-monospace,
+    "SFMono-Regular", Consolas, monospace;
 
   /* YtoTech brand: red from "Yto", blue from "Tech". */
   --accent: #b14040;
@@ -89,7 +84,7 @@
   --bg-inline-code: rgba(177, 64, 64, 0.07);
 
   --text: #221f1c;
-  --text-soft: #4a4540;
+  --text-soft: #23201e;
   --text-faint: #746b62;
 
   --border: #e6ded6;
@@ -243,9 +238,9 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -362,7 +357,7 @@ a:hover {
 .brand-logo {
   display: block;
   width: 100%;
-  max-width: 190px;
+  max-width: 170px;
   height: auto;
 }
 
@@ -1016,7 +1011,7 @@ pre:hover .code-copy-button {
   gap: 0.45rem;
   border-radius: 0;
   padding: 0.55rem 1.1rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 0.98rem;
   font-weight: 700;
   border: 1px solid transparent;

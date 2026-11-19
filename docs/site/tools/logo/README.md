@@ -12,8 +12,8 @@ Modern (Latin Modern) and the two YtoTech brand colours:
 
 Sources:
 
-- `latex-on-http.tex` — the stacked product wordmark: `LaTeX` over `on HTTP`,
-  separated by a red rule
+- `latex-on-http.tex` — the compact stacked product wordmark: `LaTeX` over
+  `on HTTP`, separated by a red rule, with a smaller indented sans-serif tagline
 - `ytotech.tex` — the YtoTech wordmark, recreated from the logo included in
   the repository (`samples/quotes/mrzool-inspired/logo.png`)
 - `favicon.tex` — the square favicon
