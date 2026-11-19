@@ -26,6 +26,12 @@ from latexonhttp.compiler import (
     latexToPdf,
 )
 from latexonhttp.db.jobs import create_job, update_job
+from latexonhttp.quota import (
+    check_quota,
+    get_client_ip,
+    quota_rejection,
+    rate_limit_headers,
+)
 from latexonhttp.resources.fetching import fetch_resources
 from latexonhttp.resources.json_api import parse_json_resources_spec
 from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
@@ -205,6 +211,31 @@ def _fetched_resources_metadata(resources):
             resource["data_spec"]["size"] for resource in cache_hits
         ),
     }
+
+
+@builds_app.before_request
+def enforce_build_quota():
+    """Reject requests beyond the fair-use quota before parsing the payload.
+
+    The decision is also stored on `g` so passing responses expose the
+    rate-limit headers of their binding window.
+    """
+    decision = check_quota(get_client_ip(request))
+    if decision is None:
+        # Quota disabled, allowlisted client, or fail-open store failure.
+        return
+    g.quota_decision = decision
+    if not decision["allowed"]:
+        return quota_rejection(decision)
+
+
+@builds_app.after_request
+def expose_rate_limit_headers(response):
+    decision = g.get("quota_decision")
+    if decision:
+        for name, value in rate_limit_headers(decision).items():
+            response.headers[name] = value
+    return response
 
 
 @builds_app.after_request

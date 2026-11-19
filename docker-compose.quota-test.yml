@@ -1,0 +1,17 @@
+# Quota integration-test override, layered on docker-compose.test.yml:
+#   docker compose -f docker-compose.test.yml -f docker-compose.quota-test.yml ...
+# (see the `test-quota` Make target). Adds a Valkey service and low-enough
+# limits for the quota tests to trip them; run it ONLY with
+# tests/test_quota.py, other tests would exhaust the tiny windows.
+services:
+  latex:
+    environment:
+      VALKEY_HOST: valkey
+      QUOTA_LIMIT_SECOND: "3"
+      QUOTA_LIMIT_MINUTE: "5"
+      QUOTA_LIMIT_HOUR: "1000"
+      QUOTA_LIMIT_DAY: "1000"
+      QUOTA_LIMIT_WEEK: "1000"
+  valkey:
+    image: docker.io/valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]

@@ -123,6 +123,22 @@ test-unit:
 test:
 	$(DOCKER_COMPOSE_TEST) exec latex uv run pytest -vv
 
+# Quota integration tests: dedicated Compose override adding Valkey and low
+# limits; run ONLY tests/test_quota.py, other tests would exhaust the tiny
+# quota windows of this configuration.
+test-quota: test-quota-docker-compose-start
+	sleep 3
+	$(DOCKER_COMPOSE_TEST) -f docker-compose.quota-test.yml exec latex uv run pytest -vv tests/test_quota.py
+	sleep 2
+	$(MAKE) test-quota-docker-compose-stop
+
+test-quota-docker-compose-start:
+	$(DOCKER_COMPOSE_TEST) -f docker-compose.quota-test.yml up --no-start
+	$(DOCKER_COMPOSE_TEST) -f docker-compose.quota-test.yml start
+
+test-quota-docker-compose-stop:
+	$(DOCKER_COMPOSE_TEST) -f docker-compose.quota-test.yml stop
+
 test-x:
 	$(DOCKER_COMPOSE_TEST) exec latex uv run pytest -vv -x
 
