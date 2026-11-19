@@ -6,7 +6,19 @@
 # - a selection of TexLive packages;
 # - libmq, with development headers;
 # - a Python runtime/distribution;
-# - the LaTeX-On-HTTP application, with its dependencies.
+# - the LaTeX-On-HTTP application, with its dependencies;
+# - the statically-built documentation site, served from /docs/.
+
+# Build the documentation site (Eleventy / Node, kept out of the final image).
+# The site lives in a `docs/site/` subdirectory here, mirroring the repository
+# layout: the Eleventy config writes its output to `../_build` relative to the
+# config file, i.e. /docs-src/_build.
+FROM node:24-alpine AS docs-builder
+WORKDIR /docs-src/site
+COPY docs/site/package.json docs/site/package-lock.json ./
+RUN npm ci --no-fund --no-audit
+COPY docs/site/ ./
+RUN npm run build
 
 # TODO Publish the final image.
 
@@ -29,6 +41,9 @@ COPY ./latexonhttp/ /app/latex-on-http/latexonhttp/
 
 # Install app dependencies.
 RUN uv venv && uv sync --no-dev
+
+# Copy the prebuilt documentation site, served from the /docs/ route.
+COPY --from=docs-builder /docs-src/_build/ /app/latex-on-http/docs/_build/
 
 # Add migration tool.
 RUN apt-get update -qq && apt-get install -y \

@@ -1,0 +1,81 @@
+{% macro httpMethod(method) -%}
+<span class="http-method http-method-{{ method | lower }}">{{ method }}</span>
+{%- endmacro %}
+
+{% macro endpointPath(methods, path) -%}
+<div class="endpoint-signature">
+  {%- for method in methods -%}
+  {{ httpMethod(method) }}
+  {%- endfor -%}
+  <code class="endpoint-path">{{ path }}</code>
+</div>
+{%- endmacro %}
+
+{% macro paramTable(params) -%}
+<div class="table-wrapper">
+  <table class="param-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for param in params %}
+      <tr>
+        <td><code class="param-name">{{ param.name }}</code>{% if param.required %}<div class="param-required">{{ param.required }}</div>{% endif %}</td>
+        <td class="param-type">{{ param.type }}</td>
+        <td>{% if param.default %}<code>{{ param.default }}</code>{% else %}<span class="dim">—</span>{% endif %}</td>
+        <td class="param-description">{{ param.description | safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{% macro errorTable(errors) -%}
+<div class="table-wrapper">
+  <table class="param-table">
+    <thead>
+      <tr>
+        <th>Error code</th>
+        <th>HTTP</th>
+        <th>Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for error in errors %}
+      <tr>
+        <td><code class="param-name">{{ error.code }}</code></td>
+        <td><code>{{ error.http }}</code></td>
+        <td class="param-description">{{ error.description | safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{% macro codeTabs(samples, domId) -%}
+<div class="code-tabs" data-tabs{% if domId %} id="{{ domId }}"{% endif %}>
+  <div class="code-tabs-bar" role="tablist">
+    {% for sample in samples %}
+    <button type="button" class="code-tab{% if loop.first %} is-active{% endif %}" role="tab" aria-selected="{{ 'true' if loop.first else 'false' }}" data-tab-index="{{ loop.index0 }}">{{ sample.label }}</button>
+    {% endfor %}
+  </div>
+  {% for sample in samples %}
+  <div class="code-tab-panel{% if loop.first %} is-active{% endif %}" role="tabpanel" data-tab-index="{{ loop.index0 }}"{% if not loop.first %} hidden{% endif %}>
+    {{ sample.code | highlightCode(sample.language) | safe }}
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro callout(kind, content) -%}
+<aside class="callout callout-{{ kind }}">
+  {{ content | safe }}
+</aside>
+{%- endmacro %}

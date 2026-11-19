@@ -73,6 +73,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Documentation site (Node/Eleventy)
+node_modules/
+
 # PyBuilder
 target/
 

@@ -12,7 +12,7 @@ import logging.config
 import os
 
 import sentry_sdk
-from flask import Flask
+from flask import Flask, request, url_for
 from flask_cors import CORS
 from sentry_sdk.integrations.flask import FlaskIntegration
 
@@ -22,6 +22,7 @@ from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.packages import packages_app
 from latexonhttp.api.projects import projects_app
 from latexonhttp.api.texlive import texlive_app
+from latexonhttp.docs import docs_app
 from latexonhttp.utils.misc import get_api_version
 from latexonhttp.utils.texlive import get_texlive_version_spec
 
@@ -63,6 +64,8 @@ app.register_blueprint(fonts_app, url_prefix="/fonts")
 app.register_blueprint(packages_app, url_prefix="/packages")
 app.register_blueprint(texlive_app, url_prefix="/texlive")
 app.register_blueprint(caches_app, url_prefix="/caches")
+# Documentation site (statically-built at docs/_build/, served from /docs/).
+app.register_blueprint(docs_app)
 # TODO
 # /users
 # /projects
@@ -74,19 +77,35 @@ app.register_blueprint(caches_app, url_prefix="/caches")
 # Allows CORS requests on all endpoints.
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Statically-built documentation site (docs/site, built to docs/_build/).
+DOCUMENTATION_BUILD_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "docs",
+    "_build",
+)
+
 
 @app.route("/")
 def hello():
-    # TODO Distribute documentation. (HTML)
     # TODO Add endpoints links / HATEOAS.
     # TODO Return an OpenAPI specification
     # https://github.com/OAI/OpenAPI-Specification
+
+    # Absolute, clickable URL to the documentation site, derived from the
+    # incoming request; honour the scheme announced by a TLS-terminating
+    # reverse proxy, if any.
+    forwarded_scheme = (
+        (request.headers.get("X-Forwarded-Proto") or "").split(",")[0].strip()
+    )
+    documentation_url = url_for(
+        "docs.documentation", _external=True, _scheme=forwarded_scheme or None
+    )
     return (
         {
             "message": "Welcome to the LaTeX-On-HTTP API",
             "version": get_api_version(),
             "source": "https://github.com/YtoTech/latex-on-http",
-            "documentation": "https://github.com/YtoTech/latex-on-http",
+            "documentation": documentation_url,
             "changelog": "https://github.com/YtoTech/latex-on-http/blob/master/CHANGELOG.md",
             "texlive_version": get_texlive_version_spec()["texlive"]["version"],
         },

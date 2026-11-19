@@ -36,6 +36,24 @@ start-cache:
 debug-cache:
 	uv run python -u app_cache.py --debug
 
+
+## -------------------------------
+## Documentation site ##
+## -------------------------------
+# Node/Eleventy static site (docs/site), built to docs/_build/ and served
+# by the Python app from the /docs/ route.
+docs-install:
+	cd docs/site && npm ci --no-fund --no-audit
+
+build-docs:
+	cd docs/site && npm run build
+
+serve-docs:
+	cd docs/site && npm run dev
+
+clean-docs:
+	rm -rf docs/_build
+
 ## -------------------------------
 ## Docker build/images ##
 ## -------------------------------

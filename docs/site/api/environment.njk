@@ -1,0 +1,94 @@
+---
+title: Build environment
+layout: base.njk
+active: "/api/environment/"
+---
+
+{% import "macros.njk" as macros with context %}
+
+{% set texlive = endpoints.endpoints.texliveInformation %}
+{% set fonts = endpoints.endpoints.fonts %}
+{% set packages = endpoints.endpoints.packages %}
+{% set packageDetail = endpoints.endpoints.packageDetail %}
+
+<h1>Build environment</h1>
+
+<p class="page-lead">
+  Read-only endpoints to inspect what a LaTeX-on-HTTP instance can compile:
+  TeXLive version, available fonts and installed LaTeX packages. Useful to
+  adapt your documents to a target instance, or to feature-detect before
+  sending a compilation.
+</p>
+
+<h2 id="texlive-information">{{ texlive.title }}</h2>
+
+{{ macros.endpointPath(texlive.methods, texlive.path) }}
+
+<p>{{ texlive.summary }}</p>
+
+<p>{{ texlive.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(texlive.samples) }}
+
+<h3>Sample response</h3>
+
+{{ texlive.sampleResponse | highlightCode("json") | safe }}
+
+<h2 id="fonts">{{ fonts.title }}</h2>
+
+{{ macros.endpointPath(fonts.methods, fonts.path) }}
+
+<p>{{ fonts.summary }}</p>
+
+<p>{{ fonts.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(fonts.samples) }}
+
+<h3>Sample response</h3>
+
+{{ fonts.sampleResponse | highlightCode("json") | safe }}
+
+{{ macros.callout("note", "<p>Fonts are the system-installed fonts of the compilation image — they can be
+used with XeLaTeX/LuaLaTeX (<code>fontspec</code>). Missing a font? Open a PR to
+<a href='https://github.com/YtoTech/latex-on-http/blob/master/container/tl-distrib-debian.Dockerfile'>add it to the base image</a>.</p>") }}
+
+<h2 id="packages">{{ packages.title }}</h2>
+
+{{ macros.endpointPath(packages.methods, packages.path) }}
+
+<p>{{ packages.summary }}</p>
+
+<p>{{ packages.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(packages.samples) }}
+
+<h3>Sample response</h3>
+
+{{ packages.sampleResponse | highlightCode("json") | safe }}
+
+<h2 id="package-detail">{{ packageDetail.title }}</h2>
+
+{{ macros.endpointPath(packageDetail.methods, packageDetail.path) }}
+
+<p>{{ packageDetail.summary }}</p>
+
+{% if packageDetail.pathParams %}
+{{ macros.paramTable(packageDetail.pathParams) }}
+{% endif %}
+
+<p>{{ packageDetail.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(packageDetail.samples) }}
+
+<h3>Sample response</h3>
+
+{{ packageDetail.sampleResponse | highlightCode("json") | safe }}
+
+{% if packageDetail.errors %}
+<h3>Errors</h3>
+{{ macros.errorTable(packageDetail.errors) }}
+{% endif %}
+
+{{ macros.callout("tip", "<p>The <code>/packages</code> listing runs <code>tlmgr</code> server-side and can
+take a few seconds; results are stable after instance launch but the endpoint is
+not cached yet — call it sparingly.</p>") }}

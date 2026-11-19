@@ -1,0 +1,19 @@
+{
+  "name": "latex-on-http-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static documentation site for the LaTeX-on-HTTP API.",
+  "type": "module",
+  "scripts": {
+    "build": "eleventy",
+    "dev": "eleventy --serve --quiet",
+    "clean": "rm -rf _build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.8",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.2"
+  }
+}

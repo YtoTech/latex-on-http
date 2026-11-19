@@ -1,0 +1,64 @@
+---
+title: Caches
+layout: base.njk
+active: "/api/caches/"
+---
+
+{% import "macros.njk" as macros with context %}
+
+{% set cachesList = endpoints.endpoints.cachesList %}
+{% set cachesReset = endpoints.endpoints.cachesReset %}
+{% set cachesCheck = endpoints.endpoints.cachesCheck %}
+
+<h1>Caches</h1>
+
+<p class="page-lead">
+  LaTeX-on-HTTP caches fetched resources: when a compilation uses a file that
+  was already fetched before (identified by the SHA-256 hash of its content),
+  the download is skipped. These endpoints let smart clients inspect and query
+  the cache — eg. to avoid re-uploading resources that the server already has.
+</p>
+
+<h2 id="cache-metadata">{{ cachesList.title }}</h2>
+
+{{ macros.endpointPath(cachesList.methods, cachesList.path) }}
+
+<p>{{ cachesList.summary }}</p>
+
+<p>{{ cachesList.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(cachesList.samples) }}
+
+<h2 id="check-cached">{{ cachesCheck.title }}</h2>
+
+{{ macros.endpointPath(cachesCheck.methods, cachesCheck.path) }}
+
+<p>{{ cachesCheck.summary }}</p>
+
+{% if cachesCheck.params %}
+{{ macros.paramTable(cachesCheck.params) }}
+{% endif %}
+
+<p>{{ cachesCheck.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(cachesCheck.samples) }}
+
+{% if cachesCheck.errors %}
+<h3>Errors</h3>
+{{ macros.errorTable(cachesCheck.errors) }}
+{% endif %}
+
+{{ macros.callout("tip", "<p>Resource hashes are <code>sha256:&lt;hexdigest&gt;</code> of the raw file
+content. A typical flow: hash your resources client-side, check which ones are
+already cached, then send a compilation referencing cached resources with the
+<code>cache</code> source field and uploading only the rest.</p>") }}
+
+<h2 id="cache-reset">{{ cachesReset.title }}</h2>
+
+{{ macros.endpointPath(cachesReset.methods, cachesReset.path) }}
+
+<p>{{ cachesReset.summary }}</p>
+
+<p>{{ cachesReset.responseDescription | safe }}</p>
+
+{{ macros.codeTabs(cachesReset.samples) }}

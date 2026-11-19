@@ -1,0 +1,132 @@
+---
+title: Live playground
+layout: base.njk
+active: "/playground/"
+---
+
+<h1>Live playground</h1>
+
+<p class="page-lead">
+  Fire the API endpoints directly from your browser. Requests are sent from
+  your browser to the API base URL below — the playground holds no state
+  server-side.
+</p>
+
+<div class="pg-field" style="margin-bottom: 1rem;">
+  <label class="pg-label" for="pg-base-url">API base URL</label>
+  <input class="pg-input" id="pg-base-url" type="url" spellcheck="false"
+         placeholder="https://latex.ytotech.com">
+</div>
+
+<div class="playground">
+  <section class="pg-panel">
+    <div class="pg-panel-header">
+      <span>Request</span>
+      <span class="pg-hint">Ctrl + Enter to run</span>
+    </div>
+    <div class="pg-panel-body">
+      <div class="pg-field">
+        <label class="pg-label" for="pg-endpoint">Endpoint</label>
+        <select class="pg-select" id="pg-endpoint">
+          <option value="builds-get">POST/GET /builds/sync — querystring</option>
+          <option value="builds-json" selected>POST /builds/sync — JSON</option>
+          <option value="builds-multipart">POST /builds/sync — multipart</option>
+          <option value="simple:texlive">GET /texlive/information</option>
+          <option value="simple:fonts">GET /fonts</option>
+          <option value="simple:packages">GET /packages</option>
+          <option value="simple:package-detail">GET /packages/&lt;name&gt;</option>
+          <option value="simple:caches">GET /caches/resources</option>
+          <option value="simple:caches-check">POST /caches/resources/check_cached</option>
+          <option value="simple:caches-reset">DELETE /caches/resources</option>
+        </select>
+      </div>
+
+      <!-- Compilation specification (builds endpoints). -->
+      <div id="pg-build-fields">
+        <div class="pg-field">
+          <label class="pg-label" for="pg-compiler">Compiler</label>
+          <select class="pg-select" id="pg-compiler">
+            {% for compiler in playground.compilers %}
+            <option value="{{ compiler }}">{{ compiler }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="pg-field">
+          <span class="pg-label">Build options</span>
+          <div class="pg-options">
+            {% for option in playground.options %}
+            <label class="pg-check">
+              <input type="checkbox" data-option-key="{{ option.key }}" data-option-default="{{ option.default | string }}">
+              <span>{{ option.label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pg-field">
+          <label class="pg-label" for="pg-main-document">Main document (LaTeX)</label>
+          <textarea class="pg-textarea" id="pg-main-document" spellcheck="false"></textarea>
+        </div>
+
+        <div class="pg-field">
+          <span class="pg-label">Annex resources</span>
+          <div class="pg-resources" id="pg-resources"></div>
+          <div>
+            <button type="button" class="button button-secondary" id="pg-add-resource">+ Add resource</button>
+            <span class="pg-hint" id="pg-resources-hint"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simple endpoint fields. -->
+      <div id="pg-simple-fields" hidden>
+        <div class="pg-field" id="pg-path-param-field" hidden>
+          <label class="pg-label" for="pg-path-param">Package name</label>
+          <input class="pg-input" id="pg-path-param" spellcheck="false" placeholder="12many">
+        </div>
+        <div class="pg-field" id="pg-body-field" hidden>
+          <label class="pg-label" for="pg-body">Request body (JSON)</label>
+          <textarea class="pg-textarea" id="pg-body" spellcheck="false" style="min-height: 140px;"></textarea>
+        </div>
+      </div>
+
+      <div class="pg-actions">
+        <button type="button" class="button button-primary" id="pg-run">Run request</button>
+        <button type="button" class="button button-secondary" id="pg-copy-curl">Copy as curl</button>
+        <button type="button" class="button button-secondary" id="pg-copy-python">Copy as Python</button>
+        <button type="button" class="button button-secondary" id="pg-copy-javascript">Copy as JS</button>
+      </div>
+      <div class="pg-hint" id="pg-request-hint"></div>
+    </div>
+  </section>
+
+  <section class="pg-panel">
+    <div class="pg-panel-header">
+      <span>Response</span>
+      <div class="code-tabs-bar" id="pg-response-tabs" role="tablist" style="border-bottom: none; padding: 0; background: none;">
+        <button type="button" class="code-tab is-active" role="tab" data-response-tab="pdf">PDF</button>
+        <button type="button" class="code-tab" role="tab" data-response-tab="body">Body</button>
+      </div>
+    </div>
+    <div class="pg-panel-body">
+      <div class="pg-status-line" id="pg-status-line" hidden>
+        <span class="pg-status-badge" id="pg-status-badge"></span>
+        <span id="pg-status-detail"></span>
+      </div>
+      <div class="pg-error-banner" id="pg-network-error" hidden></div>
+
+      <div data-response-panel="pdf">
+        <iframe class="pg-pdf-frame" id="pg-pdf-frame" title="Compiled PDF" hidden></iframe>
+        <div class="pg-response-empty" id="pg-pdf-empty">The compiled PDF will be displayed here.</div>
+      </div>
+
+      <div data-response-panel="body" hidden>
+        <pre class="pg-json-view" id="pg-response-body"></pre>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="application/json" id="pg-config">{{ playground | dump | replace("<", "\\u003c") | safe }}</script>
+<script type="module" src="{{ rootPrefix }}assets/js/playground.js"></script>

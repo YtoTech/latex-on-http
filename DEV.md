@@ -22,6 +22,24 @@ Integration tests using `latex_on_http_api_url` are skipped unless
 `LATEX_ON_HTTP_API_URL` is configured; `make test` (docker compose) sets it.
 See `.cline/skills/testing/SKILL.md` for the full testing guide.
 
+## Documentation site
+
+The documentation site (API reference, guides, live playground) is an
+Eleventy static site in `docs/site/`, built to `docs/_build/` (git-ignored)
+and served by the application from the `/docs/` route. The Docker build runs
+it in a Node stage and copies the output into the final image.
+
+```sh
+make docs-install  # npm ci in docs/site/
+make serve-docs    # dev server with live reload (http://localhost:8081)
+make build-docs    # build to docs/_build/
+```
+
+Endpoint definitions, parameter tables and code samples are declared once in
+`docs/site/_data/endpoints.js` and consumed by both the reference pages and
+the playground; playground behaviour lives in
+`docs/site/_data/playground.js` + `docs/site/assets/js/playground.js`.
+
 ## Compilation job tracking
 
 The application reads PostgreSQL from `DATABASE_URL` (falling back to

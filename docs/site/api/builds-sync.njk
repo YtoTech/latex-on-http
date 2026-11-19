@@ -1,0 +1,142 @@
+---
+title: Compilation — /builds/sync
+layout: base.njk
+active: "/api/builds-sync/"
+---
+
+{% import "macros.njk" as macros with context %}
+
+<h1>Compilation</h1>
+
+{{ macros.endpointPath(endpoints.endpoints.buildsSync.methods, endpoints.endpoints.buildsSync.path) }}
+<p class="page-lead">{{ endpoints.endpoints.buildsSync.summary }}</p>
+
+<p>
+  The request carries a <em>compilation specification</em>: the LaTeX compiler
+  to use, the resources (the LaTeX sources and their dependencies — images,
+  bibliographies, included files…) and build options. Three input modes are
+  supported, all served by the same endpoint:
+</p>
+
+<ul>
+  <li><a href="#get-querystring">GET querystring</a> — small documents, quick one-liners;</li>
+  <li><a href="#post-json">POST JSON</a> — the richest mode, suited to server code;</li>
+  <li><a href="#post-multipart">POST multipart/form-data</a> — upload local or binary files directly.</li>
+</ul>
+
+{{ macros.callout("note", "<p>Only one input mode is supported per request. With the GET mode, resource
+values travel in the URL: prefer the JSON or multipart modes for documents larger
+than a few kilobytes.</p>") }}
+
+<p>
+  On success the response body is the generated PDF (HTTP <code>201</code>).
+  On failure the response is a JSON payload with the error and the compiler
+  logs (<a href="#response">see the response reference</a>).
+</p>
+
+<h2 id="compilers">Available compilers</h2>
+
+<div class="table-wrapper">
+  <table class="param-table">
+    <thead>
+      <tr><th>Compiler</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      {% for compiler in endpoints.compilers %}
+      <tr>
+        <td><code class="param-name">{{ compiler[0] }}</code></td>
+        <td class="param-description">{{ compiler[1] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  The <code>compiler</code> property defaults to <code>pdflatex</code>.
+</p>
+
+<h2 id="get-querystring">GET querystring mode</h2>
+
+<p>{{ endpoints.endpoints.buildsSync.modes[0].description | safe }}</p>
+
+{{ macros.paramTable(endpoints.endpoints.buildsSync.modes[0].params) }}
+
+{{ macros.callout("note", "<p>" + endpoints.endpoints.buildsSync.modes[0].notes | safe + "</p>") }}
+
+{{ macros.codeTabs(endpoints.endpoints.buildsSync.modes[0].samples, "samples-querystring") }}
+
+<h2 id="post-json">POST JSON mode</h2>
+
+<p>{{ endpoints.endpoints.buildsSync.modes[1].description | safe }}</p>
+
+{{ macros.paramTable(endpoints.endpoints.buildsSync.modes[1].params) }}
+
+<h3 id="resources">Resource entries</h3>
+
+<p>
+  The <code>resources</code> list describes the files uploaded and compiled
+  server-side. The file arborescence is reconstructed from the
+  <code>path</code> properties, so relative references
+  (<code>\include{chapters/intro}</code>, <code>\includegraphics{logo.png}</code>…)
+  work as in a local compilation. Each entry takes:
+</p>
+
+{{ macros.paramTable(endpoints.resourceFields) }}
+
+{{ macros.callout("warning", "<p>Each entry must have <strong>exactly one</strong> source field:
+<code>content</code>, <code>file</code>, <code>url</code> or <code>cache</code>
+— else <code>MULTIPLE_RESOURCE_SOURCES</code> is returned. The <code>git</code>
+and <code>tar</code> source fields are accepted by the schema but
+<strong>not yet implemented</strong> server-side.</p>") }}
+
+{{ macros.codeTabs(endpoints.endpoints.buildsSync.modes[1].samples, "samples-json") }}
+
+<h2 id="post-multipart">POST multipart/form-data mode</h2>
+
+<p>{{ endpoints.endpoints.buildsSync.modes[2].description | safe }}</p>
+
+{{ macros.paramTable(endpoints.endpoints.buildsSync.modes[2].params) }}
+
+{{ macros.callout("note", "<p>" + endpoints.endpoints.buildsSync.modes[2].notes | safe + "</p>") }}
+
+{{ macros.codeTabs(endpoints.endpoints.buildsSync.modes[2].samples, "samples-multipart") }}
+
+<h2 id="options">Build options</h2>
+
+<p>
+  The <code>options</code> object tunes the compilation and the response
+  contents. Boolean values may be given as JSON booleans, or as strings
+  (<code>"true"</code>, <code>"1"</code>, <code>"t"</code>) in querystring and
+  multipart modes.
+</p>
+
+{{ macros.paramTable(endpoints.buildOptions) }}
+
+<h2 id="response">Response</h2>
+
+<h3 id="success-response">On success</h3>
+
+<p>{{ endpoints.endpoints.buildsSync.response.success | safe }}</p>
+
+{{ macros.callout("tip", "<p>By default the PDF is served <code>inline</code>: browsers and HTTP
+clients that respect <code>Content-Disposition</code> display it instead of
+saving it. Force a download by reading the body into a file, or by adding a
+<code>download</code> attribute to a link in a web page
+(<a href='" + ("/guides/browser/" | url) + "'>see the browser guide</a>).</p>") }}
+
+<h3 id="error-response">On failure</h3>
+
+<p>{{ endpoints.endpoints.buildsSync.response.failure | safe }}</p>
+
+<p>
+  Example error payload (with <code>options.response.log_files_on_failure</code>
+  enabled, the default):
+</p>
+
+{% set errorPayloadSample = "{\n    \"error\": \"COMPILATION_ERROR\",\n    \"duration\": 0.68,\n    \"logs\": \"This is pdfTeX, Version ...\\n! LaTeX Error: File `graphix.sty' not found.\\n...\",\n    \"log_files\": {\n        \"__main_document__.log\": \"... full LaTeX log ...\"\n    }\n}" %}
+{{ errorPayloadSample | highlightCode("json") | safe }}
+
+<h3 id="errors">Error codes</h3>
+
+{{ macros.errorTable(endpoints.errors) }}

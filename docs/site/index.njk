@@ -1,0 +1,141 @@
+---
+title: Overview
+layout: base.njk
+active: "/"
+---
+
+{% import "macros.njk" as macros with context %}
+
+<section class="hero">
+  <h1>Compile LaTeX through an HTTP API</h1>
+  <p class="page-lead">
+    LaTeX-on-HTTP takes your LaTeX sources — inline content, files or remote
+    URLs — and returns the compiled PDF. No local TeX installation required:
+    call it from server code, CI pipelines or the browser.
+  </p>
+  <div class="hero-actions">
+    <a class="button button-primary" href="{{ rootPrefix }}playground/index.html">Try the live playground →</a>
+    <a class="button button-secondary" href="{{ rootPrefix }}api/builds-sync/index.html">API reference</a>
+  </div>
+</section>
+
+<h2 id="quickstart">Quickstart</h2>
+
+<p>
+  The quickest way to compile is the synchronous builds endpoint. Pass your
+  document in a <code>content</code> parameter — the response body is the PDF:
+</p>
+
+{{ macros.codeTabs(endpoints.quickstart, "quickstart-samples") }}
+
+<p>
+  Open <a href="{{ rootPrefix }}playground/index.html">the playground</a> to try every
+  endpoint from your browser, with no setup at all.
+</p>
+
+<h2 id="usage-patterns">Where to call it from</h2>
+
+<div class="cards-grid">
+  <a class="card" href="{{ rootPrefix }}guides/server/index.html">
+    <div class="card-title">Server code</div>
+    <div class="card-description">
+      Generate invoices, reports or user documents on demand, from Python,
+      Node.js or any language that speaks HTTP.
+    </div>
+  </a>
+  <a class="card" href="{{ rootPrefix }}guides/ci/index.html">
+    <div class="card-title">CI pipelines</div>
+    <div class="card-description">
+      Build PDFs in GitLab CI or GitHub Actions pipelines, and upload them as
+      artifacts — without maintaining a TeXLive runner image.
+    </div>
+  </a>
+  <a class="card" href="{{ rootPrefix }}guides/browser/index.html">
+    <div class="card-title">Browser (JSON)</div>
+    <div class="card-description">
+      Call the JSON API with <code>fetch</code> and display the returned PDF
+      directly in the page.
+    </div>
+  </a>
+  <a class="card" href="{{ rootPrefix }}guides/browser-multipart/index.html">
+    <div class="card-title">Browser (multipart)</div>
+    <div class="card-description">
+      Upload local files with <code>FormData</code> and the multipart API —
+      the natural way to send user-selected files for compilation.
+    </div>
+  </a>
+</div>
+
+<h2 id="api-summary">API summary</h2>
+
+<div class="table-wrapper">
+  <table class="param-table">
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Methods</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/builds-sync/index.html"><code>/builds/sync</code></a></td>
+        <td>
+          <span class="http-method http-method-get">GET</span>
+          <span class="http-method http-method-post">POST</span>
+        </td>
+        <td class="param-description">Compile a LaTeX document (querystring, JSON or multipart input) and get back the PDF.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/environment/index.html"><code>/texlive/information</code></a></td>
+        <td><span class="http-method http-method-get">GET</span></td>
+        <td class="param-description">TeXLive installation information (version, modules, tlmgr revision).</td>
+      </tr>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/environment/index.html#fonts"><code>/fonts</code></a></td>
+        <td><span class="http-method http-method-get">GET</span></td>
+        <td class="param-description">List fonts usable in compilations.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/environment/index.html#packages"><code>/packages</code>, <code>/packages/&lt;name&gt;</code></a></td>
+        <td><span class="http-method http-method-get">GET</span></td>
+        <td class="param-description">List installed LaTeX packages, or get one package's details.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/caches/index.html"><code>/caches/resources</code></a></td>
+        <td>
+          <span class="http-method http-method-get">GET</span>
+          <span class="http-method http-method-delete">DELETE</span>
+        </td>
+        <td class="param-description">Inspect or reset the resources cache.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ rootPrefix }}api/caches/index.html#check-cached"><code>/caches/resources/check_cached</code></a></td>
+        <td><span class="http-method http-method-post">POST</span></td>
+        <td class="param-description">Check whether resources (by content hash) are already cached server-side.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{{ macros.callout("note", "<p><strong>Experimental API.</strong> The API is still likely to evolve — see the
+<a href='https://github.com/YtoTech/latex-on-http/blob/master/CHANGELOG.md'>changelog</a> for changes.</p>") }}
+
+<h2 id="running-your-own">Running your own instance</h2>
+
+<p>
+  The service is available as an open beta on
+  <a href="https://latex.ytotech.com">latex.ytotech.com</a>. You can also run
+  it yourself with Docker:
+</p>
+
+{{ macros.codeTabs([{ "label": "bash", "language": "bash", "code": "git clone https://github.com/YtoTech/latex-on-http.git\ncd latex-on-http\ndocker compose up\n# The service is available on http://localhost:8088" }]) }}
+
+<p>
+  Prebuilt Docker images are also published:
+  <a href="https://hub.docker.com/r/yoant/latexonhttp-python">yoant/latexonhttp-python</a>
+  (Python + TeXLive) and
+  <a href="https://hub.docker.com/r/yoant/docker-texlive">yoant/docker-texlive</a>
+  (the base TeXLive distribution). See the
+  <a href="https://github.com/YtoTech/latex-on-http#docker">README</a> for details.
+</p>

@@ -29,6 +29,14 @@ jobs:
           make install
       - name: Lint
         run: uv run black --check .
+      - name: Set up Node for the documentation build
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: docs/site/package-lock.json
+      - name: Build the documentation site
+        run: make build-docs
       - name: Build unit-test environment
         run: make test-env
       - name: Run unit tests

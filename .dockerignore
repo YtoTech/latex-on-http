@@ -1,3 +1,6 @@
 data/
 .venv/
+.venv-cline/
 __pycache__
+docs/_build/
+docs/site/node_modules/

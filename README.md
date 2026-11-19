@@ -8,7 +8,12 @@ See [TUG2020 introduction](https://www.youtube.com/watch?v=tGD4upJIUgc) to LaTeX
 
 Available on https://latex.ytotech.com as an open beta.
 
-Try the interactive demo: https://latex-http-demo.ytotech.com
+# Documentation
+
+A new documentation is available at https://latex.ytotech.com/docs.
+It includes the API reference, usage guides (server code, CI, browsers) and a live playground.
+
+The interactive demo with more sample templates is available at https://latex-http-demo.ytotech.com
 
 # Getting started
 
@@ -316,7 +321,7 @@ You can use the default [`docker-compose.yml`](https://github.com/YtoTech/latex-
 docker-compose up
 ```
 
-The service will be available on http://localhost:2345.
+The service will be available on http://localhost:8088.
 
 # Starred Use cases
 

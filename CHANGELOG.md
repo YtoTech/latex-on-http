@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-11-19-3
+
+* Distribute a documentation site from the service: API reference (endpoints, parameters, code samples for curl/Python/JavaScript/HTTPie), usage guides for server code, CI pipelines and browser integrations (JSON and multipart), and a live in-browser playground to try the endpoints. Built with Node/Eleventy at Docker image build and served from the `/docs/` route; the API index response now points `documentation` to it.
+
 ## 2026-11-19-2
 
 * Fix pLaTeX/upLaTeX PDF generation by switching from `dvips` + Ghostscript to `dvipdfmx`. Ghostscript 10's default `SAFER` policy rejected writing the output PDF in the sandbox, causing Japanese documents to fail with `COMPILATION_ERROR`.
