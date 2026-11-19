@@ -130,6 +130,9 @@ test-docker-compose-start:
 test-docker-compose-stop:
 	$(DOCKER_COMPOSE_TEST) stop
 
+test-docker-compose-logs:
+	$(DOCKER_COMPOSE_TEST) logs --no-color --tail=500 latex
+
 test-docker-compose-rm:
 	$(DOCKER_COMPOSE_TEST) rm
 

@@ -66,7 +66,7 @@ def test_querystring_hello_japanese(latex_on_http_api_url):
         latex_on_http_api_url + "/builds/sync",
         params={"content": COMPIL_UPLATEX_JAPANESE, "compiler": "uplatex"},
     )
-    assert r.status_code == 201
+    assert r.status_code == 201, r.text
 
 
 # Add resources

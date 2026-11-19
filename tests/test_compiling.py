@@ -155,7 +155,7 @@ def test_uplatex_compiler_japanese(latex_on_http_api_url):
     # import pprint
 
     # pprint.pprint(r.json())
-    assert r.status_code == 201
+    assert r.status_code == 201, r.text
     # snapshot_pdf(r.content, SAMPLE_HELLO_JAPANESE)
 
 

@@ -66,3 +66,6 @@ jobs:
           cache-to: type=gha,mode=max,ref=latexonhttp-cache
       - name: Run integration tests
         run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml:docker-compose.ci-images.yml test-docker-compose
+      - name: Show application logs on failure
+        if: failure()
+        run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml:docker-compose.ci-images.yml test-docker-compose-logs
