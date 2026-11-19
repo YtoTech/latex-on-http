@@ -55,6 +55,20 @@ Clients that keep firing while over quota are kicked more severely. Every denial
 
 A client hammering at 429s therefore escalates automatically: throttled → 1-hour ban → 24-hour ban. While a ban is active every attempt re-arms it, so the ban only starts counting down once the client stops.
 
+## Logging
+
+Every quota event leaves a log line on the `latexonhttp.quota` logger, routed to the console by the application logging setup (visibility gated by `LOGGING_LEVEL`, `DEBUG` by default):
+
+| Event | Level | Message |
+|---|---|---|
+| Window exceeded (HTTP 429) | INFO | `Quota denial for {ip}; {period} window exceeded ({count}/{limit})` |
+| Request received while banned | INFO | `Quota denial (ban) for {ip}; level {level}, retry after {n} s` |
+| Ban armed or escalated | WARNING | `Quota ban ({level}) applied to {ip} for {n} seconds` |
+| Ban re-armed by a hammering client | INFO | `Quota ban ({level}) re-armed for {ip} ({n} seconds)` |
+| Store unreachable | ERROR | `Quota store unreachable; failing {mode}` — with traceback, also reported to Sentry |
+
+Only the rare state changes (a ban starting or escalating) log at `WARNING`; per-request denials and re-arms stay at `INFO` so an abusive client cannot flood the loud levels on purpose.
+
 ## HTTP contract
 
 Quota denials return HTTP 429 before any payload parsing:
@@ -126,7 +140,7 @@ ORDER BY received_at DESC LIMIT 50;
 
 ## Testing
 
-* `make test-unit` runs the quota unit tier (`tests/test_quota.py`) against an in-memory fake store: window counting and calendar alignment, breach ordering, escalation ladder (ban arming, re-arming and upgrade), fail-open behavior, client IP extraction and allowlist. No Valkey, Docker or LaTeX needed.
+* `make test-unit` runs the quota unit tier (`tests/test_quota.py`) against an in-memory fake store: window counting and calendar alignment, breach ordering, escalation ladder (ban arming, re-arming and upgrade), enforcement log lines, fail-open behavior, client IP extraction and allowlist. No Valkey, Docker or LaTeX needed.
 * `make test-quota` runs the integration tier through a dedicated Compose override (`docker-compose.quota-test.yml`) that adds the Valkey service and low limits, and exercises 429 responses, rate-limit headers and ban escalation over HTTP with spoofed `X-Forwarded-For` values.
 
 ## Known limits and future work

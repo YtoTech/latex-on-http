@@ -248,9 +248,13 @@
         (when (>= bans QUOTA-BAN-COUNT-FOR-LONG)
             (setv level "long")))
     (client.set (ban-key client-ip) level :ex (ban-duration level))
-    ((if rearm logger.debug logger.warning)
-        "Quota ban (%s) applied to %s for %s seconds"
-        level client-ip (ban-duration level))
+    (if rearm
+        (logger.info
+            "Quota ban (%s) re-armed for %s (%s seconds)"
+            level client-ip (ban-duration level))
+        (logger.warning
+            "Quota ban (%s) applied to %s for %s seconds"
+            level client-ip (ban-duration level)))
     level)
 
 ; --------------------------------------------

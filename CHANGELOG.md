@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+* Log every quota enforcement event for operators: rate-limit denials and ban re-arms at `INFO` (re-arms were `DEBUG`-only and now have a dedicated `re-armed` message), new and escalated bans at `WARNING`; the log lines are pinned by unit tests and their levels documented in the rate-limiting guide.
+
 ## 2026-11-19-4
 
 * Add fair-use quota and rate limiting on `/builds/sync`: per-client-IP counters in a Valkey store across second/minute/hour/day/week windows, `429 QUOTA_EXCEEDED` responses with `Retry-After` and `X-RateLimit-*` headers and a link to the instance-served rate-limiting documentation, and automatic escalation to 1-hour/24-hour bans for clients that keep firing while over quota. The quota is active only when `VALKEY_HOST` is configured, and fails open when the store is unreachable; documented in `docs/rate-limiting-and-quotas.md`.

@@ -11,6 +11,7 @@ target app runs no active quota, so the full suite also stays green on the
 standard test stack (where the quota is disabled).
 """
 
+import logging
 import time
 import uuid
 from datetime import UTC, datetime
@@ -322,6 +323,65 @@ def test_three_bans_within_a_day_escalate_to_long(store, limits):
                 quota.QUOTA_BAN_SHORT_DURATION + quota.QUOTA_VIOLATION_SHORT_WINDOW
             )
     assert store.get("quota:ban:1.1.1.1") == "long"
+
+
+# -------------
+# Enforcement logging.
+# -------------
+
+
+def test_denial_is_logged(store, limits, caplog):
+    limits.update({"second": 1, "minute": 10, "hour": 10, "day": 10, "week": 10})
+    epoch = 1763559600
+    store.clock = epoch
+    quota.check_quota("1.1.1.1", now=epoch)
+    with caplog.at_level(logging.INFO, logger="latexonhttp.quota"):
+        quota.check_quota("1.1.1.1", now=epoch)
+    assert "Quota denial for 1.1.1.1; second window exceeded (2/1)" in caplog.text
+
+
+def test_ban_is_logged(store, limits, caplog):
+    limits.update({"second": 1, "minute": 1, "hour": 10, "day": 10, "week": 10})
+    epoch = 1763559600
+    store.clock = epoch
+    with caplog.at_level(logging.INFO, logger="latexonhttp.quota"):
+        quota.check_quota("1.1.1.1", now=epoch)
+        for _ in range(3):
+            quota.check_quota("1.1.1.1", now=epoch)
+    # The ban arming is the single loud event of the episode.
+    assert [
+        record.getMessage()
+        for record in caplog.records
+        if record.levelno == logging.WARNING
+    ] == [
+        "Quota ban (short) applied to 1.1.1.1"
+        f" for {quota.QUOTA_BAN_SHORT_DURATION} seconds"
+    ]
+
+
+def test_ban_rearm_is_logged(store, limits, caplog):
+    limits.update({"second": 1, "minute": 1, "hour": 10, "day": 10, "week": 10})
+    epoch = 1763559600
+    store.clock = epoch
+    quota.check_quota("1.1.1.1", now=epoch)
+    for _ in range(3):
+        quota.check_quota("1.1.1.1", now=epoch)  # Arms the short ban.
+    store.advance(1800)  # Halfway into the 1h ban.
+    caplog.clear()  # Discard the setup-phase ban-arming WARNING.
+    with caplog.at_level(logging.INFO, logger="latexonhttp.quota"):
+        decision = quota.check_quota("1.1.1.1", now=int(store.clock))
+    assert decision["banned"] is True
+    # The re-arm and the denial are both visible at INFO...
+    assert (
+        f"Quota ban (short) re-armed for 1.1.1.1"
+        f" ({quota.QUOTA_BAN_SHORT_DURATION} seconds)" in caplog.text
+    )
+    assert "Quota denial (ban) for 1.1.1.1; level short" in caplog.text
+    # ...but neither escalates to WARNING: a hammering client must not be
+    # able to flood the loud levels on purpose.
+    assert not [
+        record for record in caplog.records if record.levelno >= logging.WARNING
+    ]
 
 
 # -------------
