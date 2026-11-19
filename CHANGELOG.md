@@ -1,8 +1,14 @@
 # CHANGELOG
 
+## 2026-11-19-4
+
+* Add fair-use quota and rate limiting on `/builds/sync`: per-client-IP counters in a Valkey store across second/minute/hour/day/week windows, `429 QUOTA_EXCEEDED` responses with `Retry-After` and `X-RateLimit-*` headers and a link to the instance-served rate-limiting documentation, and automatic escalation to 1-hour/24-hour bans for clients that keep firing while over quota. The quota is active only when `VALKEY_HOST` is configured, and fails open when the store is unreachable; documented in `docs/rate-limiting-and-quotas.md`.
+* Add the `valkey` Docker Compose service (ephemeral, memory-bounded) and the `VALKEY_*`/`QUOTA_*` configuration.
+* Add PostgreSQL indexes on `(remote_ip, received_at)`, `(forwarded_remote_ip, received_at)` and `received_at` for performant IP/period lookups on the durable jobs record.
+
 ## 2026-11-19-3
 
-* Distribute a documentation site from the service: API reference (endpoints, parameters, code samples for curl/Python/JavaScript/HTTPie), usage guides for server code, CI pipelines and browser integrations (JSON and multipart), and a live in-browser playground to try the endpoints. Built with Node/Eleventy at Docker image build and served from the `/docs/` route; the API index response now points `documentation` to it.
+* Distribute a documentation site from the service: API reference (endpoints, parameters, code samples for curl, HTTPie, Python, PHP, Go, Elixir, JavaScript and ClojureScript), usage guides for server code, CI pipelines and browser integrations (JSON and multipart), and a live in-browser playground to try the endpoints. Built with Node/Eleventy at Docker image build and served from the `/docs/` route; the API index response now points `documentation` to it.
 
 ## 2026-11-19-2
 

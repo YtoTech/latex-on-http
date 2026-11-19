@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 import cerberus
 import envparse
 import glom
-from flask import Blueprint, g, request
+from flask import Blueprint, g, request, url_for
 
 from latexonhttp.caching.resources import (
     forward_resource_to_cache,
@@ -26,6 +26,12 @@ from latexonhttp.compiler import (
     latexToPdf,
 )
 from latexonhttp.db.jobs import create_job, update_job
+from latexonhttp.quota import (
+    check_quota,
+    get_client_ip,
+    quota_rejection,
+    rate_limit_headers,
+)
 from latexonhttp.resources.fetching import fetch_resources
 from latexonhttp.resources.json_api import parse_json_resources_spec
 from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
@@ -44,6 +50,7 @@ from latexonhttp.sandbox_diagnostics import (
     report_sandbox_diagnostic,
     sandbox_unavailable_issue,
 )
+from latexonhttp.usage import new_usage, usage_scores
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
     persist_resource_to_workspace,
@@ -207,6 +214,42 @@ def _fetched_resources_metadata(resources):
     }
 
 
+def get_rate_limit_documentation_url():
+    """Absolute URL of the rate-limiting documentation served from /docs/."""
+    forwarded_scheme = (
+        (request.headers.get("X-Forwarded-Proto") or "").split(",")[0].strip()
+    )
+    return (
+        url_for("docs.documentation", _external=True, _scheme=forwarded_scheme or None)
+        + "api/rate-limiting/"
+    )
+
+
+@builds_app.before_request
+def enforce_build_quota():
+    """Reject requests beyond the fair-use quota before parsing the payload.
+
+    The decision is also stored on `g` so passing responses expose the
+    rate-limit headers of their binding window.
+    """
+    decision = check_quota(get_client_ip(request))
+    if decision is None:
+        # Quota disabled, allowlisted client, or fail-open store failure.
+        return
+    g.quota_decision = decision
+    if not decision["allowed"]:
+        return quota_rejection(decision, get_rate_limit_documentation_url())
+
+
+@builds_app.after_request
+def expose_rate_limit_headers(response):
+    decision = g.get("quota_decision")
+    if decision:
+        for name, value in rate_limit_headers(decision).items():
+            response.headers[name] = value
+    return response
+
+
 @builds_app.after_request
 def track_job_response(response):
     job_id = g.get("compilation_job_id")
@@ -224,13 +267,26 @@ def track_job_response(response):
         "replied_at": now,
     }
     # Also close a phase interrupted by an exception rather than a normal return.
+    fetched_metadata = _fetched_resources_metadata(g.compilation_job_resources)
     if g.get("compilation_job_stage") == "fetching":
-        metadata.update(
-            ended_fetch_at=now,
-            **_fetched_resources_metadata(g.compilation_job_resources),
-        )
+        metadata.update(ended_fetch_at=now, **fetched_metadata)
     elif g.get("compilation_job_stage") == "compiling":
         metadata["ended_compiling_at"] = now
+    # Usage scoring: measure the reply and close the record opened at
+    # admission; a scoring failure must not take the job update down.
+    try:
+        outgoing_size = len(response.get_data())
+        scores = usage_scores(g.compilation_usage, fetched_metadata, now, outgoing_size)
+        metadata.update(
+            response_size=outgoing_size,
+            usage_score_incoming=scores["incoming"],
+            usage_score_fetch=scores["fetch"],
+            usage_score_processing=scores["processing"],
+            usage_score_outgoing=scores["outgoing"],
+            usage_score_total=scores["total"],
+        )
+    except Exception:
+        logger.exception("Could not score usage of compilation job %s", job_id)
     _update_job_safely(job_id, **metadata)
     response.headers["X-Job-ID"] = job_id
     return response
@@ -242,6 +298,9 @@ def compiler_latex():
     # Buffer before any parser consumes the body so every request has an exact
     # byte count, including multipart framing, and later parsers see the same data.
     http_payload_size = len(request.get_data(cache=True))
+    # Usage scoring: open the record at admission; it is closed and persisted
+    # with the job metadata at reply time (see track_job_response).
+    g.compilation_usage = new_usage(received_at, http_payload_size)
     input_spec = None
 
     # TODO Allows mixed APIs?

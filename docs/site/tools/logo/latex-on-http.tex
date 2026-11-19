@@ -1,0 +1,40 @@
+% LaTeX-on-HTTP wordmark, drawn with TikZ.
+%
+% The colours are borrowed from the YtoTech logo:
+%   red  #b14040  — "LaTeX"
+%   blue #383866  — "on HTTP"
+%
+% The stacked lockup is built inside a single TikZ node so it renders the
+% same way across TeX/TikZ versions: no relative node positioning is used.
+%
+% Build the light and dark variants with ./build.sh (see README.md).
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{calc}
+
+\ifdefined\DarkLogo
+  % Lighter tints, for the dark documentation theme.
+  \definecolor{logored}{HTML}{E39A96}
+  \definecolor{logoblue}{HTML}{B7B9E2}
+\else
+  \definecolor{logored}{HTML}{B14040}
+  \definecolor{logoblue}{HTML}{383866}
+\fi
+
+% Compact lockup: Latin Modern Roman for the name, Latin Modern Sans for
+% the smaller tagline, right-aligned with the name.
+\newcommand{\logotitle}{{\fontsize{40}{40}\selectfont\LaTeX}}
+\newcommand{\logotagline}{{\sffamily\fontsize{17}{19}\selectfont on HTTP}}
+
+\begin{document}
+\begin{tikzpicture}
+  \node[inner sep=0pt, outer sep=0pt, anchor=base west] (logo) at (0,0) {%
+    \begin{tabular}{@{}l@{}}
+      {\color{logored}\logotitle}\\[2pt]
+      {\color{logored}\rule{\widthof{\logotitle}}{1pt}}\\[2pt]
+      \hfill{\color{logoblue}\logotagline}
+    \end{tabular}%
+  };
+\end{tikzpicture}
+\end{document}

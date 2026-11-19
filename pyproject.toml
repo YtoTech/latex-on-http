@@ -31,6 +31,7 @@ dependencies = [
     "psutil (>=7.1.0)",
     "psycopg[binary,pool]>=3.2.9",
     "toolz>=1.2.0",
+    "valkey (>=6.2.0)",
 ]
 
 [dependency-groups]

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/site/assets/img/latex-on-http-logo.svg" alt="LaTeX-on-HTTP" width="180">
+</p>
+
 # LaTeX-On-HTTP
 
 > Compiles LaTeX documents through an HTTP API.

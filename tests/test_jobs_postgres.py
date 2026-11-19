@@ -1,6 +1,7 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
+from decimal import Decimal
 from uuid import uuid4
 
 import psycopg
@@ -59,6 +60,38 @@ def test_postgres_accepts_null_user_agent_and_large_sizes(postgres_database):
             (job["id"],),
         ).fetchone()
     assert row == (None, 2**40, 2**40, 100_000_000, "a" * 64)
+
+
+def test_postgres_persists_usage_scores(postgres_database):
+    job = metadata()
+    jobs.create_job(job)
+    jobs.update_job(
+        job["id"],
+        job_status="completed",
+        response_size=123_456,
+        usage_score_incoming=2.0,
+        usage_score_fetch=1.5,
+        usage_score_processing=3.25,
+        usage_score_outgoing=120.5625,
+        usage_score_total=127.3125,
+    )
+
+    with psycopg.connect(postgres_database) as connection:
+        row = connection.execute(
+            "SELECT response_size, usage_score_incoming, usage_score_fetch, "
+            "usage_score_processing, usage_score_outgoing, usage_score_total "
+            "FROM jobs WHERE id = %s",
+            (job["id"],),
+        ).fetchone()
+    # NUMERIC(20,6) reads back as Decimal; exact fractions survive the round trip.
+    assert row == (
+        123_456,
+        Decimal(2),
+        Decimal(1.5),
+        Decimal(3.25),
+        Decimal(120.5625),
+        Decimal(127.3125),
+    )
 
 
 def test_postgres_concurrent_jobs_share_one_user_agent(postgres_database):

@@ -310,3 +310,94 @@ def test_compilation_hash_is_equal_across_json_and_multipart(recorder):
     assert multipart_hash == json_hash
     assert len(json_hash) == 64
     assert [job["compilation_hash"] for job in recorder.created] == [None, None]
+
+
+# -------------
+# Usage scoring.
+# -------------
+
+
+def test_success_records_usage_scores(recorder):
+    response = post_json(build_client())
+
+    assert response.status_code == 201
+    final = recorder.final
+    # Outgoing data: the response body is the PDF.
+    assert (
+        final["response_size"] == len(response.get_data()) == len(SUCCESS_OUTPUT["pdf"])
+    )
+    # Incoming data: the whole request payload, in tokens.
+    assert final["usage_score_incoming"] == round(len(json_body()) / 1024, 6)
+    # Fetch: inline content is fetched, in tokens.
+    assert final["usage_score_fetch"] == round(len(b"private TeX") / 1024, 6)
+    # Processing: received-to-replied wall time.
+    assert final["usage_score_processing"] > 0
+    assert final["usage_score_outgoing"] == round(len(SUCCESS_OUTPUT["pdf"]) / 1024, 6)
+    assert final["usage_score_total"] == pytest.approx(
+        final["usage_score_incoming"]
+        + final["usage_score_fetch"]
+        + final["usage_score_processing"]
+        + final["usage_score_outgoing"]
+    )
+
+
+def test_cache_hits_are_free_in_the_usage_score(recorder, monkeypatch):
+    monkeypatch.setattr(
+        builds, "get_resource_from_cache", lambda _resource: (True, b"cached data")
+    )
+    response = build_client().post(
+        "/builds/sync", json={"resources": [{"cache": "sha256:test"}]}
+    )
+
+    assert response.status_code == 201
+    assert recorder.final["usage_score_fetch"] == 0.0
+
+
+def test_compilation_error_counts_the_error_body_as_outgoing(recorder, monkeypatch):
+    output = {
+        **SUCCESS_OUTPUT,
+        "status": "ko",
+        "pdf": None,
+        "logs": "LaTeX error\n" * 100,
+        "is_timeout": False,
+    }
+    monkeypatch.setattr(builds, "latexToPdf", lambda *_args: output)
+
+    response = post_json(build_client())
+
+    assert response.status_code == 400
+    final = recorder.final
+    assert final["response_size"] == len(response.get_data())
+    assert final["usage_score_outgoing"] == round(len(response.get_data()) / 1024, 6)
+    assert final["usage_score_incoming"] > 0
+    assert final["usage_score_processing"] > 0
+    assert final["usage_score_total"] > 0
+
+
+def test_fetch_failure_still_scores_the_request(recorder):
+    response = build_client().post(
+        "/builds/sync", json={"resources": [{"main": True, "file": "not-base64"}]}
+    )
+
+    assert response.status_code == 400
+    final = recorder.final
+    # Nothing was fetched...
+    assert final["usage_score_fetch"] == 0.0
+    # ...but the payload was still received and occupied the server.
+    assert final["usage_score_incoming"] > 0
+    assert final["usage_score_processing"] > 0
+
+
+def test_scoring_failure_does_not_take_the_job_update_down(recorder, monkeypatch):
+    def fail_scoring(*_args):
+        raise RuntimeError("scoring unavailable")
+
+    monkeypatch.setattr(builds, "usage_scores", fail_scoring)
+
+    response = post_json(build_client())
+
+    assert response.status_code == 201
+    final = recorder.final
+    assert final["job_status"] == "completed"
+    assert "usage_score_total" not in final
+    assert response.headers["X-Job-ID"] == recorder.created[0]["id"]
