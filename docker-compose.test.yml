@@ -18,9 +18,9 @@ services:
       KEEP_WORKSPACE_DIR_ON_ERROR: 1
       GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
       TEST_DATABASE_URL: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
-      # Reduce HTTP fetch timeouts so that resource fetch timeouts can be
+      # Reduce HTTP fetch read timeout so that resource fetch timeouts can be
       # tested quickly (see tests/test_fetchers.py).
-      HTTP_REQUEST_READ_TIMEOUT: 3
+      FETCHER_HTTP_REQ_READ_TIMEOUT: 3
   cache:
     build:
       context: .

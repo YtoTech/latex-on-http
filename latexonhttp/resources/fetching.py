@@ -68,10 +68,12 @@ def fetcher_base64_file(resource, _get_from_cache):
 # In seconds.
 # Configurable by environment, so we can - among other things - reduce the
 # delay in test configuration (see docker-compose.test.yml).
-HTTP_REQUEST_CONNECT_TIMEOUT = float(os.getenv("HTTP_REQUEST_CONNECT_TIMEOUT", 15))
-HTTP_REQUEST_READ_TIMEOUT = float(os.getenv("HTTP_REQUEST_READ_TIMEOUT", 60))
+FETCHER_HTTP_REQ_CONNECT_TIMEOUT = float(
+    os.getenv("FETCHER_HTTP_REQ_CONNECT_TIMEOUT", 15)
+)
+FETCHER_HTTP_REQ_READ_TIMEOUT = float(os.getenv("FETCHER_HTTP_REQ_READ_TIMEOUT", 60))
 # (Connect, read) timeouts.
-HTTP_REQUEST_TIMEOUT = (HTTP_REQUEST_CONNECT_TIMEOUT, HTTP_REQUEST_READ_TIMEOUT)
+HTTP_REQUEST_TIMEOUT = (FETCHER_HTTP_REQ_CONNECT_TIMEOUT, FETCHER_HTTP_REQ_READ_TIMEOUT)
 
 
 def fetcher_url_file(resource, _get_from_cache):

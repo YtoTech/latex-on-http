@@ -9,7 +9,7 @@
 * Kill the complete process group on timeout and reject unsafe generated PDF/log symlinks.
 * Harden workspace path containment against prefix traversal and symlinked directories.
 * Fix ConTeXt compilation under sandboxing by binding the luametatex launcher stubs (`context.lua`, `mtxrun.lua`) and invoking launchers through their real TeX Live bin-directory aliases so the TeX tree configuration is preserved.
-* Make resource fetch HTTP timeouts (connect/read) configurable through the `HTTP_REQUEST_CONNECT_TIMEOUT` and `HTTP_REQUEST_READ_TIMEOUT` environment variables, and enable the resource fetch timeout test in the test configuration.
+* Make resource fetch HTTP timeouts (connect/read) configurable through the `FETCHER_HTTP_REQ_CONNECT_TIMEOUT` and `FETCHER_HTTP_REQ_READ_TIMEOUT` environment variables, and enable the resource fetch timeout test in the test configuration.
 * Add an LLM/agent-friendly test setup: `make test-env` / `make test-unit` unit tier in a dedicated `.venv-cline` virtualenv, automatic skip of integration tests when `LATEX_ON_HTTP_API_URL` is unset, and a graceful skip of the real-sandbox test when user namespaces are unavailable (documented in `.cline/skills/testing/SKILL.md` and `DEV.md`).
 
 ## 2026-11-18-2

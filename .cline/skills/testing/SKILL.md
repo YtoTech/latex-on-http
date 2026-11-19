@@ -69,8 +69,8 @@ make test-unit
   tests pass here.
 - No TeX Live, no `latexmk`, no fonts, no PostgreSQL inside the container.
 - Test-only configuration knobs (see `docker-compose.test.yml`):
-  `HTTP_REQUEST_CONNECT_TIMEOUT` / `HTTP_REQUEST_READ_TIMEOUT` reduce the
-  resource-fetch timeouts so timeout tests run quickly.
+  `FETCHER_HTTP_REQ_CONNECT_TIMEOUT` / `FETCHER_HTTP_REQ_READ_TIMEOUT` reduce
+  the resource-fetch timeouts so timeout tests run quickly.
 
 ## Useful background
 

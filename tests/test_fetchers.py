@@ -78,9 +78,9 @@ def test_resource_fetch_file_timeout(latex_on_http_api_url):
     # ; test configuration (docker-compose.test.yml) so that this test runs
     # ; quickly. With the default timeout (60s) the delayed response would
     # ; arrive in time and the test could not exercise the timeout case.
-    if float(os.getenv("HTTP_REQUEST_READ_TIMEOUT", 60)) >= 10:
+    if float(os.getenv("FETCHER_HTTP_REQ_READ_TIMEOUT", 60)) >= 10:
         pytest.skip(
-            "HTTP_REQUEST_READ_TIMEOUT must be set below 10 seconds"
+            "FETCHER_HTTP_REQ_READ_TIMEOUT must be set below 10 seconds"
             " (in the app container) to test the timeout fetcher"
         )
     r = requests.post(
