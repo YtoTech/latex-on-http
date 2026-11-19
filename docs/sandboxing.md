@@ -31,6 +31,8 @@ The sandbox deliberately does **not** mount procfs. Container runtimes mask part
 
 Latexmk requires `env`, Perl, and `/bin/sh` for its own process launching, including with TeX's `-no-shell-escape`. Those fixed launchers are always mounted, with the `/bin` to `usr/bin` symlink retained. Python, Pygments, and any extra configured helpers remain restricted to shell-escape jobs.
 
+The Ghostscript conversion wrappers are shell scripts, so the curated tools include `ps2pdf → ps2pdf14 → ps2pdfwr → gs`, plus `dirname` for locating the next wrapper and `basename` for deriving default output filenames. This does not mount general coreutils, Curl, or `/usr/bin` wholesale.
+
 Recreate the service after changing security or namespace configuration—rebuilding its image or running `docker compose restart` alone does not update an existing container's runtime settings:
 
 ```sh

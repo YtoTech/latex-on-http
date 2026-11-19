@@ -111,6 +111,18 @@ def test_latexmk_launcher_helpers_are_bound(tmp_path, monkeypatch):
     assert ["--symlink", "usr/bin", "/bin"] in mounts
 
 
+def test_ghostscript_wrapper_dependencies_are_bound(tmp_path, monkeypatch):
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(sandbox, "_public_executable", lambda name: f"/usr/bin/{name}")
+    monkeypatch.setattr(sandbox.os.path, "realpath", lambda path: path)
+
+    command = sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
+    mounts = [command[index : index + 3] for index in range(len(command) - 2)]
+
+    for name in ("ps2pdf", "ps2pdf14", "ps2pdfwr", "gs", "dirname", "basename"):
+        assert ["--ro-bind", f"/usr/bin/{name}", f"/usr/bin/{name}"] in mounts
+
+
 def test_shell_helpers_are_only_exposed_for_shell_escape(tmp_path, monkeypatch):
     monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
     monkeypatch.setattr(

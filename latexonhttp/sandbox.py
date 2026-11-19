@@ -52,7 +52,16 @@ DEFAULT_ALLOWED_COMMANDS = (
     "upmendex",
     "dvipdfmx",
     "dvips",
+    # Ghostscript wrapper chain: ps2pdf -> ps2pdf14 -> ps2pdfwr -> gs.
+    # Its shell launchers also locate companions with dirname and derive
+    # default output filenames with basename. Mount only those dependencies.
+    "basename",
+    "dirname",
     "ps2pdf",
+    "ps2pdf12",
+    "ps2pdf13",
+    "ps2pdf14",
+    "ps2pdfwr",
     "gs",
     "epstopdf",
     "repstopdf",
