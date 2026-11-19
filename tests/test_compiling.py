@@ -168,3 +168,55 @@ def test_context_compiler_hello(latex_on_http_api_url):
     r = requests.post(latex_on_http_api_url + "/builds/sync", json=COMPIL_HELLO_CONTEXT)
     assert r.status_code == 201
     # snapshot_pdf(r.content, SAMPLE_HELLO_CONTEXT)
+
+
+def test_minted_compilation_with_opt_in_shell_escape(latex_on_http_api_url):
+    response = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={
+            "compiler": "pdflatex",
+            "options": {"compiler": {"shell_escape": True}},
+            "resources": [
+                {
+                    "content": r"""\documentclass{article}
+\usepackage{minted}
+\begin{document}
+\begin{minted}{python}
+print("hello from minted")
+\end{minted}
+\end{document}""",
+                    "main": True,
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 201, response.text
+
+
+def test_tex_cannot_read_application_files_without_shell_escape(latex_on_http_api_url):
+    response = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={
+            "resources": [
+                {
+                    "content": r"""\documentclass{article}
+\newread\outsidefile
+\openin\outsidefile=/app/latex-on-http/pyproject.toml
+\ifeof\outsidefile
+  \typeout{OUTSIDE_WORKSPACE_READ=NO}
+\else
+  \typeout{OUTSIDE_WORKSPACE_READ=YES}
+\fi
+\closein\outsidefile
+\errmessage{ISOLATION_TEST_COMPLETE}""",
+                    "main": True,
+                }
+            ],
+        },
+    )
+
+    assert response.status_code == 400
+    logs = response.json()["logs"]
+    assert "OUTSIDE_WORKSPACE_READ=NO" in logs
+    assert "OUTSIDE_WORKSPACE_READ=YES" not in logs

@@ -22,14 +22,24 @@ def process_resource_data_spec(data):
 
 
 def prune_resources_content_for_logging(input_spec):
+    """Redact resource content without interpreting malformed request shapes."""
+    if not isinstance(input_spec, dict):
+        return input_spec
+    resources = input_spec.get("resources", [])
+    if not isinstance(resources, list):
+        return input_spec
     return {
         **input_spec,
         "resources": [
-            {
-                **resource,
-                "content": "content" in resource,
-                "file": "file" in resource,
-            }
-            for resource in input_spec.get("resources", [])
+            (
+                {
+                    **resource,
+                    "content": "content" in resource,
+                    "file": "file" in resource,
+                }
+                if isinstance(resource, dict)
+                else resource
+            )
+            for resource in resources
         ],
     }

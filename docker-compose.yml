@@ -11,7 +11,7 @@ services:
       #  Ignore .venv with an anonymous volume.
      - /app/latex-on-http/.venv
     environment:
-      # SENTRY_DSN: 
+      SENTRY_DSN: ${SENTRY_DSN:-}
       CACHE_HOST: cache
       KEEP_WORKSPACE_DIR: 1
       KEEP_WORKSPACE_DIR_ON_ERROR: 0

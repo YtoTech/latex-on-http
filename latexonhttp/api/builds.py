@@ -19,6 +19,11 @@ from latexonhttp.compiler import (
     latexToPdf,
     AVAILABLE_LATEX_COMPILERS,
 )
+from latexonhttp.sandbox import SandboxUnavailable
+from latexonhttp.sandbox_diagnostics import (
+    report_sandbox_diagnostic,
+    sandbox_unavailable_issue,
+)
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
@@ -130,6 +135,9 @@ input_spec_schema = {
                     "bibliography": {
                         "type": ["boolean", "string", "integer"],
                     },
+                    "shell_escape": {
+                        "type": ["boolean", "string", "integer"],
+                    },
                     "force": {
                         "type": ["boolean", "string", "integer"],
                     },
@@ -210,7 +218,7 @@ def compiler_latex():
     logger.info(request.content_type)
     logger.info(pprint.pformat(request.files))
     logger.info(pprint.pformat(request.form))
-    logger.info(input_spec)
+    logger.info(pprint.pformat(prune_resources_content_for_logging(input_spec)))
 
     if not input_spec_validator.validate(input_spec):
         return (
@@ -271,6 +279,15 @@ def compiler_latex():
         "options.compiler.bibliography",
         parse_bool_str_arg(
             glom.glom(input_spec, "options.compiler.bibliography", default=True)
+        ),
+        missing=dict,
+    )
+    # -options.compiler.shell_escape (for packages such as minted)
+    glom.assign(
+        input_spec,
+        "options.compiler.shell_escape",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.shell_escape", default=False)
         ),
         missing=dict,
     )
@@ -389,6 +406,32 @@ def compiler_latex():
         # Response creation.
         # -------------
 
+        if latexToPdfOutput["status"] == "error":
+            error_compilation = latexToPdfOutput["logs"]
+            return (
+                {
+                    **latexToPdfOutput["error"],
+                    "duration": round(latexToPdfOutput["duration"], 2),
+                    "logs": latexToPdfOutput["logs"],
+                    **(
+                        {
+                            "log_files": latexToPdfOutput["log_files"],
+                        }
+                        if glom.glom(
+                            input_spec, "options.response.log_files_on_failure"
+                        )
+                        else {}
+                    ),
+                    **(
+                        {
+                            "commands": latexToPdfOutput["commands"],
+                        }
+                        if glom.glom(input_spec, "options.response.commands")
+                        else {}
+                    ),
+                },
+                400,
+            )
         if latexToPdfOutput["status"] != "ok":
             error_compilation = latexToPdfOutput["logs"]
             return (
@@ -443,6 +486,17 @@ def compiler_latex():
                 ),
             },
         )
+
+    except SandboxUnavailable as error:
+        # Never fall back to executing untrusted TeX without the sandbox.
+        logger.error("Compilation sandbox unavailable: %s", error)
+        report_sandbox_diagnostic(
+            sandbox_unavailable_issue(error),
+            command=[compilerName],
+            directory=get_workspace_root_path(workspace_id),
+            compiler=compilerName,
+        )
+        return {"error": "SANDBOX_UNAVAILABLE"}, 503
 
     except Exception as e:
         # -------------

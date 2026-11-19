@@ -1,3 +1,14 @@
+# Docker Compose loads .env itself. Include it here as well so the test
+# targets can carry non-base Compose overrides into docker-compose.test.yml.
+-include .env
+
+COMPOSE_FILE ?= docker-compose.yml
+COMPOSE_PATH_SEPARATOR ?= :
+COMPOSE_OVERRIDE_FILES = $(filter-out docker-compose.yml ./docker-compose.yml,$(subst $(COMPOSE_PATH_SEPARATOR), ,$(COMPOSE_FILE)))
+COMPOSE_TEST_FILES ?= docker-compose.test.yml $(COMPOSE_OVERRIDE_FILES)
+COMPOSE_TEST_FLAGS = $(foreach file,$(COMPOSE_TEST_FILES),-f $(file))
+DOCKER_COMPOSE_TEST = docker compose $(COMPOSE_TEST_FLAGS) -p latex-on-http-test
+
 ## -------------------------------
 ## Running Python app ##
 ## -------------------------------
@@ -69,38 +80,41 @@ set-permissions-migrations:
 ## Tests ##
 ## -------------------------------
 test:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test exec latex uv run pytest -vv
+	$(DOCKER_COMPOSE_TEST) exec latex uv run pytest -vv
 
 test-x:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test exec latex uv run pytest -vv -x
+	$(DOCKER_COMPOSE_TEST) exec latex uv run pytest -vv -x
 
 test-docker-compose: test-docker-compose-start
 	sleep 3
-	make test
+	$(MAKE) test
 	sleep 2
-	make test-docker-compose-stop
+	$(MAKE) test-docker-compose-stop
 
 test-docker-compose-up:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test up
+	$(DOCKER_COMPOSE_TEST) up
+
+test-docker-compose-up-recreate:
+	$(DOCKER_COMPOSE_TEST) up --build --force-recreate
 
 test-docker-compose-bash:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test exec -it latex bash
+	$(DOCKER_COMPOSE_TEST) exec -it latex bash
 
 test-docker-compose-start:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test up --no-start
-	docker compose -f docker-compose.test.yml -p latex-on-http-test start
+	$(DOCKER_COMPOSE_TEST) up --no-start
+	$(DOCKER_COMPOSE_TEST) start
 
 test-docker-compose-stop:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test stop
+	$(DOCKER_COMPOSE_TEST) stop
 
 test-docker-compose-rm:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test rm
+	$(DOCKER_COMPOSE_TEST) rm
 
 test-docker-compose-build:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test build
+	$(DOCKER_COMPOSE_TEST) build
 
 test-docker-compose-build-no-cache:
-	docker compose -f docker-compose.test.yml -p latex-on-http-test build --no-cache
+	$(DOCKER_COMPOSE_TEST) build --no-cache
 
 ## -------------------------------
 ## Code conventions and formatting ##

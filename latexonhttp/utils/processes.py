@@ -1,10 +1,20 @@
-import psutil
+import os
+import signal
+
+
+def _signal_process_group(parent_pid, sig):
+    """Signal the process group created by ``start_new_session=True``."""
+    try:
+        os.killpg(parent_pid, sig)
+    except ProcessLookupError:
+        # The complete process group exited between polling and signalling.
+        pass
+
+
+def terminate_process_group(parent_pid):
+    _signal_process_group(parent_pid, signal.SIGTERM)
 
 
 def kill_all_children_processes(parent_pid):
-    """Kill the process with all its children processes."""
-    # https://stackoverflow.com/a/27034438/1956471
-    parent = psutil.Process(parent_pid)
-    for child in parent.children(recursive=True):
-        child.kill()
-    parent.kill()
+    """Kill the compilation process and every descendant in its group."""
+    _signal_process_group(parent_pid, signal.SIGKILL)

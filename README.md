@@ -159,6 +159,7 @@ Payload (json)
     * `options.compiler.halt_on_error` to enable `-halt-on-error` option (stop on first error, even if non fatal). Default to `false`.
     * `options.compiler.silent` to enable `-interaction=batchmode` option and Latexmk `-silent` (non verbose mode). Default to `false` (will use `-interaction=nonstopmode`).
     * `options.compiler.force` to enable Latexmk [`-f` (force mode)](https://man.archlinux.org/man/latexmk.1#f). Default to `true`.
+    * `options.compiler.shell_escape` to enable TeX `-shell-escape` inside the isolated compilation sandbox, for packages such as `minted` that run `pygmentize`. Default to `false`; the engine otherwise receives an explicit `-no-shell-escape` option.
     * `options.response.log_files_on_failure` to return full log files on compilation error. Defaults to `true`.
     * `options.response.commands` to return commands run details. Defaults to `false`.
 
@@ -166,6 +167,8 @@ Payload (json)
 > Response
 
 A PDF file if the compilation succeeds, else a Json payload with the error logs.
+
+See [compilation isolation and sandboxing](docs/sandboxing.md) for the security model, shell-escape support, runtime requirements and configuration.
 
 ## Inspecting build environment (texlive, fonts, packages)
 

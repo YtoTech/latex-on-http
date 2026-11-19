@@ -44,7 +44,7 @@ def test_resource_cache_file(latex_on_http_api_url):
             ],
         },
     )
-    assert r.status_code == 201
+    assert r.status_code == 201, r.text
     # Then we can check the cache.
     r = requests.get(
         latex_on_http_api_url + "/caches/resources",
