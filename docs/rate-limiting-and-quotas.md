@@ -40,7 +40,7 @@ The first (shortest) breached window determines the denial. The binding window â
 | `quota:viol:24h:{ip}` | violation counter | 24h |
 | `quota:bans:24h:{ip}` | ban counter | 24h |
 
-At most a handful of small keys per client IP, all with TTLs; run Valkey with bounded memory and an eviction policy (the Compose service uses `--maxmemory 64mb --maxmemory-policy allkeys-lru --save ""`).
+At most a handful of small keys per client IP, all with TTLs; run Valkey with bounded memory and an eviction policy (the Compose service uses `--save 60 1 --maxmemory 64mb --maxmemory-policy allkeys-lru`).
 
 ## Escalation for clients ignoring the quota
 
@@ -93,10 +93,12 @@ The Compose base file ships a Valkey service and wires `VALKEY_HOST` into the ap
 ```yaml
 valkey:
   image: docker.io/valkey/valkey:8-alpine
-  command: ["valkey-server", "--save", "", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+  command: ["valkey-server", "--save", "60", "1", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+  volumes:
+    - ./data/valkey:/data
 ```
 
-Ban and quota state is ephemeral: a Valkey restart clears bans and window counters, which is acceptable for a fair-use mechanism (the durable evidence lives in the `jobs` table). To disable the quota on an instance, unset `VALKEY_HOST` (or set `QUOTA_ENABLED=0`); to disable it per client, use `QUOTA_TRUSTED_IPS`.
+Ban and quota state is snapshotted to `./data/valkey/dump.rdb` at most once a minute (and on clean shutdown), so a restart loses at most the last minute of counters; TTLs are preserved on reload and expired keys are dropped. A restored snapshot can slightly undercount a window, which is acceptable for a fair-use mechanism (the durable evidence lives in the `jobs` table). To disable the quota on an instance, unset `VALKEY_HOST` (or set `QUOTA_ENABLED=0`); to disable it per client, use `QUOTA_TRUSTED_IPS`.
 
 ## Database indexes
 

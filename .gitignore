@@ -119,3 +119,4 @@ examples/**/*.run.xml
 
 samples/**/*.log
 data/postgres*
+data/valkey*

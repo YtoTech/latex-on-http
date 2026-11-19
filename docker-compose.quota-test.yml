@@ -13,5 +13,7 @@ services:
       QUOTA_LIMIT_DAY: "1000"
       QUOTA_LIMIT_WEEK: "1000"
   valkey:
+    # Deliberately ephemeral, unlike the persisted base-file service: each
+    # test run must start from fresh counters and bans.
     image: docker.io/valkey/valkey:8-alpine
     command: ["valkey-server", "--save", "", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
