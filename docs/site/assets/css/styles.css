@@ -386,9 +386,9 @@ html[data-theme="dark"] .brand-logo-dark {
 .brand-sub {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.69rem;
+  font-size: 0.94rem;
   color: var(--accent-blue);
-  margin-top: 0.55rem;
+  margin-top: 2rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }

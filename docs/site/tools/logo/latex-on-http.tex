@@ -23,7 +23,7 @@
 \fi
 
 % Compact lockup: Latin Modern Roman for the name, Latin Modern Sans for
-% the smaller tagline, indented from the left edge of the name.
+% the smaller tagline, right-aligned with the name.
 \newcommand{\logotitle}{{\fontsize{40}{40}\selectfont\LaTeX}}
 \newcommand{\logotagline}{{\sffamily\fontsize{17}{19}\selectfont on HTTP}}
 
@@ -33,7 +33,7 @@
     \begin{tabular}{@{}l@{}}
       {\color{logored}\logotitle}\\[2pt]
       {\color{logored}\rule{\widthof{\logotitle}}{1pt}}\\[2pt]
-      \hspace*{7pt}{\color{logoblue}\logotagline}
+      \hfill{\color{logoblue}\logotagline}
     \end{tabular}%
   };
 \end{tikzpicture}
