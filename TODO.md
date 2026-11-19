@@ -41,15 +41,6 @@
         * So we can hook ourselves on the builds (for analytics, cache management, etc.)
 * Add usage management
     * put a limit on file uploaded size and number of files
-    * create module to trace usage statistics
-        * upload volume
-        * cached volume (input, output)
-        * number of compilation
-        * compilation time
-        * by IP / by user
-        * on a short-live db? (Redis)
-    * rate limiting module
-        * for IP / users after a certain amount of comsumption
 * Latex TexLive management
     * add an endpoint to get info on TexLive distribution used/available
     * make a multi-TexLive version env?
