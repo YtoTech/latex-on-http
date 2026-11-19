@@ -278,23 +278,25 @@ const SAMPLE_MAIN_CONTENT = String.raw`\documentclass{article}
  \include{page2}
 \end{document}`;
 
+const SAMPLE_RESOURCES = [
+  {
+    main: true,
+    content: SAMPLE_MAIN_CONTENT,
+  },
+  {
+    path: "logo.png",
+    url: "https://www.ytotech.com/images/ytotech_logo.png",
+  },
+  {
+    path: "page2.tex",
+    file: "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl",
+  },
+];
+
 const JSON_PAYLOAD_SAMPLE = JSON.stringify(
   {
     compiler: "lualatex",
-    resources: [
-      {
-        main: true,
-        content: SAMPLE_MAIN_CONTENT,
-      },
-      {
-        path: "logo.png",
-        url: "https://www.ytotech.com/images/ytotech_logo.png",
-      },
-      {
-        path: "page2.tex",
-        file: "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl",
-      },
-    ],
+    resources: SAMPLE_RESOURCES,
   },
   null,
   4
@@ -588,6 +590,661 @@ const QUICKSTART_SAMPLES = [
 ];
 
 // ----------------------------------------------------------------------------
+// Builders for the additional language tabs (HTTPie, PHP, Go, Elixir, CLJS).
+// ----------------------------------------------------------------------------
+
+const MAIN_CONTENT_FULL = String.raw`\\documentclass{article}\n \\usepackage{graphicx}\n  \\begin{document}\n Hello World\\\\\n \\includegraphics[height=2cm,width=7cm,keepaspectratio=true]{logo.png}\n \\include{page2}\n \\end{document}`;
+
+function elixirMixInstall(extraDeps) {
+  return [
+    "Mix.install([{:req, \"~> 0.8\"}" + (extraDeps || "") + "])",
+    "",
+  ].join("\n");
+}
+
+function httpieGetBuildSample() {
+  return [
+    "# Compile a document passed inline as the main resource:",
+    "http --download --output hello_world.pdf GET "
+      + BASE_URL + "/builds/sync \\",
+    "    compiler==pdflatex \\",
+    "    'content==" + SIMPLE_HELLO.replace(/\n/g, " ") + "'",
+    "",
+    "# Compile a document fetched from an URL, with the XeLaTeX compiler,",
+    "# plus an annex resource (an image downloaded from an URL):",
+    "http --download --output resume.pdf GET "
+      + BASE_URL + "/builds/sync \\",
+    "    compiler==xelatex \\",
+    "    'url==" + BASE_URL_REF_EXAMPLE + "' \\",
+    "    'resource-type[]==url' \\",
+    "    'resource-path[]==logo.png' \\",
+    "    'resource-value[]==https://www.ytotech.com/images/ytotech_logo.png'",
+  ].join("\n");
+}
+
+function httpieJsonBuildSample() {
+  return [
+    "http --download --output hello_world.pdf POST "
+      + BASE_URL + "/builds/sync \\",
+    "    compiler=lualatex \\",
+    "    resources:='" + JSON.stringify(SAMPLE_RESOURCES, null, 4) + "'",
+  ].join("\n");
+}
+
+function phpGetBuildSample() {
+  return [
+    "<?php",
+    "// Annex resources are passed as resource-path[]/resource-type[]/",
+    "// resource-value[] entries; repeat the query parameters for more",
+    "// resources (http_build_query does not encode repeated keys).",
+    "$params = [",
+    '    "compiler" => "pdflatex",',
+    '    "content" => "\\\\documentclass{article}\\n\\\\begin{document}\\n'
+      + "Hello World LaTeX-On-HTTP\\n\\\\end{document}\",",
+    '    "resource-type[]" => "url",',
+    '    "resource-path[]" => "logo.png",',
+    '    "resource-value[]" => "https://www.ytotech.com/images/ytotech_logo.png",',
+    "];",
+    "$ch = curl_init(\""
+      + BASE_URL + "/builds/sync?\" . http_build_query($params));",
+    "curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);",
+    "$response = curl_exec($ch);",
+    "$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);",
+    "curl_close($ch);",
+    "if ($status === 201) {",
+    '    file_put_contents("hello_world.pdf", $response);',
+    "} else {",
+    '    $error = json_decode($response, true);',
+    '    echo "Compilation failed: {$error["error"]}\\n";',
+    "}",
+  ].join("\n");
+}
+
+function phpJsonBuildSample() {
+  return [
+    "<?php",
+    "$payload = json_encode([",
+    '    "compiler" => "lualatex",',
+    '    "resources" => [',
+    "        [",
+    '            "main" => true,',
+    '            "content" => "' + MAIN_CONTENT_FULL + '",',
+    "        ],",
+    "        [",
+    '            "path" => "logo.png",',
+    '            "url" => "https://www.ytotech.com/images/ytotech_logo.png",',
+    "        ],",
+    "        [",
+    '            "path" => "page2.tex",',
+    '            "file" => "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl",',
+    "        ],",
+    "    ],",
+    "]);",
+    "",
+    "$ch = curl_init(\"" + BASE_URL + "/builds/sync\");",
+    "curl_setopt_array($ch, [",
+    "    CURLOPT_POST => true,",
+    "    CURLOPT_POSTFIELDS => $payload,",
+    '    CURLOPT_HTTPHEADER => ["Content-Type: application/json"],',
+    "    CURLOPT_RETURNTRANSFER => true,",
+    "]);",
+    "$response = curl_exec($ch);",
+    "$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);",
+    "curl_close($ch);",
+    "",
+    "if ($status === 201) {",
+    '    file_put_contents("hello_world.pdf", $response);',
+    "} else {",
+    '    $error = json_decode($response, true);',
+    '    echo "Compilation failed: {$error["error"]}\\n";',
+    '    echo $error["logs"] . "\\n";',
+    "}",
+  ].join("\n");
+}
+
+function phpMultipartSample() {
+  return [
+    "<?php",
+    "$ch = curl_init(\"" + BASE_URL + "/builds/sync\");",
+    "curl_setopt_array($ch, [",
+    "    CURLOPT_POST => true,",
+    "    CURLOPT_POSTFIELDS => [",
+    '        "compiler" => "pdflatex",',
+    '        "resources" => json_encode([',
+    '            ["main" => true, "multipart" => "main"],',
+    '            ["path" => "logo.png", "multipart" => "logo"],',
+    "        ]),",
+    '        "main" => new CURLFile("main.tex"),',
+    '        "logo" => new CURLFile("logo.png"),',
+    "    ],",
+    "    CURLOPT_RETURNTRANSFER => true,",
+    "]);",
+    "$response = curl_exec($ch);",
+    "$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);",
+    "curl_close($ch);",
+    "if ($status === 201) {",
+    '    file_put_contents("document.pdf", $response);',
+    "} else {",
+    '    $error = json_decode($response, true);',
+    '    echo "Compilation failed: {$error["error"]}\\n";',
+    "}",
+  ].join("\n");
+}
+
+function goGetBuildSample() {
+  return [
+    "package main",
+    "",
+    "import (",
+    '    "io"',
+    '    "log"',
+    '    "net/http"',
+    '    "net/url"',
+    '    "os"',
+    ")",
+    "",
+    "func main() {",
+    "    params := url.Values{}",
+    '    params.Set("compiler", "pdflatex")',
+    '    params.Set("content", "\\\\documentclass{article}\\n\\\\begin{document}\\n'
+      + "Hello World LaTeX-On-HTTP\\n\\\\end{document}\")",
+    '    params.Set("resource-type[]", "url")',
+    '    params.Set("resource-path[]", "logo.png")',
+    '    params.Set("resource-value[]", "https://www.ytotech.com/images/ytotech_logo.png")',
+    '    // For several resources, use params.Add to repeat each resource-*[] key.',
+    "",
+    '    response, err := http.Get("'
+      + BASE_URL + "/builds/sync?\" + params.Encode())",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "",
+    "    pdf, err := io.ReadAll(response.Body)",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    '    if response.StatusCode == http.StatusCreated {',
+    '        os.WriteFile("hello_world.pdf", pdf, 0644)',
+    "    } else {",
+    '        log.Fatalf("Compilation failed: %s", pdf)',
+    "    }",
+    "}",
+  ].join("\n");
+}
+
+function goJsonBuildSample() {
+  return [
+    "package main",
+    "",
+    "import (",
+    '    "bytes"',
+    '    "encoding/json"',
+    '    "io"',
+    '    "log"',
+    '    "net/http"',
+    '    "os"',
+    ")",
+    "",
+    "func main() {",
+    "    payload := map[string]any{",
+    '        "compiler": "lualatex",',
+    '        "resources": []map[string]any{',
+    "            {",
+    '                "main": true,',
+    '                "content": "' + MAIN_CONTENT_FULL + '",',
+    "            },",
+    '            {"path": "logo.png", "url": "https://www.ytotech.com/images/ytotech_logo.png"},',
+    "            {",
+    '                "path": "page2.tex",',
+    '                "file": "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl",',
+    "            },",
+    "        },",
+    "    }",
+    "    body, err := json.Marshal(payload)",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    "",
+    "    response, err := http.Post(",
+    '        "' + BASE_URL + '/builds/sync",',
+    '        "application/json",',
+    "        bytes.NewReader(body),",
+    "    )",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "",
+    "    responseBody, _ := io.ReadAll(response.Body)",
+    '    if response.StatusCode == http.StatusCreated {',
+    '        os.WriteFile("hello_world.pdf", responseBody, 0644)',
+    "    } else {",
+    '        log.Fatalf("Compilation failed: %s", responseBody)',
+    "    }",
+    "}",
+  ].join("\n");
+}
+
+function goMultipartSample() {
+  return [
+    "package main",
+    "",
+    "import (",
+    '    "bytes"',
+    '    "io"',
+    '    "log"',
+    '    "mime/multipart"',
+    '    "net/http"',
+    '    "os"',
+    ")",
+    "",
+    "func main() {",
+    "    var requestBody bytes.Buffer",
+    "    writer := multipart.NewWriter(&requestBody)",
+    '    _ = writer.WriteField("compiler", "pdflatex")',
+    "    _ = writer.WriteField(",
+    '        "resources",',
+    '        `[{"main": true, "multipart": "main"}, {"path": "logo.png", "multipart": "logo"}]`,',
+    "    )",
+    '    for _, part := range []struct{ field, path string }{',
+    '        {"main", "main.tex"},',
+    '        {"logo", "logo.png"},',
+    "    } {",
+    "        file, err := os.Open(part.path)",
+    "        if err != nil {",
+    "            log.Fatal(err)",
+    "        }",
+    "        fileWriter, err := writer.CreateFormFile(part.field, part.path)",
+    "        if err != nil {",
+    "            log.Fatal(err)",
+    "        }",
+    "        if _, err := io.Copy(fileWriter, file); err != nil {",
+    "            log.Fatal(err)",
+    "        }",
+    "        file.Close()",
+    "    }",
+    "    writer.Close()",
+    "",
+    "    request, err := http.NewRequest(",
+    '        "POST",',
+    '        "' + BASE_URL + '/builds/sync",',
+    "        &requestBody,",
+    "    )",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    '    request.Header.Set("Content-Type", writer.FormDataContentType())',
+    "",
+    "    response, err := http.DefaultClient.Do(request)",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "",
+    "    responseBody, _ := io.ReadAll(response.Body)",
+    '    if response.StatusCode == http.StatusCreated {',
+    '        os.WriteFile("document.pdf", responseBody, 0644)',
+    "    } else {",
+    '        log.Fatalf("Compilation failed: %s", responseBody)',
+    "    }",
+    "}",
+  ].join("\n");
+}
+
+function elixirGetBuildSample() {
+  return [
+    elixirMixInstall(),
+    "response =",
+    "  Req.get!(\"" + BASE_URL + "/builds/sync\",",
+    "    params: [",
+    '      {"compiler", "pdflatex"},',
+    '      {"content", "\\\\documentclass{article}\\n\\\\begin{document}\\n'
+      + "Hello World LaTeX-On-HTTP\\n\\\\end{document}\"},",
+    '      {"resource-type[]", "url"},',
+    '      {"resource-path[]", "logo.png"},',
+    '      {"resource-value[]", "https://www.ytotech.com/images/ytotech_logo.png"}',
+    "    ]",
+    "  )",
+    "",
+    "if response.status == 201 do",
+    '  File.write!("hello_world.pdf", response.body)',
+    "else",
+    '  IO.puts("Compilation failed: #{response.body["error"]}")',
+    "end",
+  ].join("\n");
+}
+
+function elixirJsonBuildSample() {
+  return [
+    elixirMixInstall(),
+    "payload = %{",
+    '  compiler: "lualatex",',
+    "  resources: [",
+    "    %{",
+    "      main: true,",
+    '      content: "' + MAIN_CONTENT_FULL + '"',
+    "    },",
+    '    %{path: "logo.png", url: "https://www.ytotech.com/images/ytotech_logo.png"},',
+    "    %{",
+    '      path: "page2.tex",',
+    '      file: "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl"',
+    "    }",
+    "  ]",
+    "}",
+    "",
+    "response = Req.post!(\"" + BASE_URL + "/builds/sync\", json: payload)",
+    "",
+    "if response.status == 201 do",
+    '  File.write!("hello_world.pdf", response.body)',
+    "else",
+    '  IO.puts("Compilation failed: #{response.body["error"]}")',
+    '  IO.puts(response.body["logs"] || "")',
+    "end",
+  ].join("\n");
+}
+
+function elixirMultipartSample() {
+  return [
+    elixirMixInstall(", {:jason, \"~> 1.4\"}"),
+    "resources = [",
+    '  %{main: true, multipart: "main"},',
+    '  %{path: "logo.png", multipart: "logo"}',
+    "]",
+    "",
+    "response =",
+    "  Req.post!(\"" + BASE_URL + "/builds/sync\",",
+    "    form_multipart: [",
+    '      {"compiler", "pdflatex"},',
+    '      {"resources", Jason.encode!(resources)},',
+    '      {"main", {File.read!("main.tex"), filename: "main.tex"}},',
+    '      {"logo", {File.read!("logo.png"), filename: "logo.png"}}',
+    "    ]",
+    "  )",
+    "",
+    "if response.status == 201 do",
+    '  File.write!("document.pdf", response.body)',
+    "else",
+    '  IO.puts("Compilation failed: #{response.body["error"]}")',
+    "end",
+  ].join("\n");
+}
+
+function cljsGetBuildSample() {
+  return [
+    "(let [params (js/URLSearchParams.)]",
+    '  (.append params "compiler" "pdflatex")',
+    '  (.append params "content" "\\\\documentclass{article}\\n\\\\begin{document}\\n'
+      + "Hello World LaTeX-On-HTTP\\n\\\\end{document}\")",
+    '  (.append params "resource-type[]" "url")',
+    '  (.append params "resource-path[]" "logo.png")',
+    '  (.append params "resource-value[]" "https://www.ytotech.com/images/ytotech_logo.png")',
+    "  (-> (js/fetch (str \"" + BASE_URL + "/builds/sync?\" (.toString params)))",
+    "      (.then (fn [response]",
+    "               (if (.-ok response)",
+    "                 (.then (.blob response)",
+    "                        (fn [pdf-blob]",
+    "                          ;; Display or save the PDF, eg.:",
+    "                          (set! (.-src (.getElementById js/document \"pdf-view\"))",
+    "                                (js/URL.createObjectURL pdf-blob))))",
+    "                 (.then (.json response)",
+    "                        (fn [error]",
+    '                          (js/console.error \"Compilation failed\" error))))))))',
+  ].join("\n");
+}
+
+function cljsJsonBuildSample() {
+  return [
+    "(-> (js/fetch \"" + BASE_URL + "/builds/sync\"",
+    "              #js {:method \"POST\"",
+    '                   :headers #js {"Content-Type" "application/json"}',
+    "                   :body (js/JSON.stringify",
+    "                          (clj->js {:compiler \"lualatex\"",
+    "                                    :resources [{:main true",
+    '                                                 :content "' + MAIN_CONTENT_FULL + '"}',
+    '                                                {:path "logo.png"',
+    '                                                 :url "https://www.ytotech.com/images/ytotech_logo.png"}',
+    '                                                {:path "page2.tex"',
+    '                                                 :file "VGhpcyBpcyB0aGUgc2Vjb25kIHBhZ2UsIHdoaWNoIHdhcyBwYXNzZWQgYXMgYSBiYXNlNjQgZW5jb2RlZCBmaWxl"}]}))})',
+    "    (.then (fn [response]",
+    "             (if (.-ok response)",
+    "               (-> (.blob response)",
+    "                   (.then (fn [pdf-blob]",
+    "                            ;; Display the PDF in the page, eg.:",
+    "                            (set! (.-src (.getElementById js/document \"pdf-view\"))",
+    "                                  (js/URL.createObjectURL pdf-blob)))))",
+    "               (-> (.json response)",
+    "                   (.then (fn [error]",
+    "                            (js/console.error (.-error error)",
+    "                                              (.-logs error)))))))))",
+  ].join("\n");
+}
+
+function cljsMultipartSample() {
+  return [
+    "(let [form-data (js/FormData.)",
+    "      resources (clj->js [{:main true :multipart \"main\"}",
+    '                          {:path "logo.png" :multipart "logo"}])]',
+    '  (.append form-data "compiler" "pdflatex")',
+    '  (.append form-data "resources" (js/JSON.stringify resources))',
+    '  (.append form-data "main" main-tex-file "main.tex")  ;; File objects, eg. from <input type="file">',
+    '  (.append form-data "logo" logo-png-file "logo.png")',
+    "  (-> (js/fetch \"" + BASE_URL + "/builds/sync\"",
+    '                #js {:method "POST" :body form-data})',
+    "      (.then (fn [response]",
+    "               (if (.-ok response)",
+    "                 (-> (.blob response)",
+    "                     (.then (fn [pdf-blob]",
+    "                              ;; Display the PDF in the page, eg.:",
+    "                              (set! (.-src (.getElementById js/document \"pdf-view\"))",
+    "                                    (js/URL.createObjectURL pdf-blob)))))",
+    "                 (-> (.json response)",
+    "                     (.then (fn [error]",
+    "                              (js/console.error (.-error error))))))))))",
+  ].join("\n");
+}
+
+// Simple GET endpoints (texlive, fonts, packages, package detail, caches).
+function httpieGetSample(path) {
+  return "http --body GET " + BASE_URL + path;
+}
+
+function phpGetSample(path) {
+  return [
+    "<?php",
+    "$response = json_decode(",
+    '    file_get_contents("' + BASE_URL + path + '"),',
+    "    true",
+    ");",
+    "print_r($response);",
+  ].join("\n");
+}
+
+function goGetSample(path) {
+  return [
+    "package main",
+    "",
+    "import (",
+    '    "encoding/json"',
+    '    "fmt"',
+    '    "log"',
+    '    "net/http"',
+    ")",
+    "",
+    "func main() {",
+    "    response, err := http.Get(\"" + BASE_URL + path + "\")",
+    "    if err != nil {",
+    "        log.Fatal(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "",
+    "    var result map[string]any",
+    '    if err := json.NewDecoder(response.Body).Decode(&result); err != nil {',
+    "        log.Fatal(err)",
+    "    }",
+    "    fmt.Println(result)",
+    "}",
+  ].join("\n");
+}
+
+function elixirGetSample(path) {
+  return [
+    elixirMixInstall(),
+    "response = Req.get!(\"" + BASE_URL + path + "\")",
+    "IO.inspect(response.body)",
+  ].join("\n");
+}
+
+function cljsGetSample(path) {
+  return [
+    "(-> (js/fetch \"" + BASE_URL + path + "\")",
+    "    (.then (fn [response] (.json response)))",
+    "    (.then (fn [data]",
+    '             (js/console.log (js/JSON.stringify data nil 2)))))',
+  ].join("\n");
+}
+
+function httpieDeleteSample(path) {
+  return "http DELETE " + BASE_URL + path;
+}
+
+function phpDeleteSample(path) {
+  return [
+    "<?php",
+    "$context = stream_context_create(",
+    '    ["http" => ["method" => "DELETE"]]',
+    ");",
+    "file_get_contents(\"" + BASE_URL + path + "\", false, $context);",
+  ].join("\n");
+}
+
+function goDeleteSample(path) {
+  return [
+    "package main",
+    "",
+    'import (',
+    '    "fmt"',
+    '    "net/http"',
+    ')',
+    "",
+    "func main() {",
+    '    request, _ := http.NewRequest("DELETE", "' + BASE_URL + path + '", nil)',
+    "    response, err := http.DefaultClient.Do(request)",
+    "    if err != nil {",
+    "        panic(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "    fmt.Println(response.StatusCode)",
+    "}",
+  ].join("\n");
+}
+
+function elixirDeleteSample(path) {
+  return [
+    elixirMixInstall(),
+    "response = Req.delete!(\"" + BASE_URL + path + "\")",
+    "IO.puts(response.status)",
+  ].join("\n");
+}
+
+function cljsDeleteSample(path) {
+  return [
+    "(-> (js/fetch \"" + BASE_URL + path + "\"",
+    '                #js {:method "DELETE"})',
+    "    (.then (fn [response] (js/console.log (.-status response)))))",
+  ].join("\n");
+}
+
+function httpieCheckCachedSample() {
+  return [
+    "http --body POST " + BASE_URL + "/caches/resources/check_cached \\",
+    "    resources:='{\"resources\": [{\"hash\": \"sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\"}]}'",
+  ].join("\n");
+}
+
+function phpCheckCachedSample() {
+  return [
+    "<?php",
+    "$payload = json_encode([",
+    '    "resources" => [',
+    "        [",
+    '            "hash" => "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",',
+    "        ],",
+    "    ],",
+    "]);",
+    "$context = stream_context_create([",
+    '    "http" => [',
+    '        "method" => "POST",',
+    '        "header" => "Content-Type: application/json\\r\\n",',
+    '        "content" => $payload,',
+    "    ],",
+    "]);",
+    "$response = file_get_contents(\""
+      + BASE_URL + "/caches/resources/check_cached\", false, $context);",
+    "print_r(json_decode($response, true));",
+  ].join("\n");
+}
+
+function goCheckCachedSample() {
+  return [
+    "package main",
+    "",
+    "import (",
+    '    "bytes"',
+    '    "encoding/json"',
+    '    "fmt"',
+    '    "net/http"',
+    ")",
+    "",
+    "func main() {",
+    '    body, _ := json.Marshal(map[string]any{',
+    '        "resources": []map[string]any{',
+    '            {"hash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"},',
+    "        },",
+    "    })",
+    "    response, err := http.Post(",
+    '        "' + BASE_URL + '/caches/resources/check_cached",',
+    '        "application/json",',
+    "        bytes.NewReader(body),",
+    "    )",
+    "    if err != nil {",
+    "        panic(err)",
+    "    }",
+    "    defer response.Body.Close()",
+    "",
+    "    var result map[string]any",
+    "    _ = json.NewDecoder(response.Body).Decode(&result)",
+    "    fmt.Println(result)",
+    "}",
+  ].join("\n");
+}
+
+function elixirCheckCachedSample() {
+  return [
+    elixirMixInstall(),
+    "response =",
+    "  Req.post!(\"" + BASE_URL + "/caches/resources/check_cached\",",
+    "    json: %{",
+    '      resources: [%{hash: "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"}]',
+    "    }",
+    "  )",
+    "IO.inspect(response.body)",
+  ].join("\n");
+}
+
+function cljsCheckCachedSample() {
+  return [
+    "(-> (js/fetch \"" + BASE_URL + "/caches/resources/check_cached\"",
+    "              #js {:method \"POST\"",
+    '                   :headers #js {"Content-Type" "application/json"}',
+    "                   :body (js/JSON.stringify",
+    "                          (clj->js {:resources [{:hash \"sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\"}]}))})",
+    "    (.then (fn [response] (.json response)))",
+    "    (.then (fn [data] (js/console.log data))))",
+  ].join("\n");
+}
+
+// ----------------------------------------------------------------------------
 // Endpoint definitions.
 // ----------------------------------------------------------------------------
 
@@ -687,8 +1344,13 @@ export default {
             + "written server-side under the given <code>resource-path[]</code>.",
           samples: [
             { label: "curl", language: "bash", code: curlGetSample() },
+            { label: "HTTPie", language: "bash", code: httpieGetBuildSample() },
             { label: "Python", language: "python", code: pythonGetSample() },
+            { label: "PHP", language: "php", code: phpGetBuildSample() },
+            { label: "Go", language: "go", code: goGetBuildSample() },
+            { label: "Elixir", language: "elixir", code: elixirGetBuildSample() },
             { label: "JavaScript", language: "javascript", code: javascriptGetSample() },
+            { label: "ClojureScript", language: "clojure", code: cljsGetBuildSample() },
           ],
         },
         {
@@ -732,8 +1394,13 @@ export default {
           ],
           samples: [
             { label: "curl", language: "bash", code: curlJsonSample() },
+            { label: "HTTPie", language: "bash", code: httpieJsonBuildSample() },
             { label: "Python", language: "python", code: pythonJsonSample() },
+            { label: "PHP", language: "php", code: phpJsonBuildSample() },
+            { label: "Go", language: "go", code: goJsonBuildSample() },
+            { label: "Elixir", language: "elixir", code: elixirJsonBuildSample() },
             { label: "JavaScript", language: "javascript", code: javascriptJsonSample() },
+            { label: "ClojureScript", language: "clojure", code: cljsJsonBuildSample() },
           ],
         },
         {
@@ -789,7 +1456,11 @@ export default {
             { label: "curl", language: "bash", code: curlMultipartSample() },
             { label: "HTTPie", language: "bash", code: httpieMultipartSample() },
             { label: "Python", language: "python", code: pythonMultipartSample() },
+            { label: "PHP", language: "php", code: phpMultipartSample() },
+            { label: "Go", language: "go", code: goMultipartSample() },
+            { label: "Elixir", language: "elixir", code: elixirMultipartSample() },
             { label: "JavaScript", language: "javascript", code: javascriptMultipartSample() },
+            { label: "ClojureScript", language: "clojure", code: cljsMultipartSample() },
           ],
         },
       ],
@@ -827,6 +1498,11 @@ export default {
           code: curlGetInfoSample("/texlive/information", true),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieGetSample("/texlive/information"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -836,6 +1512,9 @@ export default {
             + ").json()\n"
             + 'print(information["texlive"]["version"])',
         },
+        { label: "PHP", language: "php", code: phpGetSample("/texlive/information") },
+        { label: "Go", language: "go", code: goGetSample("/texlive/information") },
+        { label: "Elixir", language: "elixir", code: elixirGetSample("/texlive/information") },
         {
           label: "JavaScript",
           language: "javascript",
@@ -845,6 +1524,7 @@ export default {
             + ").json();\n"
             + 'console.log(information.texlive.version);',
         },
+        { label: "ClojureScript", language: "clojure", code: cljsGetSample("/texlive/information") },
       ],
       sampleResponse: [
         "{",
@@ -882,6 +1562,11 @@ export default {
           code: curlGetInfoSample("/fonts", true),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieGetSample("/fonts"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -892,6 +1577,9 @@ export default {
             + "for font in fonts[\"fonts\"]:\n"
             + "    print(font[\"family\"])",
         },
+        { label: "PHP", language: "php", code: phpGetSample("/fonts") },
+        { label: "Go", language: "go", code: goGetSample("/fonts") },
+        { label: "Elixir", language: "elixir", code: elixirGetSample("/fonts") },
         {
           label: "JavaScript",
           language: "javascript",
@@ -903,6 +1591,7 @@ export default {
             + "  console.log(font.family);\n"
             + "}",
         },
+        { label: "ClojureScript", language: "clojure", code: cljsGetSample("/fonts") },
       ],
       sampleResponse: [
         "{",
@@ -938,6 +1627,11 @@ export default {
           code: curlGetInfoSample("/packages", true),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieGetSample("/packages"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -949,6 +1643,9 @@ export default {
             + "    if package[\"installed\"]:\n"
             + "        print(package[\"name\"])",
         },
+        { label: "PHP", language: "php", code: phpGetSample("/packages") },
+        { label: "Go", language: "go", code: goGetSample("/packages") },
+        { label: "Elixir", language: "elixir", code: elixirGetSample("/packages") },
         {
           label: "JavaScript",
           language: "javascript",
@@ -956,10 +1653,11 @@ export default {
             "const packages = await (\n"
             + '  await fetch("' + BASE_URL + '/packages")\n'
             + ").json();\n"
-            + "for (const package of packages.packages) {\n"
-            + "  console.log(package.name, package.installed);\n"
+            + "for (const pkg of packages.packages) {\n"
+            + "  console.log(pkg.name, pkg.installed);\n"
             + "}",
         },
+        { label: "ClojureScript", language: "clojure", code: cljsGetSample("/packages") },
       ],
       sampleResponse: [
         "{",
@@ -1001,6 +1699,11 @@ export default {
           code: curlGetInfoSample("/packages/12many", true),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieGetSample("/packages/12many"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -1010,15 +1713,19 @@ export default {
             + ").json()\n"
             + "print(package[\"package\"][\"installed\"])",
         },
+        { label: "PHP", language: "php", code: phpGetSample("/packages/12many") },
+        { label: "Go", language: "go", code: goGetSample("/packages/12many") },
+        { label: "Elixir", language: "elixir", code: elixirGetSample("/packages/12many") },
         {
           label: "JavaScript",
           language: "javascript",
           code:
-            "const package = await (\n"
+            "const pkg = await (\n"
             + '  await fetch("' + BASE_URL + '/packages/12many")\n'
             + ").json();\n"
-            + "console.log(package.package.installed);",
+            + "console.log(pkg.package.installed);",
         },
+        { label: "ClojureScript", language: "clojure", code: cljsGetSample("/packages/12many") },
       ],
       sampleResponse: [
         "{",
@@ -1072,6 +1779,11 @@ export default {
           code: curlGetInfoSample("/caches/resources", true),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieGetSample("/caches/resources"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -1081,6 +1793,9 @@ export default {
             + ").json()\n"
             + "print(cache)",
         },
+        { label: "PHP", language: "php", code: phpGetSample("/caches/resources") },
+        { label: "Go", language: "go", code: goGetSample("/caches/resources") },
+        { label: "Elixir", language: "elixir", code: elixirGetSample("/caches/resources") },
         {
           label: "JavaScript",
           language: "javascript",
@@ -1090,6 +1805,7 @@ export default {
             + ").json();\n"
             + "console.log(cache);",
         },
+        { label: "ClojureScript", language: "clojure", code: cljsGetSample("/caches/resources") },
       ],
     },
     cachesReset: {
@@ -1106,14 +1822,23 @@ export default {
           code: "curl -X DELETE " + BASE_URL + "/caches/resources -v",
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieDeleteSample("/caches/resources"),
+        },
+        {
           label: "Python",
           language: "python",
           code:
             "import requests\n\n"
-            + "requests.delete(\n"
+            + "response = requests.delete(\n"
             + '    "' + BASE_URL + '/caches/resources"\n'
-            + ").raise_for_status()",
+            + ")\n"
+            + "response.raise_for_status()",
         },
+        { label: "PHP", language: "php", code: phpDeleteSample("/caches/resources") },
+        { label: "Go", language: "go", code: goDeleteSample("/caches/resources") },
+        { label: "Elixir", language: "elixir", code: elixirDeleteSample("/caches/resources") },
         {
           label: "JavaScript",
           language: "javascript",
@@ -1122,6 +1847,7 @@ export default {
             + '  method: "DELETE",\n'
             + "});",
         },
+        { label: "ClojureScript", language: "clojure", code: cljsDeleteSample("/caches/resources") },
       ],
     },
     cachesCheck: {
@@ -1161,6 +1887,11 @@ export default {
           ].join("\n"),
         },
         {
+          label: "HTTPie",
+          language: "bash",
+          code: httpieCheckCachedSample(),
+        },
+        {
           label: "Python",
           language: "python",
           code:
@@ -1174,6 +1905,9 @@ export default {
             + ")\n"
             + 'print(response.json()["resources"][resource_hash]["hit"])',
         },
+        { label: "PHP", language: "php", code: phpCheckCachedSample() },
+        { label: "Go", language: "go", code: goCheckCachedSample() },
+        { label: "Elixir", language: "elixir", code: elixirCheckCachedSample() },
         {
           label: "JavaScript",
           language: "javascript",
@@ -1197,6 +1931,7 @@ export default {
             'console.log(resources["sha256:" + hash].hit);',
           ].join("\n"),
         },
+        { label: "ClojureScript", language: "clojure", code: cljsCheckCachedSample() },
       ],
       errors: [
         {
