@@ -14,6 +14,7 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api.builds import builds_app
+from latexonhttp.sandbox import SandboxUnavailable
 from latexonhttp.resources.fetching import (
     fetcher_base64_file,
     fetcher_url_file,
@@ -25,6 +26,31 @@ def build_client():
     test_app = Flask(__name__)
     test_app.register_blueprint(builds_app, url_prefix="/builds")
     return test_app.test_client()
+
+
+def test_sandbox_unavailable_returns_503_and_preserves_shell_escape_option(monkeypatch):
+    received_options = []
+
+    def fail_compilation(_compiler, _directory, _main, _workspace, options):
+        received_options.append(options)
+        raise SandboxUnavailable("sandbox test failure")
+
+    monkeypatch.setattr("latexonhttp.api.builds.latexToPdf", fail_compilation)
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.forward_resource_to_cache",
+        lambda _resource, _data: (True, None),
+    )
+    response = build_client().post(
+        "/builds/sync",
+        json={
+            "resources": [{"main": True, "content": "test"}],
+            "options": {"compiler": {"shell_escape": True}},
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.get_json() == {"error": "SANDBOX_UNAVAILABLE"}
+    assert received_options[0]["compiler"]["shell_escape"] is True
 
 
 def test_resource_rejects_multiple_source_fields():

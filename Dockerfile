@@ -32,6 +32,8 @@ RUN uv venv && uv sync --no-dev
 
 # Add migration tool.
 RUN apt-get update -qq && apt-get install -y \
+    bubblewrap \
+    python3-pygments \
     curl \
     && curl -fsSL \
         https://raw.githubusercontent.com/pressly/goose/master/install.sh |\

@@ -21,12 +21,16 @@ WORKSPACE_DIRECTORY = "./tmp/loh_workspaces"
 # --> if there was an application error, the workspace is orphaned and not removed.
 
 
-def is_safe_path(basedir, path, follow_symlinks=False):
-    # https://security.openstack.org/guidelines/dg_using-file-paths.html
-    # resolves symbolic links
-    if follow_symlinks:
-        return os.path.realpath(path).startswith(basedir)
-    return os.path.abspath(path).startswith(basedir)
+def is_safe_path(basedir, path, follow_symlinks=True):
+    """Check path containment using path components, not string prefixes."""
+    normalize = os.path.realpath if follow_symlinks else os.path.abspath
+    normalized_base = normalize(basedir)
+    normalized_path = normalize(path)
+    try:
+        return os.path.commonpath([normalized_base, normalized_path]) == normalized_base
+    except ValueError:
+        # Different drives on platforms that support them cannot be contained.
+        return False
 
 
 def get_workspace_root_path(workspace_id):
@@ -40,13 +44,20 @@ def get_resource_fullpath(workspace_id, resource):
 
 
 def persist_resource_to_workspace(workspace_id, resource, data):
+    workspace_path = get_workspace_root_path(workspace_id)
     resource_full_path = get_resource_fullpath(workspace_id, resource)
-    if not is_safe_path(get_workspace_root_path(workspace_id), resource_full_path):
+    if not is_safe_path(workspace_path, resource_full_path):
         return "INVALID_PATH"
     # TODO Id for identifying input resources.
     logger.info("Writing to %s ...", resource_full_path)
     os.makedirs(os.path.dirname(resource_full_path), exist_ok=True)
-    with open(resource_full_path, "wb") as f:
+    if not is_safe_path(workspace_path, resource_full_path):
+        return "INVALID_PATH"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    file_descriptor = os.open(resource_full_path, flags, 0o600)
+    with os.fdopen(file_descriptor, "wb") as f:
         bytes_written = f.write(data)
         logger.debug("Wrote %d bytes to %s", bytes_written, resource_full_path)
     if CHECK_DATA_SPEC_SIZE_ESTIMATE:

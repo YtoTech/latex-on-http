@@ -11,6 +11,7 @@ services:
     environment:
       CACHE_HOST: cache
       LATEX_ON_HTTP_API_URL: http://latex:8080
+      LATEX_REQUIRE_SANDBOX_TESTS: 1
       KEEP_WORKSPACE_DIR_ON_ERROR: 1
       GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
   cache:

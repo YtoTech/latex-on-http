@@ -4,8 +4,13 @@
 ## TODOs
 
 * Isolation / security for compilation jobs/runs
-    * Write a test that breaks isolation (eg indue fs access)
-        * Needs to enable --shell-escape?
+    * [x] Wrap the complete latexmk process tree with Bubblewrap.
+    * [x] Test host-file reads without shell escape and application-file reads through TeX.
+    * [x] Mount only the current workspace read/write; scrub environment and disable networking.
+    * [x] Add opt-in shell escape for minted/Pygments with a curated executable list.
+    * [ ] Add delegated cgroup limits for memory, PIDs, CPU and total workspace size.
+    * [ ] Consider a minimal compiler-only image/AppArmor to constrain helper executables outside standard bin directories.
+    * [x] Require the real Bubblewrap end-to-end test in Docker-based integration tests.
     * Docker
         * Siblings for each run https://github.com/overleaf/clsi
     * firejail

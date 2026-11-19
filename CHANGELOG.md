@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Unreleased
+
+* Isolate each compilation process tree with Bubblewrap, one writable workspace, allowed executables, no network, and a scrubbed environment.
+* Add opt-in `options.compiler.shell_escape` for `minted`/Pygments; shell escape remains explicitly disabled by default (https://github.com/YtoTech/latex-on-http/issues/25).
+* Kill the complete process group on timeout and reject unsafe generated PDF/log symlinks.
+* Harden workspace path containment against prefix traversal and symlinked directories.
+
 ## 2026-11-18-2
 
 * Add Amiri as a system font for XeLaTeX and the `/fonts` API [#59](https://github.com/YtoTech/latex-on-http/issues/59)

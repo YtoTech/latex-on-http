@@ -19,6 +19,7 @@ from latexonhttp.compiler import (
     latexToPdf,
     AVAILABLE_LATEX_COMPILERS,
 )
+from latexonhttp.sandbox import SandboxUnavailable
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
@@ -128,6 +129,9 @@ input_spec_schema = {
                         "type": ["boolean", "string", "integer"],
                     },
                     "bibliography": {
+                        "type": ["boolean", "string", "integer"],
+                    },
+                    "shell_escape": {
                         "type": ["boolean", "string", "integer"],
                     },
                     "force": {
@@ -271,6 +275,15 @@ def compiler_latex():
         "options.compiler.bibliography",
         parse_bool_str_arg(
             glom.glom(input_spec, "options.compiler.bibliography", default=True)
+        ),
+        missing=dict,
+    )
+    # -options.compiler.shell_escape (for packages such as minted)
+    glom.assign(
+        input_spec,
+        "options.compiler.shell_escape",
+        parse_bool_str_arg(
+            glom.glom(input_spec, "options.compiler.shell_escape", default=False)
         ),
         missing=dict,
     )
@@ -443,6 +456,11 @@ def compiler_latex():
                 ),
             },
         )
+
+    except SandboxUnavailable as error:
+        # Never fall back to executing untrusted TeX without the sandbox.
+        logger.error("Compilation sandbox unavailable: %s", error)
+        return {"error": "SANDBOX_UNAVAILABLE"}, 503
 
     except Exception as e:
         # -------------
