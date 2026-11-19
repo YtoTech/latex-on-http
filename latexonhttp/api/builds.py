@@ -214,7 +214,7 @@ def compiler_latex():
     logger.info(request.content_type)
     logger.info(pprint.pformat(request.files))
     logger.info(pprint.pformat(request.form))
-    logger.info(input_spec)
+    logger.info(pprint.pformat(prune_resources_content_for_logging(input_spec)))
 
     if not input_spec_validator.validate(input_spec):
         return (

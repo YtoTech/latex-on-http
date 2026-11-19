@@ -8,6 +8,7 @@ Check compiler process output and log decoding.
 :license: AGPL, see LICENSE for more details.
 """
 
+import logging
 import sys
 import time
 
@@ -42,6 +43,28 @@ def test_run_command_replaces_invalid_utf8_output(tmp_path):
 
     assert result["return_code"] == 12
     assert "latex output: \ufffd\n" in result["stdout"]
+
+
+def test_failed_command_logs_full_output(tmp_path, caplog):
+    caplog.set_level(logging.DEBUG, logger="latexonhttp.compiler")
+
+    result = compiler.run_command(
+        tmp_path,
+        [
+            sys.executable,
+            "-c",
+            "import sys; "
+            "sys.stderr.write('LATEX_DIAGNOSTIC\\nSECOND_DIAGNOSTIC_LINE'); "
+            "raise SystemExit(12)",
+        ],
+        isolate=False,
+    )
+
+    assert result["return_code"] == 12
+    assert "return code 12" in caplog.text
+    assert "Command output:" in caplog.text
+    assert "LATEX_DIAGNOSTIC" in caplog.text
+    assert "SECOND_DIAGNOSTIC_LINE" in caplog.text
 
 
 def test_latex_to_pdf_replaces_invalid_utf8_in_log_files(tmp_path, monkeypatch):

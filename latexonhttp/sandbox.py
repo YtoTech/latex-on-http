@@ -34,10 +34,12 @@ DEFAULT_ALLOWED_COMMANDS = (
     "uptex",
     "euptex",
     "kpsewhich",
-    # latexmk's #!/usr/bin/env perl shebang needs both helpers. Mounting
-    # these fixed commands does not grant general shell-escape access.
+    # latexmk's #!/usr/bin/env perl shebang needs env and perl. Latexmk also
+    # invokes /bin/sh to launch engine commands even with -no-shell-escape.
+    # These fixed tools do not expose shell-escape helpers or arbitrary binaries.
     "env",
     "perl",
+    "sh",
     "texlua",
     "texluac",
     "mtxrun",
@@ -58,7 +60,7 @@ DEFAULT_ALLOWED_COMMANDS = (
     "mpost",
     "xdvipdfmx",
 )
-SHELL_ESCAPE_COMMANDS = ("sh", "python3", "pygmentize")
+SHELL_ESCAPE_COMMANDS = ("python3", "pygmentize")
 PRIVATE_BIN_DIRECTORIES = (
     "/usr/local/bin",
     "/usr/local/sbin",
@@ -88,6 +90,29 @@ def _configured_commands(shell_escape):
 
 def _public_executable(command):
     return shutil.which(command, path=SANDBOX_PATH)
+
+
+def _executable_bindings(shell_escape):
+    """Return public names and their targets without relocating TeX engines."""
+    bindings = []
+    for command in _configured_commands(shell_escape):
+        public_path = _public_executable(command)
+        if public_path:
+            bindings.append((public_path, os.path.realpath(public_path)))
+    return bindings
+
+
+def _private_bin_directories(bindings):
+    directories = set(PRIVATE_BIN_DIRECTORIES)
+    for _public_path, real_path in bindings:
+        real_directory = os.path.dirname(real_path)
+        parent_name = os.path.basename(real_directory)
+        grandparent_name = os.path.basename(os.path.dirname(real_directory))
+        # TeX Live uses bin/<architecture>. Script resources elsewhere must
+        # remain readable, but directories of real executables are restricted.
+        if parent_name in ("bin", "sbin") or grandparent_name in ("bin", "sbin"):
+            directories.add(real_directory)
+    return sorted(directories)
 
 
 def _add_read_only_paths(arguments):
@@ -168,16 +193,20 @@ def build_sandbox_command(directory, command, shell_escape=False):
     ]
     _add_read_only_paths(arguments)
 
-    # Hide normal executable directories, then restore individual commands.
-    # Bind mounts follow symlinks, which preserves the public engine name while
-    # exposing its resolved executable.
-    for bin_directory in PRIVATE_BIN_DIRECTORIES:
+    # Hide public executable directories and the real TeX Live bin directories.
+    # Restore curated binaries at their real paths so SELFAUTO/Kpathsea can
+    # still locate texmf.cnf, then recreate their public symlink aliases.
+    executable_bindings = _executable_bindings(shell_escape)
+    for bin_directory in _private_bin_directories(executable_bindings):
         if os.path.isdir(bin_directory):
             arguments.extend(["--tmpfs", bin_directory])
-    for public_command in _configured_commands(shell_escape):
-        public_path = _public_executable(public_command)
-        if public_path:
-            arguments.extend(["--ro-bind", os.path.realpath(public_path), public_path])
+    bound_real_paths = set()
+    for public_path, real_path in executable_bindings:
+        if real_path not in bound_real_paths:
+            arguments.extend(["--ro-bind", real_path, real_path])
+            bound_real_paths.add(real_path)
+        if public_path != real_path:
+            arguments.extend(["--symlink", real_path, public_path])
 
     # TeX and its supported helpers do not need procfs. Avoid mounting a new
     # instance: container runtimes mask the outer /proc, which can make procfs

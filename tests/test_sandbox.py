@@ -7,7 +7,6 @@ import pytest
 
 from latexonhttp import compiler, sandbox
 
-
 BWRAP_AVAILABLE = shutil.which("bwrap") is not None
 if os.getenv("LATEX_REQUIRE_SANDBOX_TESTS") == "1" and not BWRAP_AVAILABLE:
     raise RuntimeError("Sandbox tests are required, but Bubblewrap is not installed")
@@ -69,7 +68,36 @@ def test_sandbox_mounts_only_current_workspace_and_allowlisted_binaries(
     assert "--no-shell-escape" not in command
 
 
-def test_latexmk_shebang_helpers_are_bound(tmp_path, monkeypatch):
+def test_tex_engine_keeps_its_real_path_and_public_symlink(tmp_path, monkeypatch):
+    engine = "/usr/local/texlive/bin/x86_64-linux/pdftex"
+    original_is_dir = sandbox.os.path.isdir
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(
+        sandbox, "_public_executable", lambda name: f"/usr/local/bin/{name}"
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "realpath",
+        lambda path: engine if path == "/usr/local/bin/pdflatex" else path,
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "isdir",
+        lambda path: path == os.path.dirname(engine) or original_is_dir(path),
+    )
+
+    command = sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
+    mounts = [command[index : index + 3] for index in range(len(command) - 2)]
+
+    assert ["--tmpfs", os.path.dirname(engine)] in [
+        command[index : index + 2] for index in range(len(command) - 1)
+    ]
+    assert ["--ro-bind", engine, engine] in mounts
+    assert ["--symlink", engine, "/usr/local/bin/pdflatex"] in mounts
+    assert ["--ro-bind", engine, "/usr/local/bin/pdflatex"] not in mounts
+
+
+def test_latexmk_launcher_helpers_are_bound(tmp_path, monkeypatch):
     monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
     monkeypatch.setattr(sandbox, "_public_executable", lambda name: f"/usr/bin/{name}")
     monkeypatch.setattr(sandbox.os.path, "realpath", lambda path: path)
@@ -77,9 +105,10 @@ def test_latexmk_shebang_helpers_are_bound(tmp_path, monkeypatch):
     command = sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
     mounts = [command[index : index + 3] for index in range(len(command) - 2)]
 
-    for name in ("env", "perl"):
+    for name in ("env", "perl", "sh"):
         assert ["--ro-bind", f"/usr/bin/{name}", f"/usr/bin/{name}"] in mounts
-    assert ["--ro-bind", "/usr/bin/sh", "/usr/bin/sh"] not in mounts
+    assert ["--ro-bind", "/usr/bin/python3", "/usr/bin/python3"] not in mounts
+    assert ["--symlink", "usr/bin", "/bin"] in mounts
 
 
 def test_shell_helpers_are_only_exposed_for_shell_escape(tmp_path, monkeypatch):

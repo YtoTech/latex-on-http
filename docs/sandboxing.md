@@ -29,6 +29,8 @@ Bubblewrap always creates a mount namespace and uses `pivot_root` to finish its 
 
 The sandbox deliberately does **not** mount procfs. Container runtimes mask parts of the outer `/proc`, which can cause `bwrap: Can't mount proc on /proc: Operation not permitted` in a nested PID namespace. TeX and the supported helpers do not need procfs, so omitting it avoids widening access to host namespace paths. The private PID namespace remains enabled for process-tree containment.
 
+Latexmk requires `env`, Perl, and `/bin/sh` for its own process launching, including with TeX's `-no-shell-escape`. Those fixed launchers are always mounted, with the `/bin` to `usr/bin` symlink retained. Python, Pygments, and any extra configured helpers remain restricted to shell-escape jobs.
+
 Recreate the service after changing security or namespace configuration—rebuilding its image or running `docker compose restart` alone does not update an existing container's runtime settings:
 
 ```sh

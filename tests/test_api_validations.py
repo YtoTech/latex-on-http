@@ -53,6 +53,15 @@ def test_sandbox_unavailable_returns_503_and_preserves_shell_escape_option(monke
     assert received_options[0]["compiler"]["shell_escape"] is True
 
 
+def test_malformed_resource_is_rejected_before_build():
+    response = build_client().post(
+        "/builds/sync", json={"resources": ["not a resource mapping"]}
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "INVALID_PAYLOAD_SHAPE"
+
+
 def test_resource_rejects_multiple_source_fields():
     response = build_client().post(
         "/builds/sync",

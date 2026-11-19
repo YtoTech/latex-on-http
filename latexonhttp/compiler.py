@@ -104,6 +104,13 @@ def run_command(
         raise SandboxUnavailable(stdout.strip())
     ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
+    if rc != 0:
+        logger.warning(
+            "Command %r failed with return code %d. Command output:\n%s",
+            original_command,
+            rc,
+            stdout or "<no output>",
+        )
     return {
         "command": original_command,
         "return_code": rc,
