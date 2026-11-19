@@ -221,7 +221,10 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
     #     logger.debug(command)
     #     commandOutputs.append(run_command(log_dir, command))
     # Return both generated PDF and compile logs.
-    pdf = read_generated_file(directory, output_path, MAX_PDF_SIZE)
+    pdf, read_error = read_generated_file(directory, output_path, MAX_PDF_SIZE)
+    if read_error and read_error["file_read_error"]["reason"] == "not_found":
+        # A missing PDF is normally the result of an ordinary LaTeX error.
+        read_error = None
     commandsStatusCodes = [
         commandOutput["return_code"] for commandOutput in commandOutputs
     ]
@@ -231,8 +234,19 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
     # )
     logger.info(output_path)
     is_timeout = any(commandOutput["is_timeout"] for commandOutput in commandOutputs)
-    status = None
-    if force_latexmk:
+    log_files = {}
+    # Get the log files.
+    for log_path in glob.glob("*.log", root_dir=directory):
+        log_data, log_error = read_generated_file(
+            directory, os.path.join(directory, log_path), MAX_LOG_FILE_SIZE
+        )
+        if log_error and read_error is None:
+            read_error = log_error
+        if log_data is not None:
+            log_files[log_path] = log_data.decode("utf-8", errors="replace")
+    if read_error:
+        status = "error"
+    elif force_latexmk:
         status = "ok" if pdf and not is_timeout else "ko"
     else:
         status = (
@@ -244,17 +258,10 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
             else "ko"
         )
     logger.info("Compilation %s is %s: %s", workspace_id, status, commandsStatusCodes)
-    log_files = {}
-    # Get the log files.
-    for log_path in glob.glob("*.log", root_dir=directory):
-        log_data = read_generated_file(
-            directory, os.path.join(directory, log_path), MAX_LOG_FILE_SIZE
-        )
-        if log_data is not None:
-            log_files[log_path] = log_data.decode("utf-8", errors="replace")
     return {
         # TODO Also return each command metadatas for db.
         "status": status,
+        "error": read_error,
         "pdf": pdf,
         "log_files": log_files,
         "output_path": main_resource["output_path"],

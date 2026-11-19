@@ -63,6 +63,58 @@ def test_sandbox_unavailable_returns_503_and_preserves_shell_escape_option(monke
     assert context["compiler"] == "uplatex"
 
 
+@pytest.mark.parametrize("include_log_files", [True, False])
+def test_generated_file_error_returns_400(monkeypatch, include_log_files):
+    compilation_output = {
+        "status": "error",
+        "error": {
+            "error": "GENERATED_FILE_READ_ERROR",
+            "file_read_error": {
+                "reason": "too_large",
+                "path": "main.pdf",
+            },
+        },
+        "pdf": None,
+        "log_files": {"main.log": "LaTeX log"},
+        "output_path": "main.pdf",
+        "duration": 1.236,
+        "logs": "compiler diagnostics",
+        "commands": ["latexmk", "main.tex"],
+        "is_timeout": False,
+    }
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.latexToPdf", lambda *args, **kwargs: compilation_output
+    )
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.forward_resource_to_cache",
+        lambda _resource, _data: (True, None),
+    )
+
+    response = build_client().post(
+        "/builds/sync",
+        json={
+            "resources": [{"main": True, "content": "test"}],
+            "options": {
+                "response": {"log_files_on_failure": include_log_files},
+            },
+        },
+    )
+
+    assert response.status_code == 400
+    expected = {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "too_large",
+            "path": "main.pdf",
+        },
+        "duration": 1.24,
+        "logs": "compiler diagnostics",
+    }
+    if include_log_files:
+        expected["log_files"] = {"main.log": "LaTeX log"}
+    assert response.get_json() == expected
+
+
 def test_malformed_resource_is_rejected_before_build():
     response = build_client().post(
         "/builds/sync", json={"resources": ["not a resource mapping"]}

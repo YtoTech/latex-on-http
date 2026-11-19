@@ -406,6 +406,32 @@ def compiler_latex():
         # Response creation.
         # -------------
 
+        if latexToPdfOutput["status"] == "error":
+            error_compilation = latexToPdfOutput["logs"]
+            return (
+                {
+                    **latexToPdfOutput["error"],
+                    "duration": round(latexToPdfOutput["duration"], 2),
+                    "logs": latexToPdfOutput["logs"],
+                    **(
+                        {
+                            "log_files": latexToPdfOutput["log_files"],
+                        }
+                        if glom.glom(
+                            input_spec, "options.response.log_files_on_failure"
+                        )
+                        else {}
+                    ),
+                    **(
+                        {
+                            "commands": latexToPdfOutput["commands"],
+                        }
+                        if glom.glom(input_spec, "options.response.commands")
+                        else {}
+                    ),
+                },
+                400,
+            )
         if latexToPdfOutput["status"] != "ok":
             error_compilation = latexToPdfOutput["logs"]
             return (

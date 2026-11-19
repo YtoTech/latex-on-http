@@ -60,7 +60,10 @@ def test_read_generated_file_returns_regular_file_bytes(tmp_path):
     output = tmp_path / "main.pdf"
     output.write_bytes(b"%PDF-1.7")
 
-    assert filesystem.read_generated_file(tmp_path, output, 100) == b"%PDF-1.7"
+    data, error = filesystem.read_generated_file(tmp_path, output, 100)
+
+    assert data == b"%PDF-1.7"
+    assert error is None
 
 
 def test_generated_file_outside_workspace_is_not_read(tmp_path):
@@ -69,7 +72,16 @@ def test_generated_file_outside_workspace_is_not_read(tmp_path):
     outside = tmp_path / "outside.pdf"
     outside.write_bytes(b"not a workspace output")
 
-    assert filesystem.read_generated_file(workspace, outside, 100) is None
+    data, error = filesystem.read_generated_file(workspace, outside, 100)
+
+    assert data is None
+    assert error == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "outside_workspace",
+            "path": "../outside.pdf",
+        },
+    }
 
 
 def test_generated_pdf_symlink_is_not_followed(tmp_path):
@@ -79,13 +91,66 @@ def test_generated_pdf_symlink_is_not_followed(tmp_path):
     original.write_bytes(b"original output")
     (workspace / "main.pdf").symlink_to(original)
 
-    assert (
-        filesystem.read_generated_file(workspace, workspace / "main.pdf", 100) is None
-    )
+    data, error = filesystem.read_generated_file(workspace, workspace / "main.pdf", 100)
+
+    assert data is None
+    assert error == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "symlink",
+            "path": "main.pdf",
+        },
+    }
 
 
 def test_generated_file_size_is_bounded(tmp_path):
     output = tmp_path / "main.pdf"
     output.write_bytes(b"0123456789")
 
-    assert filesystem.read_generated_file(tmp_path, output, 9) is None
+    data, error = filesystem.read_generated_file(tmp_path, output, 9)
+
+    assert data is None
+    assert error == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "too_large",
+            "path": "main.pdf",
+        },
+    }
+
+
+def test_missing_generated_file_returns_not_found_error(tmp_path):
+    data, error = filesystem.read_generated_file(
+        tmp_path, tmp_path / "missing.pdf", 100
+    )
+
+    assert data is None
+    assert error["file_read_error"]["reason"] == "not_found"
+
+
+def test_generated_directory_returns_not_regular_error(tmp_path):
+    data, error = filesystem.read_generated_file(tmp_path, tmp_path, 100)
+
+    assert data is None
+    assert error["file_read_error"]["reason"] == "not_regular"
+
+
+def test_generated_file_os_error_returns_read_error(tmp_path, monkeypatch):
+    output = tmp_path / "main.pdf"
+    output.write_bytes(b"%PDF-1.7")
+
+    def fail_open(*args):
+        raise PermissionError("read denied")
+
+    monkeypatch.setattr(filesystem.os, "open", fail_open)
+
+    data, error = filesystem.read_generated_file(tmp_path, output, 100)
+
+    assert data is None
+    assert error == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "read_error",
+            "path": "main.pdf",
+        },
+    }

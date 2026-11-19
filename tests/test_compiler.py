@@ -84,6 +84,100 @@ def test_latex_to_pdf_replaces_invalid_utf8_in_log_files(tmp_path, monkeypatch):
     assert result["log_files"] == {"main.log": "latex log: \ufffd\n"}
 
 
+def test_valid_pdf_and_log_return_success(tmp_path, monkeypatch):
+    (tmp_path / "main.pdf").write_bytes(b"%PDF-1.7")
+    (tmp_path / "main.log").write_text("LaTeX log")
+    monkeypatch.setattr(
+        compiler,
+        "run_command",
+        lambda directory, command, **kwargs: fake_command_result(command),
+    )
+
+    result = compiler.latexToPdf(
+        "pdflatex",
+        str(tmp_path),
+        {"build_path": "main.tex", "output_path": "main.pdf"},
+        "test-workspace",
+    )
+
+    assert result["status"] == "ok"
+    assert result["error"] is None
+    assert result["pdf"] == b"%PDF-1.7"
+    assert result["log_files"] == {"main.log": "LaTeX log"}
+
+
+def test_missing_pdf_remains_an_ordinary_compilation_failure(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        compiler,
+        "run_command",
+        lambda directory, command, **kwargs: fake_command_result(command),
+    )
+
+    result = compiler.latexToPdf(
+        "pdflatex",
+        str(tmp_path),
+        {"build_path": "main.tex", "output_path": "main.pdf"},
+        "test-workspace",
+    )
+
+    assert result["status"] == "ko"
+    assert result["error"] is None
+    assert result["pdf"] is None
+
+
+def test_oversized_pdf_returns_a_generated_file_error(tmp_path, monkeypatch):
+    (tmp_path / "main.pdf").write_bytes(b"0123456789")
+    monkeypatch.setattr(compiler, "MAX_PDF_SIZE", 9)
+    monkeypatch.setattr(
+        compiler,
+        "run_command",
+        lambda directory, command, **kwargs: fake_command_result(command),
+    )
+
+    result = compiler.latexToPdf(
+        "pdflatex",
+        str(tmp_path),
+        {"build_path": "main.tex", "output_path": "main.pdf"},
+        "test-workspace",
+    )
+
+    assert result["status"] == "error"
+    assert result["error"] == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "too_large",
+            "path": "main.pdf",
+        },
+    }
+
+
+def test_symlinked_log_returns_a_generated_file_error(tmp_path, monkeypatch):
+    (tmp_path / "main.pdf").write_bytes(b"%PDF-1.7")
+    (tmp_path / "original.log").write_text("original log")
+    (tmp_path / "main.log").symlink_to(tmp_path / "original.log")
+    monkeypatch.setattr(
+        compiler,
+        "run_command",
+        lambda directory, command, **kwargs: fake_command_result(command),
+    )
+
+    result = compiler.latexToPdf(
+        "pdflatex",
+        str(tmp_path),
+        {"build_path": "main.tex", "output_path": "main.pdf"},
+        "test-workspace",
+    )
+
+    assert result["status"] == "error"
+    assert result["error"] == {
+        "error": "GENERATED_FILE_READ_ERROR",
+        "file_read_error": {
+            "reason": "symlink",
+            "path": "main.log",
+        },
+    }
+
+
 def test_latex_to_pdf_disables_shell_escape_by_default(tmp_path, monkeypatch):
     calls = []
 

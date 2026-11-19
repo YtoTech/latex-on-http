@@ -8,6 +8,7 @@ Filesystem driver / management for build workspaces.
 :license: AGPL, see LICENSE for more details.
 """
 
+import errno
 import logging
 import os.path
 import shutil
@@ -66,26 +67,41 @@ def persist_resource_to_workspace(workspace_id, resource, data):
 
 
 def read_generated_file(workspace_root, path, max_size):
-    """Read a regular workspace output without following compiler-created symlinks."""
+    """Read a bounded regular workspace output and return data with an error."""
+
+    def error_result(reason):
+        return None, {
+            "error": "GENERATED_FILE_READ_ERROR",
+            "file_read_error": {
+                "reason": reason,
+                "path": os.path.relpath(path, workspace_root),
+            },
+        }
+
     if not is_safe_path(workspace_root, path):
-        logger.warning("Ignoring compilation output outside workspace %s", path)
-        return None
+        logger.warning("Cannot read compilation output outside workspace %s", path)
+        return error_result("outside_workspace")
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     try:
         file_descriptor = os.open(path, flags)
         with os.fdopen(file_descriptor, "rb") as fd:
             if not stat.S_ISREG(os.fstat(fd.fileno()).st_mode):
-                logger.warning("Ignoring non-regular compilation output %s", path)
-                return None
+                logger.warning("Cannot read non-regular compilation output %s", path)
+                return error_result("not_regular")
             data = fd.read(max_size + 1)
             if len(data) > max_size:
-                logger.warning("Ignoring oversized compilation output %s", path)
-                return None
-            return data
+                logger.warning("Cannot read oversized compilation output %s", path)
+                return error_result("too_large")
+            return data, None
     except OSError as error:
-        # This includes missing files and ELOOP for symbolic links.
         logger.warning("Cannot safely read compilation output %s: %s", path, error)
-        return None
+        if error.errno == errno.ENOENT:
+            return error_result("not_found")
+        if error.errno == errno.EISDIR:
+            return error_result("not_regular")
+        if error.errno == errno.ELOOP:
+            return error_result("symlink")
+        return error_result("read_error")
 
 
 def make_workspace(workspace_id):
