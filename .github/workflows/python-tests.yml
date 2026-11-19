@@ -35,6 +35,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: docs/site/package-lock.json
+      - name: Install the documentation dependencies
+        run: make docs-install
       - name: Build the documentation site
         run: make build-docs
       - name: Build unit-test environment
