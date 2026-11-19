@@ -39,5 +39,8 @@ tlmgr install \
     footmisc \
     l3kernel \
     l3packages \
-    l3experimental
+    l3experimental \
+    collection-langjapanese
+
+# Japanese support: collection-langjapanese provides jsarticle, uplatex, and fonts.
 
