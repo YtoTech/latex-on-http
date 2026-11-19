@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_api_querystring
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,7 +8,9 @@ Check Latex GET/querystring compiling API.
 """
 
 import pprint
+
 import requests
+
 from .utils.pdf import snapshot_pdf
 
 LATEX_HELLO_WORLD = (

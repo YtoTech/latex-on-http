@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_api_json
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,10 +8,8 @@ Check Latex POST/json compiling API.
 """
 
 import pytest
-import json
 import requests
-from concurrent.futures import ThreadPoolExecutor
-from requests_futures.sessions import FuturesSession
+
 from .utils.pdf import snapshot_pdf
 
 COMPIL_BIBLATEX_SPEC = {

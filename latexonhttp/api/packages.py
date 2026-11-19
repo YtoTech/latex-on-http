@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.api.packages
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,7 +8,7 @@ Manage LaTeX-On-HTTP Latex packages.
 """
 
 from flask import Blueprint, url_for
-from texlivemetadata import list_installed_packages, get_package_info, get_ctan_link
+from texlivemetadata import get_ctan_link, get_package_info, list_installed_packages
 
 packages_app = Blueprint("packages", __name__)
 

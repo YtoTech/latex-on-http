@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.api.caches
 ~~~~~~~~~~~~~~~~~~~~~
@@ -10,14 +9,14 @@ and to allow smart-client optimization (server-cache use).
 """
 
 import logging
+
 from flask import Blueprint, request
+
 from latexonhttp.caching.resources import (
-    get_cache_metadata_snapshot,
     are_resources_in_cache,
+    get_cache_metadata_snapshot,
     reset_cache,
 )
-
-from pprint import pformat
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.api.fonts
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,8 +7,8 @@ Manage LaTeX-On-HTTP fonts.
 :license: AGPL, see LICENSE for more details.
 """
 
-from flask import Blueprint
 from fclist import fclist
+from flask import Blueprint
 
 fonts_app = Blueprint("fonts", __name__)
 

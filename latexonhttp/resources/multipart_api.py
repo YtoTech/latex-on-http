@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.resources.multipart_api
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,10 +7,11 @@ HTTP multipart/form-data API for compilation resources specification.
 :license: AGPL, see LICENSE for more details.
 """
 
-import logging
-import json
 import base64
+import json
+import logging
 import pprint
+
 import glom
 
 logger = logging.getLogger(__name__)

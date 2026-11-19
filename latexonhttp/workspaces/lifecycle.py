@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.workspaces.lifecycle
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,6 +8,7 @@ Lifecycle management for build workspaces.
 """
 
 import uuid
+
 from .filesystem import delete_workspace, make_workspace
 
 

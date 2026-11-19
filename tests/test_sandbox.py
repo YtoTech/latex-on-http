@@ -2,14 +2,49 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 
 import pytest
 
 from latexonhttp import compiler, sandbox
 
 BWRAP_AVAILABLE = shutil.which("bwrap") is not None
-if os.getenv("LATEX_REQUIRE_SANDBOX_TESTS") == "1" and not BWRAP_AVAILABLE:
-    raise RuntimeError("Sandbox tests are required, but Bubblewrap is not installed")
+
+
+def _bwrap_namespaces_available():
+    """Probe whether Bubblewrap can actually create user namespaces here.
+
+    bwrap may be installed while the kernel forbids unprivileged user
+    namespaces (e.g. hardened LLM/CI containers).
+    """
+    if not BWRAP_AVAILABLE:
+        return False
+    probe = subprocess.run(
+        [
+            os.getenv("LATEX_BWRAP_PATH", "bwrap"),
+            "--unshare-all",
+            "--ro-bind",
+            "/",
+            "/",
+            "/bin/true",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    return probe.returncode == 0
+
+
+BWRAP_NAMESPACES_AVAILABLE = _bwrap_namespaces_available()
+if os.getenv("LATEX_REQUIRE_SANDBOX_TESTS") == "1":
+    if not BWRAP_AVAILABLE:
+        raise RuntimeError(
+            "Sandbox tests are required, but Bubblewrap is not installed"
+        )
+    if not BWRAP_NAMESPACES_AVAILABLE:
+        raise RuntimeError(
+            "Sandbox tests are required, but Bubblewrap cannot create namespaces."
+            " Fix the host/container policy before accepting untrusted compilations."
+        )
 
 
 def test_missing_bubblewrap_fails_closed(tmp_path, monkeypatch):
@@ -246,6 +281,10 @@ def test_shell_helpers_are_only_exposed_for_shell_escape(tmp_path, monkeypatch):
 
 
 @pytest.mark.skipif(not BWRAP_AVAILABLE, reason="Bubblewrap is not installed")
+@pytest.mark.skipif(
+    not BWRAP_NAMESPACES_AVAILABLE,
+    reason="Bubblewrap cannot create user namespaces in this environment",
+)
 def test_real_sandbox_hides_host_files_network_and_environment(tmp_path, monkeypatch):
     monkeypatch.setenv("SANDBOX_TEST_SECRET", "must-not-leak")
     result = compiler.run_command(

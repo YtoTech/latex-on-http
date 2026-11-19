@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Bubblewrap sandbox for untrusted compilation process trees."""
 
 import os

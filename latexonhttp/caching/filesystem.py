@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.caching.filesystem
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,8 +8,9 @@ Filesystem driver / management for LaTeX-On-HTTP cache.
 """
 
 import logging
-import shutil
 import os.path
+import shutil
+
 from latexonhttp.caching.store import get_cache_metadata
 from latexonhttp.resources.utils import process_resource_data_spec
 

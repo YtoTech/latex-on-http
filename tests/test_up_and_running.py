@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_up_and_running
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,8 +7,8 @@ Ensures the service is running and test basic functions.
 :license: AGPL, see LICENSE for more details.
 """
 
-import pytest
 import requests
+
 from latexonhttp.utils.misc import get_api_version
 
 

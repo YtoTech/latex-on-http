@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.resources.querystring_api
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,9 +8,8 @@ HTTP GET querystring API for compilation resources specification.
 """
 
 import logging
-import json
-import base64
 import pprint
+
 import glom
 
 logger = logging.getLogger(__name__)

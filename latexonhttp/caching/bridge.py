@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.caching.bridge
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,11 +7,12 @@ Bridge to LaTeX-On-HTTP cache process.
 :license: AGPL, see LICENSE for more details.
 """
 
-import os
 import logging
+import os
+
 import msgpack
-import zmq
 import sentry_sdk
+import zmq
 
 REQUEST_RECV_TIMEOUT = 1500
 REQUEST_RETRIES = 2

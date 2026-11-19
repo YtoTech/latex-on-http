@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_compiler
 ~~~~~~~~~~~~~~~~~~~
@@ -34,9 +33,11 @@ def test_run_command_replaces_invalid_utf8_output(tmp_path):
         [
             sys.executable,
             "-c",
-            "import sys; "
-            "sys.stdout.buffer.write(b'latex output: \\x9d\\n'); "
-            "raise SystemExit(12)",
+            (
+                "import sys; "
+                "sys.stdout.buffer.write(b'latex output: \\x9d\\n'); "
+                "raise SystemExit(12)"
+            ),
         ],
         isolate=False,
     )
@@ -53,9 +54,11 @@ def test_failed_command_logs_full_output(tmp_path, caplog):
         [
             sys.executable,
             "-c",
-            "import sys; "
-            "sys.stderr.write('LATEX_DIAGNOSTIC\\nSECOND_DIAGNOSTIC_LINE'); "
-            "raise SystemExit(12)",
+            (
+                "import sys; "
+                "sys.stderr.write('LATEX_DIAGNOSTIC\\nSECOND_DIAGNOSTIC_LINE'); "
+                "raise SystemExit(12)"
+            ),
         ],
         isolate=False,
     )
@@ -224,8 +227,10 @@ def test_bubblewrap_startup_failure_is_not_a_latex_error(tmp_path, monkeypatch):
         lambda *_args, **_kwargs: [
             sys.executable,
             "-c",
-            "import sys; sys.stderr.write('bwrap: No permissions to create namespace'); "
-            "raise SystemExit(1)",
+            (
+                "import sys; sys.stderr.write('bwrap: No permissions to create namespace'); "
+                "raise SystemExit(1)"
+            ),
         ],
     )
 
@@ -250,11 +255,13 @@ def test_timeout_kills_descendant_processes(tmp_path):
         [
             sys.executable,
             "-c",
-            "import subprocess, sys, time; "
-            "subprocess.Popen([sys.executable, '-c', "
-            "'import pathlib,time; time.sleep(0.8); "
-            'pathlib.Path("child-survived").write_text("yes")\']); '
-            "time.sleep(30)",
+            (
+                "import subprocess, sys, time; "
+                "subprocess.Popen([sys.executable, '-c', "
+                "'import pathlib,time; time.sleep(0.8); "
+                'pathlib.Path("child-survived").write_text("yes")\']); '
+                "time.sleep(30)"
+            ),
         ],
         timeout=0.3,
         isolate=False,

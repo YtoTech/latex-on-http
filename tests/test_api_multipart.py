@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_api_multipart
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,6 +8,7 @@ Check Latex multipart compiling API.
 """
 
 import requests
+
 from .utils.pdf import snapshot_pdf
 
 LATEX_HELLO_WORLD = (

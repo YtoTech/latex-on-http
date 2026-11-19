@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.resources.json_api
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,7 +8,7 @@ HTTP json API for compilation resources specification.
 """
 
 import logging
-import pprint
+
 import glom
 
 logger = logging.getLogger(__name__)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.utils.texlive
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@ LaTeX-On-HTTP TeX Live utils.
 :license: AGPL, see LICENSE for more details.
 """
 
-import subprocess
 from texlivemetadata import get_texlive_version_information
 
 TEXLIVE_VERSION_SPEC = None

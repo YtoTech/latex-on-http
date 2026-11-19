@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.compiler
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,12 +8,14 @@ Get a compilation order (dict task spec) and compiles the order.
 :license: AGPL, see LICENSE for more details.
 """
 
-import subprocess
-import os
-import timeit
-import logging
 import glob
+import logging
+import os
+import subprocess
+import timeit
+
 import glom
+
 from latexonhttp.sandbox import (
     SandboxUnavailable,
     _configured_commands,
@@ -22,7 +23,6 @@ from latexonhttp.sandbox import (
     prepare_workspace,
     sandbox_enabled,
 )
-from latexonhttp.workspaces.filesystem import read_generated_file
 from latexonhttp.sandbox_diagnostics import (
     find_sandbox_process_issue,
     report_sandbox_diagnostic,
@@ -31,14 +31,11 @@ from latexonhttp.utils.processes import (
     kill_all_children_processes,
     terminate_process_group,
 )
+from latexonhttp.workspaces.filesystem import read_generated_file
 
 logger = logging.getLogger(__name__)
 # In seconds.
 DEFAULT_COMPILE_TIMEOUT = int(os.getenv("DEFAULT_COMPILE_TIMEOUT", 100))
-
-# TODO Temporary dirty work.
-# Lol.
-# (Like any Python script that grow indefinitely?)
 
 # TODO Let users access tex, latex, dvilualatex, ptex and uptexfor DVI output.
 # https://tex.stackexchange.com/a/397312/122145

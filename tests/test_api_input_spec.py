@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_inpuc_spec
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,7 +8,6 @@ Tests on LaTeX-on-HTTP input spec.
 """
 
 import pytest
-import json
 import requests
 
 

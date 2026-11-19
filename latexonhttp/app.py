@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.app
 ~~~~~~~~~~~~~~~~~~~~~
@@ -9,18 +8,20 @@ Here are exposed the Rest API endpoints.
 :license: AGPL, see LICENSE for more details.
 """
 
-import os
 import logging.config
+import os
+
 import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
 from flask import Flask
 from flask_cors import CORS
+from sentry_sdk.integrations.flask import FlaskIntegration
+
 from latexonhttp.api.builds import builds_app
+from latexonhttp.api.caches import caches_app
 from latexonhttp.api.fonts import fonts_app
 from latexonhttp.api.packages import packages_app
-from latexonhttp.api.texlive import texlive_app
-from latexonhttp.api.caches import caches_app
 from latexonhttp.api.projects import projects_app
+from latexonhttp.api.texlive import texlive_app
 from latexonhttp.utils.misc import get_api_version
 from latexonhttp.utils.texlive import get_texlive_version_spec
 

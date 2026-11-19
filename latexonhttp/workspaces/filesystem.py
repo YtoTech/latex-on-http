@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.workspaces.filesystem
 ~~~~~~~~~~~~~~~~~~~~~
@@ -36,7 +35,7 @@ def is_safe_path(basedir, path, follow_symlinks=True):
 
 
 def get_workspace_root_path(workspace_id):
-    return os.path.abspath("{}/{}".format(WORKSPACE_DIRECTORY, workspace_id))
+    return os.path.abspath(f"{WORKSPACE_DIRECTORY}/{workspace_id}")
 
 
 def get_resource_fullpath(workspace_id, resource):

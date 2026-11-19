@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.caching.process
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,17 +7,19 @@ Manage LaTeX-On-HTTP cache process lifecycle.
 :license: AGPL, see LICENSE for more details.
 """
 
-import os
-import sentry_sdk
 import logging.config
+import os
+
+import sentry_sdk
 import zmq
-from latexonhttp.caching.bridge import serialize_message, deserialize_message
 from latexonhttp.caching.resources import (
+    do_are_resources_in_cache,
     do_forward_resource_to_cache,
     do_get_resource_from_cache,
-    do_are_resources_in_cache,
     do_reset_cache,
 )
+
+from latexonhttp.caching.bridge import deserialize_message, serialize_message
 from latexonhttp.caching.store import get_cache_metadata
 from latexonhttp.utils.misc import get_api_version
 
