@@ -12,7 +12,11 @@ on:
       - '.github/workflows/docker-base-images.yml'
 
 jobs:
+  python-tests:
+    uses: ./.github/workflows/python-tests.yml
+
   build-and-push-base-images:
+    needs: python-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
