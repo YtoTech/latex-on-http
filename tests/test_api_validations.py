@@ -22,6 +22,14 @@ from latexonhttp.resources.fetching import (
 )
 
 
+@pytest.fixture(autouse=True)
+def disable_job_tracking(monkeypatch):
+    monkeypatch.setattr("latexonhttp.api.builds.create_job", lambda _metadata: None)
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.update_job", lambda *_args, **_kwargs: None
+    )
+
+
 def build_client():
     test_app = Flask(__name__)
     test_app.register_blueprint(builds_app, url_prefix="/builds")

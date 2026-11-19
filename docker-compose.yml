@@ -16,11 +16,14 @@ services:
       KEEP_WORKSPACE_DIR: 1
       KEEP_WORKSPACE_DIR_ON_ERROR: 0
       GOOSE_DBSTRING: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
+      DATABASE_URL: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
       LOGGING_LEVEL: DEBUG
       DEFAULT_COMPILE_TIMEOUT: 30
     depends_on:
-      - cache
-      - postgres_db
+      cache:
+        condition: service_started
+      postgres_db:
+        condition: service_healthy
   cache:
     build:
       context: .
@@ -42,6 +45,11 @@ services:
       POSTGRES_DB: latexonhttp
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U latexonhttp -d latexonhttp"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
   adminer:
     image: docker.io/shyim/adminerevo:4.8.4
     ports:
