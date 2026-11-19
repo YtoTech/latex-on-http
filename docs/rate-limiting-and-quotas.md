@@ -63,6 +63,7 @@ Quota denials return HTTP 429 before any payload parsing:
 {
   "error": "QUOTA_EXCEEDED",
   "message": "Fair-use quota exceeded. Slow down, or wait for the window to reset.",
+  "documentation": "https://latex.ytotech.com/docs/api/rate-limiting/",
   "quota": {
     "period": "hour",
     "limit": 40,
@@ -72,6 +73,11 @@ Quota denials return HTTP 429 before any payload parsing:
   }
 }
 ```
+
+The `documentation` field carries the absolute URL of the rate-limiting page
+served by the instance itself (`/docs/api/rate-limiting/`), derived from the
+incoming request (honouring the scheme announced by a TLS-terminating reverse
+proxy).
 
 `quota.period` is the breached window, or `null` with `banned: true` when a ban is active. Responses (denials and passing requests alike) carry:
 

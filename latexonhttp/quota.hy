@@ -389,17 +389,25 @@
         :if (not (is value None))
         [header (str (int value))])))
 
-(defn quota-rejection [decision]
+(defn quota-rejection [decision [documentation-url None]]
     """
-    Build the [body, status, headers] tuple for a denied request.
+    Build the (body, status, headers) tuple for a denied request.
+
+    When a documentation URL is provided, it is included in the body.
+    The tuple (not a list!) matters: Flask only unpacks real tuples into
+    the response triple.
     """
     (if (get decision "unavailable")
-        [{"error" "QUOTA_STORE_UNAVAILABLE"} 503 {}]
-        [{"error" "QUOTA_EXCEEDED"
-          "message" "Fair-use quota exceeded. Slow down, or wait for the window to reset."
-          "quota" {"period" (get decision "period")
-                   "limit" (get decision "limit")
-                   "retry_after" (get decision "retry_after")
-                   "banned" (bool (get decision "banned"))
-                   "ban_expires_at" (get decision "ban_expires_at")}}
-         429 (rate-limit-headers decision)]))
+        (tuple [{"error" "QUOTA_STORE_UNAVAILABLE"} 503 {}])
+        (do
+            (setv body {
+                "error" "QUOTA_EXCEEDED"
+                "message" "Fair-use quota exceeded. Slow down, or wait for the window to reset."
+                "quota" {"period" (get decision "period")
+                         "limit" (get decision "limit")
+                         "retry_after" (get decision "retry_after")
+                         "banned" (bool (get decision "banned"))
+                         "ban_expires_at" (get decision "ban_expires_at")}})
+            (when documentation-url
+                (setv (get body "documentation") documentation-url))
+            (tuple [body 429 (rate-limit-headers decision)]))))

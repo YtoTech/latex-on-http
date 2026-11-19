@@ -2,7 +2,7 @@
 
 ## 2026-11-19-4
 
-* Add fair-use quota and rate limiting on `/builds/sync`: per-client-IP counters in a Valkey store across second/minute/hour/day/week windows, `429 QUOTA_EXCEEDED` responses with `Retry-After` and `X-RateLimit-*` headers, and automatic escalation to 1-hour/24-hour bans for clients that keep firing while over quota. The quota is active only when `VALKEY_HOST` is configured, and fails open when the store is unreachable; documented in `docs/rate-limiting-and-quotas.md`.
+* Add fair-use quota and rate limiting on `/builds/sync`: per-client-IP counters in a Valkey store across second/minute/hour/day/week windows, `429 QUOTA_EXCEEDED` responses with `Retry-After` and `X-RateLimit-*` headers and a link to the instance-served rate-limiting documentation, and automatic escalation to 1-hour/24-hour bans for clients that keep firing while over quota. The quota is active only when `VALKEY_HOST` is configured, and fails open when the store is unreachable; documented in `docs/rate-limiting-and-quotas.md`.
 * Add the `valkey` Docker Compose service (ephemeral, memory-bounded) and the `VALKEY_*`/`QUOTA_*` configuration.
 * Add PostgreSQL indexes on `(remote_ip, received_at)`, `(forwarded_remote_ip, received_at)` and `received_at` for performant IP/period lookups on the durable jobs record.
 

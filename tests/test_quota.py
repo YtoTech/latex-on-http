@@ -386,11 +386,17 @@ def test_rejection_response_shape():
         retry_after=812,
         banned=False,
     )
-    body, status, headers = quota.quota_rejection(decision)
+    body, status, headers = quota.quota_rejection(
+        decision, "https://latex.ytotech.com/docs/api/rate-limiting/"
+    )
+    # Flask unpacks only real tuples into (body, status, headers); a list
+    # would be serialized as the whole JSON body with a 200 status.
+    assert isinstance(quota.quota_rejection(decision), tuple)
     assert status == 429 and body["error"] == "QUOTA_EXCEEDED"
     assert body["quota"]["period"] == "hour"
     assert body["quota"]["limit"] == 40
     assert body["quota"]["banned"] is False
+    assert body["documentation"] == "https://latex.ytotech.com/docs/api/rate-limiting/"
     assert headers["Retry-After"] == "812"
     assert headers["X-RateLimit-Limit"] == "40"
     assert headers["X-RateLimit-Remaining"] == "0"
@@ -404,12 +410,22 @@ def test_rejection_response_shape_when_banned():
         ban_expires_at=1763646000,
         retry_after=82800,
     )
-    body, status, headers = quota.quota_rejection(decision)
+    body, status, headers = quota.quota_rejection(
+        decision, "https://latex.ytotech.com/docs/api/rate-limiting/"
+    )
     assert status == 429
     assert body["quota"]["banned"] is True
     assert body["quota"]["period"] is None
+    assert body["documentation"] == "https://latex.ytotech.com/docs/api/rate-limiting/"
     assert headers["Retry-After"] == "82800"
     assert "X-RateLimit-Limit" not in headers
+
+
+def test_rejection_without_documentation_url_omits_the_key():
+    decision = quota._decision(allowed=False, period="hour", limit=40, retry_after=812)
+    body, status, _ = quota.quota_rejection(decision)
+    assert status == 429
+    assert "documentation" not in body
 
 
 def test_allowed_decision_has_no_retry_after():
@@ -441,6 +457,7 @@ def test_integration_quota_denies_flood(latex_on_http_api_url):
     assert 429 in statuses
     first_denial = responses[statuses.index(429)]
     assert first_denial.json()["error"] == "QUOTA_EXCEEDED"
+    assert first_denial.json()["documentation"].endswith("/docs/api/rate-limiting/")
     assert int(first_denial.headers["Retry-After"]) >= 1
     assert "X-RateLimit-Limit" in first_denial.headers
     assert all(status != 429 for status in statuses[: statuses.index(429)])
