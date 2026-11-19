@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.resources.fetching
 ~~~~~~~~~~~~~~~~~~~~~
@@ -10,8 +9,10 @@ Fetchers for resources.
 
 import base64
 import binascii
-import requests
 import logging
+import os
+
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +65,13 @@ def fetcher_base64_file(resource, _get_from_cache):
         )
 
 
-# TODO Make it configurable.
-# (So we can - around other things - reduce the delay in test configuration)
-HTTP_REQUEST_TIMEOUT = (15, 60)
+# In seconds.
+# Configurable by environment, so we can - among other things - reduce the
+# delay in test configuration (see docker-compose.test.yml).
+HTTP_REQUEST_CONNECT_TIMEOUT = float(os.getenv("HTTP_REQUEST_CONNECT_TIMEOUT", 15))
+HTTP_REQUEST_READ_TIMEOUT = float(os.getenv("HTTP_REQUEST_READ_TIMEOUT", 60))
+# (Connect, read) timeouts.
+HTTP_REQUEST_TIMEOUT = (HTTP_REQUEST_CONNECT_TIMEOUT, HTTP_REQUEST_READ_TIMEOUT)
 
 
 def fetcher_url_file(resource, _get_from_cache):

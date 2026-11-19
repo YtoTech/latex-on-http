@@ -9,6 +9,7 @@
 * Kill the complete process group on timeout and reject unsafe generated PDF/log symlinks.
 * Harden workspace path containment against prefix traversal and symlinked directories.
 * Fix ConTeXt compilation under sandboxing by binding the luametatex launcher stubs (`context.lua`, `mtxrun.lua`) and invoking launchers through their real TeX Live bin-directory aliases so the TeX tree configuration is preserved.
+* Make resource fetch HTTP timeouts (connect/read) configurable through the `HTTP_REQUEST_CONNECT_TIMEOUT` and `HTTP_REQUEST_READ_TIMEOUT` environment variables, and enable the resource fetch timeout test in the test configuration.
 
 ## 2026-11-18-2
 
