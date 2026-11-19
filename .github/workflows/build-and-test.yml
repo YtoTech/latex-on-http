@@ -32,5 +32,7 @@ jobs:
       - name: Build Docker images
         run: make docker-build-all
       - name: Run tests (using locally built Docker images)
-        run: make test-docker-compose
+        # The hosted runner uses rootful Docker; enable the CI-only permissions
+        # required by Bubblewrap's nested user and mount namespaces.
+        run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml test-docker-compose
    

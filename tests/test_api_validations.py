@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 tests.test_api_validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14,12 +13,20 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api.builds import builds_app
-from latexonhttp.sandbox import SandboxUnavailable
 from latexonhttp.resources.fetching import (
     fetcher_base64_file,
     fetcher_url_file,
     fetcher_utf8_string,
 )
+from latexonhttp.sandbox import SandboxUnavailable
+
+
+@pytest.fixture(autouse=True)
+def disable_job_tracking(monkeypatch):
+    monkeypatch.setattr("latexonhttp.api.builds.create_job", lambda _metadata: None)
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.update_job", lambda *_args, **_kwargs: None
+    )
 
 
 def build_client():

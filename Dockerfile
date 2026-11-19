@@ -40,7 +40,7 @@ RUN apt-get update -qq && apt-get install -y \
         sh \
     && apt-get autoremove --purge -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /app/latex-on-http/tools/migrations
-COPY ./tools/migrations/ /app/latex-on-http/tools/
+COPY ./tools/migrations/ /app/latex-on-http/tools/migrations/
 ENV GOOSE_MIGRATION_DIR="/app/latex-on-http/tools/migrations"
 ENV GOOSE_DRIVER="postgres"
 

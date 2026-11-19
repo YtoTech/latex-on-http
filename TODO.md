@@ -4,38 +4,15 @@
 ## TODOs
 
 * Isolation / security for compilation jobs/runs
-    * [x] Wrap the complete latexmk process tree with Bubblewrap.
-    * [x] Test host-file reads without shell escape and application-file reads through TeX.
-    * [x] Mount only the current workspace read/write; scrub environment and disable networking.
-    * [x] Add opt-in shell escape for minted/Pygments with a curated executable list.
     * [ ] Add delegated cgroup limits for memory, PIDs, CPU and total workspace size.
     * [ ] Consider a minimal compiler-only image/AppArmor to constrain helper executables outside standard bin directories.
-    * [x] Require the real Bubblewrap end-to-end test in Docker-based integration tests.
     * Docker
         * Siblings for each run https://github.com/overleaf/clsi
-    * firejail
-        * https://firejail.wordpress.com/
-        * https://firejail.wordpress.com/documentation-2/basic-usage/
-        * https://firejail.wordpress.com/documentation-2/building-custom-profiles/
-        * https://firejail.wordpress.com/documentation-2/firefox-guide/
-        * https://github.com/netblue30/firejail/issues/1956
-        * https://github.com/netblue30/firejail/issues/1210
-        * https://github.com/netblue30/firejail/blob/master/etc/profile-a-l/latex-common.profile
     * AppArmor
         * https://gitlab.com/apparmor/apparmor/-/wikis/Profiling_with_tools
         * https://docs.docker.com/engine/security/apparmor/#nginx-example-profile
         * https://github.com/phalaaxx/aaprofiles/blob/master/opt.telegram.Telegram
         * https://tbhaxor.com/writing-apparmor-profile-from-scratch/
-    * seccomp?
-        * See overleaf/clsi Seccomp profile
-    * Systemd unit
-        * https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#Sandboxing
-        * https://gist.github.com/ageis/f5595e59b1cddb1513d1b425a323db04
-        * See ReadOnlyPaths
-        * Sample: sudo mv borgmatic.service borgmatic.timer /etc/systemd/system/
-        * One shot unit template
-            * https://www.baeldung.com/linux/systemd-multiple-parameters
-            * https://superuser.com/questions/728951/systemd-giving-my-service-multiple-arguments
 * Introspection
     * Add deeper Latex introspection
     * Compilation options introspection
@@ -124,21 +101,11 @@
         * Go
         * .NET
 * Allows to choose the LaTex compiler (pdflatex, lualatex, xetex)
-    * Support more compilers?
-        * https://github.com/thomasWeise/docker-texlive#31-compiler-scripts
-    * Support Arara https://gitlab.com/islandoftex/arara
-        * Also:
-        * https://framagit.org/spalax/spix
-        * https://github.com/wtsnjp/llmk
-        * https://github.com/petrhosek/rubber
-        * https://github.com/aclements/latexrun (explicit use)
-        * & all https://www.ctan.org/topic/compilation
     * Allows non-pdf output (DVI, etc.).
 * Add SILE support
     * https://github.com/sile-typesetter/sile
 * Compilation options
     * Timeout
-    * Shell escape mode
 * Build output structure
     * Generic "outputFiles"
         * https://github.com/overleaf/clsi#example-response
