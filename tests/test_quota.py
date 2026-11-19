@@ -439,7 +439,9 @@ def test_ban_escalation_is_recorded(store, limits):
     assert escalation["violations"] == {"short": 10, "long": 10, "bans": 1}
 
 
-def test_recording_failure_does_not_affect_the_decision(store, limits, monkeypatch, caplog):
+def test_recording_failure_does_not_affect_the_decision(
+    store, limits, monkeypatch, caplog
+):
     def recording_failure(event):
         raise RuntimeError("db down")
 
@@ -665,7 +667,9 @@ def test_integration_quota_ban_is_persisted(quota_test_api_url, quota_test_db):
             ).fetchall()
         # One row for the short ban: arming is persisted, the hammering
         # re-arms that follow it are not.
-        assert rows == [("short", "violation_window", "second", timedelta(seconds=3600))]
+        assert rows == [
+            ("short", "violation_window", "second", timedelta(seconds=3600))
+        ]
     finally:
         with psycopg.connect(quota_test_db, autocommit=True) as connection:
             connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
