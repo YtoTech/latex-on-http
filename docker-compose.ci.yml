@@ -1,0 +1,11 @@
+# GitHub-hosted runners use rootful Docker. Allow the LaTeX test service to
+# create the nested namespaces required by its Bubblewrap sandbox.
+services:
+  latex:
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      # Ubuntu restricts unprivileged user namespaces through AppArmor.
+      - apparmor=unconfined
+      # Docker's default seccomp profile blocks pivot_root even with SYS_ADMIN.
+      - seccomp=./container/seccomp-bubblewrap.json
