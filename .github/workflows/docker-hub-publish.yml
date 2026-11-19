@@ -58,4 +58,6 @@ jobs:
           cache-from: type=gha,ref=latexonhttp-cache
       - name: Run tests
         run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml:docker-compose.ci-images.yml test-docker-compose
+      - name: Run quota integration tests
+        run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml:docker-compose.ci-images.yml test-quota
 

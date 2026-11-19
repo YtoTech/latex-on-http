@@ -6,6 +6,9 @@ escalation and failure-mode logic run without Docker, Valkey or LaTeX.
 Integration tier (requires `LATEX_ON_HTTP_API_URL` + the
 `docker-compose.quota-test.yml` override, see `make test-quota`): exercises
 the HTTP behavior with low limits and spoofed `X-Forwarded-For` values.
+Like the `LATEX_ON_HTTP_API_URL` gating, the tier skips itself when the
+target app runs no active quota, so the full suite also stays green on the
+standard test stack (where the quota is disabled).
 """
 
 import time
@@ -438,8 +441,42 @@ def test_allowed_decision_has_no_retry_after():
 
 
 # -------------
-# Integration tier (requires the app + the quota-test Compose override).
+# Integration tier (requires the app + the quota-test Compose override,
+# see `make test-quota`; skips itself when the target app has no active
+# quota, so the full suite also runs on the standard test stack).
 # -------------
+
+
+# Documentation-range IP dedicated to the probe below, outside the ranges
+# the tests themselves draw from (203.0.113-115.x).
+PROBE_IP = "198.51.100.1"
+
+
+@pytest.fixture
+def quota_test_api_url(latex_on_http_api_url):
+    """API URL of an app with an active quota, or a skip.
+
+    The HTTP contract under test (429 denials, ban escalation, rate-limit
+    headers) only exists when the app runs the quota-test Compose override
+    (Valkey store + low limits). On the standard test stack the quota is
+    disabled (`VALKEY_HOST` unset), so probe the app once and skip instead
+    of failing.
+    """
+    probe = requests.post(
+        f"{latex_on_http_api_url}/builds/sync",
+        json={"resources": []},
+        headers={"X-Forwarded-For": PROBE_IP},
+    )
+    # A probe IP throttled by an earlier run still carries the denial
+    # headers, so accept either as proof of an active quota.
+    active = "X-RateLimit-Limit" in probe.headers or "Retry-After" in probe.headers
+    if not active:
+        pytest.skip(
+            "no active quota on the target app;"
+            " run tests/test_quota.py against the quota-test stack"
+            " (make test-quota)"
+        )
+    return latex_on_http_api_url
 
 
 def _flood(api_url, ip, count):
@@ -450,9 +487,9 @@ def _flood(api_url, ip, count):
     ]
 
 
-def test_integration_quota_denies_flood(latex_on_http_api_url):
+def test_integration_quota_denies_flood(quota_test_api_url):
     ip = f"203.0.113.{uuid.uuid4().int % 200 + 2}"
-    responses = _flood(latex_on_http_api_url, ip, 10)
+    responses = _flood(quota_test_api_url, ip, 10)
     statuses = [response.status_code for response in responses]
     assert 429 in statuses
     first_denial = responses[statuses.index(429)]
@@ -463,9 +500,9 @@ def test_integration_quota_denies_flood(latex_on_http_api_url):
     assert all(status != 429 for status in statuses[: statuses.index(429)])
 
 
-def test_integration_quota_bans_repeated_abuse(latex_on_http_api_url):
+def test_integration_quota_bans_repeated_abuse(quota_test_api_url):
     ip = f"203.0.114.{uuid.uuid4().int % 200 + 2}"
-    responses = _flood(latex_on_http_api_url, ip, 15)
+    responses = _flood(quota_test_api_url, ip, 15)
     denial = responses[-1]
     assert denial.status_code == 429
     assert denial.json()["quota"]["banned"] is True
@@ -473,10 +510,10 @@ def test_integration_quota_bans_repeated_abuse(latex_on_http_api_url):
     assert int(denial.headers["Retry-After"]) > 60
 
 
-def test_integration_quota_exposes_headers_on_allowed(latex_on_http_api_url):
+def test_integration_quota_exposes_headers_on_allowed(quota_test_api_url):
     ip = f"203.0.115.{uuid.uuid4().int % 200 + 2}"
     response = requests.post(
-        f"{latex_on_http_api_url}/builds/sync",
+        f"{quota_test_api_url}/builds/sync",
         json={"resources": []},
         headers={"X-Forwarded-For": ip},
     )
