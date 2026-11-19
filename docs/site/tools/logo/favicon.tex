@@ -1,19 +1,16 @@
-% Square favicon for the documentation, drawn with TikZ in the YtoTech
-% palette. The "L" is a Computer Modern capital, the blue bar echoes the
-% blue "Tech" half of the wordmark.
+% Transparent-background favicon for the documentation, drawn with TikZ
+% in the YtoTech red. The text is Computer Modern "LoH".
 \documentclass[tikz,border=0pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 
 \definecolor{logored}{HTML}{B14040}
-\definecolor{logoblue}{HTML}{383866}
 
 \begin{document}
 \begin{tikzpicture}[x=1bp, y=1bp]
-  \useasboundingbox (0,0) rectangle (64,64);
-  \fill[logored] (0,0) rectangle (64,64);
-  \fill[logoblue] (0,0) rectangle (64,8);
-  \node[text=white, inner sep=0pt, font=\fontsize{50}{50}\selectfont]
-    at (32,31) {L};
+  % Zero-opacity rectangle, only to keep a square 64×64 bounding box.
+  \path[fill=white, opacity=0] (0,0) rectangle (64,64);
+  \node[text=logored, inner sep=0pt, font=\fontsize{34}{34}\selectfont]
+    at (32,32) {LoH};
 \end{tikzpicture}
 \end{document}
