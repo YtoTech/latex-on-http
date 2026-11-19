@@ -208,6 +208,17 @@ a:hover {
   padding: 2.5rem 2.5rem 3rem;
 }
 
+/* Wide pages (e.g. the playground) use the full main column instead of the
+   prose measure; their intro text keeps a readable line length. */
+.content-wide {
+  max-width: none;
+}
+
+.content-wide h1,
+.content-wide .page-lead {
+  max-width: var(--content-max);
+}
+
 .content-footer {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -908,7 +919,8 @@ html[data-theme="dark"] .token.class-name,
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.1rem;
-  align-items: start;
+  /* Equal-height panels, so both sides use the room of the taller one. */
+  align-items: stretch;
   margin-top: 1.2rem;
 }
 
@@ -923,6 +935,9 @@ html[data-theme="dark"] .token.class-name,
   border-radius: var(--radius);
   background: var(--bg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .pg-panel-header {
@@ -945,8 +960,26 @@ html[data-theme="dark"] .token.class-name,
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  /* Fill the panel below its header; scroll within the capped height. */
+  flex: 1;
+  min-height: 0;
   max-height: 78vh;
   overflow-y: auto;
+}
+
+/* Footer below the scrollable body: the action buttons stay visible without
+   scrolling through the form. */
+.pg-panel-footer {
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pg-panel-footer .pg-hint:empty {
+  display: none;
 }
 
 .pg-field {
@@ -982,6 +1015,28 @@ html[data-theme="dark"] .token.class-name,
   line-height: 1.5;
   resize: vertical;
   white-space: pre;
+}
+
+/* The endpoint field groups are flex columns sharing the panel body's gap, and
+   stretch so their growable fields receive the leftover panel height. The
+   :not([hidden]) guard keeps JS toggling working (an author display value
+   would otherwise beat the UA's [hidden] rule). */
+#pg-build-fields:not([hidden]),
+#pg-simple-fields:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1 1 auto;
+}
+
+/* Flex children that grow into the leftover panel height; their textarea
+   fills the field in turn. Growth only ever adds height (auto basis). */
+.pg-grow {
+  flex: 1 1 auto;
+}
+
+.pg-grow > .pg-textarea {
+  flex: 1 1 auto;
 }
 
 .pg-input:focus,
@@ -1083,7 +1138,20 @@ html[data-theme="dark"] .token.class-name,
   color: var(--text-faint);
 }
 
-.pg-response-empty {
+/* The active response panel fills the leftover panel height; the :not([hidden])
+   guard keeps the `hidden` attribute working (panels are toggled from JS). */
+[data-response-panel]:not([hidden]) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.pg-response-empty:not([hidden]) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-faint);
   font-size: 0.9rem;
   padding: 2.2rem 1rem;
@@ -1119,7 +1187,9 @@ html[data-theme="dark"] .token.class-name,
 
 .pg-pdf-frame {
   width: 100%;
-  height: 60vh;
+  /* Stretch to the panel height; the 78vh body cap keeps it scroll-free. */
+  flex: 1;
+  height: auto;
   min-height: 420px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1136,7 +1206,8 @@ html[data-theme="dark"] .token.class-name,
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.85rem 1rem;
-  max-height: 60vh;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 

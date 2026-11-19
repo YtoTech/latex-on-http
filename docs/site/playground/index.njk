@@ -2,6 +2,7 @@
 title: Live playground
 layout: base.njk
 active: "/playground/"
+wide: true
 ---
 
 <h1>Live playground</h1>
@@ -64,7 +65,7 @@ active: "/playground/"
           </div>
         </div>
 
-        <div class="pg-field">
+        <div class="pg-field pg-grow">
           <label class="pg-label" for="pg-main-document">Main document (LaTeX)</label>
           <textarea class="pg-textarea" id="pg-main-document" spellcheck="false"></textarea>
         </div>
@@ -85,12 +86,13 @@ active: "/playground/"
           <label class="pg-label" for="pg-path-param">Package name</label>
           <input class="pg-input" id="pg-path-param" spellcheck="false" placeholder="12many">
         </div>
-        <div class="pg-field" id="pg-body-field" hidden>
+        <div class="pg-field pg-grow" id="pg-body-field" hidden>
           <label class="pg-label" for="pg-body">Request body (JSON)</label>
           <textarea class="pg-textarea" id="pg-body" spellcheck="false" style="min-height: 140px;"></textarea>
         </div>
       </div>
-
+    </div>
+    <div class="pg-panel-footer">
       <div class="pg-actions">
         <button type="button" class="button button-primary" id="pg-run">Run request</button>
         <button type="button" class="button button-secondary" id="pg-copy-curl">Copy as curl</button>

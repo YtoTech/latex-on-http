@@ -49,7 +49,7 @@
             <span class="theme-icon-dark" aria-hidden="true">☀</span>
           </button>
         </div>
-        <main class="content" id="main">
+        <main class="content{% if wide %} content-wide{% endif %}" id="main">
           {{ content | safe }}
         </main>
         <footer class="content-footer">
