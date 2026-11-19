@@ -131,4 +131,5 @@ ORDER BY received_at DESC LIMIT 50;
 
 * Fixed windows allow up to 2× the limit around a boundary; sliding windows or GCRA would be more precise at the cost of complexity.
 * Per-IP quotas do not identify distributed abuse (rotating IPs); API keys for known integrators are the long-term answer.
+* The quota counts requests, not what they consume: each request now also gets a usage score (incoming/fetch/processing/outgoing tokens, see [API usage scoring](usage-scoring.md)); switching the windows to token budgets calibrated on that data is the follow-up.
 * The flood behind this feature was really a concurrency attack; a Valkey-based per-IP semaphore on in-flight compilations would cap it directly.
