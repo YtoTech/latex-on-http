@@ -257,6 +257,23 @@ const BUILD_ERRORS = [
       + "<a href='https://github.com/YtoTech/latex-on-http/blob/master/docs/sandboxing.md'>See the sandboxing documentation</a>.",
   },
   {
+    code: "QUOTA_EXCEEDED",
+    http: "429",
+    description:
+      "Fair-use quota exceeded for your client IP. Honor "
+      + "<code>Retry-After</code> and back off: continuing to retry escalates "
+      + "into a temporary ban. "
+      + "<a href='../rate-limiting/'>See the rate limiting documentation</a>.",
+  },
+  {
+    code: "QUOTA_STORE_UNAVAILABLE",
+    http: "503",
+    description:
+      "The quota store (Valkey) is unreachable on an instance configured "
+      + "with <code>QUOTA_FAIL_MODE=closed</code>; most instances fail open "
+      + "and keep serving instead.",
+  },
+  {
     code: "SERVER_ERROR",
     http: "500",
     description: "An unexpected error occurred server-side.",
@@ -1473,6 +1490,8 @@ export default {
           + "<code>logs</code> (compiler output) and, unless disabled, "
           + "<code>log_files</code> (full LaTeX log files). "
           + "Add <code>options.response.commands</code> to get the commands run. "
+          + "<strong>429</strong> when the fair-use quota is exceeded "
+          + "(<a href='../rate-limiting/'>rate limiting &amp; quotas</a>). "
           + "<strong>503</strong> if the compilation sandbox is unavailable; "
           + "<strong>500</strong> on unexpected server errors.",
       },

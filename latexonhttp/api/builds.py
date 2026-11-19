@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 import cerberus
 import envparse
 import glom
-from flask import Blueprint, g, request
+from flask import Blueprint, g, request, url_for
 
 from latexonhttp.caching.resources import (
     forward_resource_to_cache,
@@ -213,6 +213,17 @@ def _fetched_resources_metadata(resources):
     }
 
 
+def get_rate_limit_documentation_url():
+    """Absolute URL of the rate-limiting documentation served from /docs/."""
+    forwarded_scheme = (
+        (request.headers.get("X-Forwarded-Proto") or "").split(",")[0].strip()
+    )
+    return (
+        url_for("docs.documentation", _external=True, _scheme=forwarded_scheme or None)
+        + "api/rate-limiting/"
+    )
+
+
 @builds_app.before_request
 def enforce_build_quota():
     """Reject requests beyond the fair-use quota before parsing the payload.
@@ -226,7 +237,7 @@ def enforce_build_quota():
         return
     g.quota_decision = decision
     if not decision["allowed"]:
-        return quota_rejection(decision)
+        return quota_rejection(decision, get_rate_limit_documentation_url())
 
 
 @builds_app.after_request

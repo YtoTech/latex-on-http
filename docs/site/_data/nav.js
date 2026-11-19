@@ -16,6 +16,11 @@ export default [
       { title: "Compilation", url: "/api/builds-sync/", href: "api/builds-sync/index.html" },
       { title: "Build environment", url: "/api/environment/", href: "api/environment/index.html" },
       { title: "Caches", url: "/api/caches/", href: "api/caches/index.html" },
+      {
+        title: "Rate limiting & quotas",
+        url: "/api/rate-limiting/",
+        href: "api/rate-limiting/index.html",
+      },
     ],
   },
   {
