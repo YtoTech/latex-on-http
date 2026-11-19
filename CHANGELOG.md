@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Log every quota enforcement event for operators: rate-limit denials and ban re-arms at `INFO` (re-arms were `DEBUG`-only and now have a dedicated `re-armed` message), new and escalated bans at `WARNING`; the log lines are pinned by unit tests and their levels documented in the rate-limiting guide.
+* Persist quota ban decisions in PostgreSQL (`quota_bans`): one row per ban arming or escalation, with the client IP, level, source, breached window and the violation counters snapshot; re-arms and denials stay out of the database so a hammering client never adds write load, and a persistence failure never changes the decision (best effort, logged).
 
 ## 2026-11-19-4
 

@@ -5,10 +5,12 @@
     Fair-use quota and rate limiting for compilation endpoints.
 
     Hot quota state (per-IP window counters, violations, bans) is kept in a
-    Valkey store so that the request path never queries PostgreSQL. The quota
-    is active only when VALKEY_HOST is configured; when the store is
-    unreachable it fails open (requests are allowed, the failure is logged
-    and reported).
+    Valkey store so that the request path never queries PostgreSQL. The
+    rare ban state changes (arming, escalation) are additionally persisted
+    in PostgreSQL for post-mortems; that persistence is best effort, and a
+    failure there must not change the decision. The quota is active only
+    when VALKEY_HOST is configured; when the store is unreachable it fails
+    open (requests are allowed, the failure is logged and reported).
 
     :copyright: (c) 2026 Yoan Tournade.
     :license: AGPL, see LICENSE for more details.
@@ -17,6 +19,7 @@
 (import datetime [UTC datetime])
 (import envparse [env])
 (import sentry_sdk)
+(import latexonhttp.db.quota [record-ban])
 
 (try
     (import valkey)
@@ -238,13 +241,21 @@
         (>= (get violations "short") QUOTA-BAN-SHORT-VIOLATIONS) "short"
         True current-ban))
 
-(defn apply-ban [client client-ip level count-episode [rearm False]]
+(defn apply-ban [client client-ip level count-episode epoch violations
+                 [rearm False] [trigger-period None]]
     """
     Arm (or re-arm) a ban; count a new ban episode when requested.
+
+    Arming and escalation are persisted in PostgreSQL (best effort): the
+    rare state changes feed the abuse post-mortems, while the frequent
+    re-arms stay out of the database so a hammering client never touches
+    it. A persistence failure must not change the decision.
     """
     (when count-episode
         (setv bans (increment-with-expiry
             client (.format "quota:bans:24h:{}" client-ip) QUOTA-VIOLATION-LONG-WINDOW))
+        ; Record the counter after this episode is counted.
+        (.update violations {"bans" bans})
         (when (>= bans QUOTA-BAN-COUNT-FOR-LONG)
             (setv level "long")))
     (client.set (ban-key client-ip) level :ex (ban-duration level))
@@ -252,9 +263,22 @@
         (logger.info
             "Quota ban (%s) re-armed for %s (%s seconds)"
             level client-ip (ban-duration level))
-        (logger.warning
-            "Quota ban (%s) applied to %s for %s seconds"
-            level client-ip (ban-duration level)))
+        (do
+            (logger.warning
+                "Quota ban (%s) applied to %s for %s seconds"
+                level client-ip (ban-duration level))
+            (try
+                (record-ban
+                    {"client_ip" client-ip
+                     "level" level
+                     "source" (if count-episode "violation_window" "ban_escalation")
+                     "trigger_period" trigger-period
+                     "violations" violations
+                     "epoch" epoch
+                     "duration" (ban-duration level)})
+                (except []
+                    (logger.exception
+                        "Could not persist the quota ban of %s" client-ip)))))
     level)
 
 ; --------------------------------------------
@@ -322,7 +346,9 @@
             (setv retry-after (max (- window-end epoch) 1))
             (setv ban-expires-at None)
             (when level
-                (setv level (apply-ban client client-ip level True))
+                (setv level (apply-ban
+                    client client-ip level True epoch violations
+                    :trigger-period breached))
                 (setv ban-expires-at (+ epoch (ban-duration level)))
                 (setv retry-after (ban-duration level)))
             (logger.info
@@ -343,7 +369,9 @@
             ; counters.
             (setv violations (register-violation client client-ip))
             (setv level (escalation-level violations :current-ban ban-level))
-            (apply-ban client client-ip level False :rearm (= level ban-level))
+            (apply-ban
+                client client-ip level False epoch violations
+                :rearm (= level ban-level))
             (setv denial (deny-for-ban client client-ip epoch))
             (if (is denial None)
                 ; Ban just expired; let the request through uncounted.

@@ -12,11 +12,13 @@ standard test stack (where the quota is disabled).
 """
 
 import logging
+import os
 import time
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import flask
+import psycopg
 import pytest
 import requests
 
@@ -137,6 +139,9 @@ class ExplodingStore:
 @pytest.fixture
 def store(monkeypatch):
     fake = FakeValkey()
+    # The durable ban record: captured in memory, never PostgreSQL.
+    fake.recorded_bans = []
+    monkeypatch.setattr(quota, "record_ban", fake.recorded_bans.append)
     monkeypatch.setattr(quota, "_get_client", lambda: fake)
     return fake
 
@@ -385,6 +390,68 @@ def test_ban_rearm_is_logged(store, limits, caplog):
 
 
 # -------------
+# Durable ban record.
+# -------------
+
+
+def _arm_short_ban(store, limits, epoch=1763559600):
+    """One allowed request plus three denials: arms the short ban."""
+    limits.update({"second": 1, "minute": 1, "hour": 10, "day": 10, "week": 10})
+    store.clock = epoch
+    quota.check_quota("1.1.1.1", now=epoch)
+    for _ in range(3):
+        quota.check_quota("1.1.1.1", now=epoch)
+
+
+def test_ban_arming_is_recorded(store, limits):
+    _arm_short_ban(store, limits)
+    assert len(store.recorded_bans) == 1
+    event = store.recorded_bans[0]
+    assert event["client_ip"] == "1.1.1.1"
+    assert event["level"] == "short"
+    assert event["source"] == "violation_window"
+    assert event["trigger_period"] == "second"
+    assert event["epoch"] == 1763559600
+    assert event["duration"] == quota.QUOTA_BAN_SHORT_DURATION
+    # The escalation counters snapshot at arming, including this episode.
+    assert event["violations"] == {"short": 3, "long": 3, "bans": 1}
+
+
+def test_ban_rearm_is_not_recorded(store, limits):
+    _arm_short_ban(store, limits)
+    store.advance(1800)  # Halfway into the 1h ban.
+    assert quota.check_quota("1.1.1.1", now=int(store.clock))["banned"] is True
+    # The re-arm stays out of the record: a hammering client never writes.
+    assert len(store.recorded_bans) == 1
+
+
+def test_ban_escalation_is_recorded(store, limits):
+    _arm_short_ban(store, limits)
+    store.advance(60)  # Ban and 15-min violation window still active.
+    for _ in range(7):  # 10 violations within 24h escalate to a long ban.
+        quota.check_quota("1.1.1.1", now=int(store.clock))
+    assert len(store.recorded_bans) == 2
+    escalation = store.recorded_bans[1]
+    assert escalation["level"] == "long"
+    assert escalation["source"] == "ban_escalation"
+    assert escalation["trigger_period"] is None
+    assert escalation["duration"] == quota.QUOTA_BAN_LONG_DURATION
+    assert escalation["violations"] == {"short": 10, "long": 10, "bans": 1}
+
+
+def test_recording_failure_does_not_affect_the_decision(store, limits, monkeypatch, caplog):
+    def recording_failure(event):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(quota, "record_ban", recording_failure)
+    _arm_short_ban(store, limits)
+    # The ban still stands in the hot store...
+    assert store.get("quota:ban:1.1.1.1") == "short"
+    # ...and the persistence failure is logged, not raised.
+    assert "Could not persist the quota ban of 1.1.1.1" in caplog.text
+
+
+# -------------
 # Inactivity, allowlist, failure modes.
 # -------------
 
@@ -568,6 +635,40 @@ def test_integration_quota_bans_repeated_abuse(quota_test_api_url):
     assert denial.json()["quota"]["banned"] is True
     # A ban (1h) rather than a one-minute window.
     assert int(denial.headers["Retry-After"]) > 60
+
+
+@pytest.fixture
+def quota_test_db():
+    """URL of the test database, or a skip.
+
+    The durable ban record only exists when the app under test is wired to
+    PostgreSQL (the quota-test Compose stack sets both).
+    """
+    database_url = os.getenv("TEST_DATABASE_URL")
+    if not database_url:
+        pytest.skip("TEST_DATABASE_URL is not configured")
+    return database_url
+
+
+def test_integration_quota_ban_is_persisted(quota_test_api_url, quota_test_db):
+    ip = f"203.0.113.{uuid.uuid4().int % 200 + 2}"
+    with psycopg.connect(quota_test_db, autocommit=True) as connection:
+        connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
+    try:
+        responses = _flood(quota_test_api_url, ip, 15)
+        assert responses[-1].json()["quota"]["banned"] is True
+        with psycopg.connect(quota_test_db) as connection:
+            rows = connection.execute(
+                "SELECT level, source, trigger_period, expires_at - armed_at"
+                " FROM quota_bans WHERE client_ip = %s",
+                (ip,),
+            ).fetchall()
+        # One row for the short ban: arming is persisted, the hammering
+        # re-arms that follow it are not.
+        assert rows == [("short", "violation_window", "second", timedelta(seconds=3600))]
+    finally:
+        with psycopg.connect(quota_test_db, autocommit=True) as connection:
+            connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
 
 
 def test_integration_quota_exposes_headers_on_allowed(quota_test_api_url):

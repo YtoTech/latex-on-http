@@ -1,6 +1,6 @@
 # Rate limiting and quotas
 
-Public instances accept unauthenticated compilation requests, so `/builds/sync` is protected by a fair-use quota. Hot quota state lives in a Valkey store (an in-memory counters/ban layer), while PostgreSQL keeps the durable per-job record for analytics and abuse post-mortems. The quota is deliberately simple and conservative in cost: one pipeline round-trip per request, no database access on the hot path.
+Public instances accept unauthenticated compilation requests, so `/builds/sync` is protected by a fair-use quota. Hot quota state lives in a Valkey store (an in-memory counters/ban layer), while PostgreSQL keeps the durable per-job record and the durable ban record for analytics and abuse post-mortems. The quota is deliberately simple and conservative in cost: one pipeline round-trip per request, and no database access on the hot path either — ban state changes are persisted best-effort (see [Durable ban record](#durable-ban-record)).
 
 The quota is active only when `VALKEY_HOST` is configured. Without it (local development, unit tests) the API behaves exactly as before. When Valkey is unreachable the check fails **open** (the request is allowed and the failure is logged and reported to Sentry); a caching layer must not become a single point of failure for the compile service. Set `QUOTA_FAIL_MODE=closed` to invert this if a deployment prefers rejecting requests over serving without protection.
 
@@ -55,6 +55,34 @@ Clients that keep firing while over quota are kicked more severely. Every denial
 
 A client hammering at 429s therefore escalates automatically: throttled → 1-hour ban → 24-hour ban. While a ban is active every attempt re-arms it, so the ban only starts counting down once the client stops.
 
+## Durable ban record
+
+Ban *state changes* — arming and escalation — are persisted in PostgreSQL (`quota_bans`, migration `tools/migrations/00004_quota_bans.sql`), on top of the Valkey hot state. Re-arms and denials are deliberately not recorded: a hammering client must never add write load to the database, and its denials are already visible in the logs. The persistence is best-effort: a database failure changes nothing for the client, the decision (already taken in Valkey) stands, and the failure is logged.
+
+| Column | Meaning |
+|---|---|
+| `client_ip`, `level` | who, and which ban (`short` / `long`) |
+| `source` | `violation_window` (armed from the escalation ladder) or `ban_escalation` (escalated while already banned) |
+| `trigger_period` | the breached window when armed from a denial; `NULL` on escalation |
+| `violations_short`, `violations_long`, `bans_24h` | the escalation counters snapshot at arming |
+| `armed_at`, `expires_at` | when the ban started and its *initial* expiry — re-arms extend the real ban beyond `expires_at` |
+
+Typical post-mortems:
+
+```sql
+-- Ban history of one client.
+SELECT * FROM quota_bans
+WHERE client_ip = '34.96.40.54'
+ORDER BY armed_at DESC LIMIT 50;
+
+-- Recent ban activity on the instance.
+SELECT armed_at, client_ip, level, source, trigger_period,
+       violations_short, violations_long, bans_24h
+FROM quota_bans
+WHERE armed_at >= NOW() - INTERVAL '24 hours'
+ORDER BY armed_at DESC;
+```
+
 ## Logging
 
 Every quota event leaves a log line on the `latexonhttp.quota` logger, routed to the console by the application logging setup (visibility gated by `LOGGING_LEVEL`, `DEBUG` by default):
@@ -65,6 +93,7 @@ Every quota event leaves a log line on the `latexonhttp.quota` logger, routed to
 | Request received while banned | INFO | `Quota denial (ban) for {ip}; level {level}, retry after {n} s` |
 | Ban armed or escalated | WARNING | `Quota ban ({level}) applied to {ip} for {n} seconds` |
 | Ban re-armed by a hammering client | INFO | `Quota ban ({level}) re-armed for {ip} ({n} seconds)` |
+| Durable ban record persistence failed | ERROR | `Could not persist the quota ban of {ip}` — with traceback |
 | Store unreachable | ERROR | `Quota store unreachable; failing {mode}` — with traceback, also reported to Sentry |
 
 Only the rare state changes (a ban starting or escalating) log at `WARNING`; per-request denials and re-arms stay at `INFO` so an abusive client cannot flood the loud levels on purpose.
@@ -140,8 +169,8 @@ ORDER BY received_at DESC LIMIT 50;
 
 ## Testing
 
-* `make test-unit` runs the quota unit tier (`tests/test_quota.py`) against an in-memory fake store: window counting and calendar alignment, breach ordering, escalation ladder (ban arming, re-arming and upgrade), enforcement log lines, fail-open behavior, client IP extraction and allowlist. No Valkey, Docker or LaTeX needed.
-* `make test-quota` runs the integration tier through a dedicated Compose override (`docker-compose.quota-test.yml`) that adds the Valkey service and low limits, and exercises 429 responses, rate-limit headers and ban escalation over HTTP with spoofed `X-Forwarded-For` values.
+* `make test-unit` runs the quota unit tier (`tests/test_quota.py`) against an in-memory fake store: window counting and calendar alignment, breach ordering, escalation ladder (ban arming, re-arming and upgrade), enforcement log lines, durable ban record capture, fail-open behavior, client IP extraction and allowlist. No Valkey, Docker or LaTeX needed.
+* `make test-quota` runs the integration tier through a dedicated Compose override (`docker-compose.quota-test.yml`) that adds the Valkey service and low limits, and exercises 429 responses, rate-limit headers and ban escalation over HTTP with spoofed `X-Forwarded-For` values, including the durable ban record in PostgreSQL.
 
 ## Known limits and future work
 
