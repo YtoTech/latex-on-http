@@ -47,6 +47,7 @@ def test_postgres_accepts_null_user_agent_and_large_sizes(postgres_database):
     jobs.update_job(
         job["id"],
         job_status="completed",
+        compilation_hash="a" * 64,
         fetched_resources_size=2**40,
         output_size=100_000_000,
     )
@@ -54,10 +55,10 @@ def test_postgres_accepts_null_user_agent_and_large_sizes(postgres_database):
     with psycopg.connect(postgres_database) as connection:
         row = connection.execute(
             "SELECT user_agent_id, http_payload_size, fetched_resources_size, "
-            "output_size FROM jobs WHERE id = %s",
+            "output_size, compilation_hash FROM jobs WHERE id = %s",
             (job["id"],),
         ).fetchone()
-    assert row == (None, 2**40, 2**40, 100_000_000)
+    assert row == (None, 2**40, 2**40, 100_000_000, "a" * 64)
 
 
 def test_postgres_concurrent_jobs_share_one_user_agent(postgres_database):

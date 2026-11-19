@@ -99,11 +99,17 @@ def test_update_job_binds_values_and_rejects_unknown_columns(monkeypatch):
     monkeypatch.setattr(jobs, "_get_pool", lambda: FakePool(cursor))
     job_id = str(uuid4())
 
-    jobs.update_job(job_id, job_status="completed", output_size=100_000_000)
+    jobs.update_job(
+        job_id,
+        compilation_hash="a" * 64,
+        job_status="completed",
+        output_size=100_000_000,
+    )
 
     query, parameters = cursor.calls[0]
+    assert "compilation_hash = %s" in query
     assert "job_status = %s" in query
     assert "output_size = %s" in query
-    assert parameters == ["completed", 100_000_000, job_id]
+    assert parameters == ["a" * 64, "completed", 100_000_000, job_id]
     with pytest.raises(ValueError, match="Unsupported job metadata"):
         jobs.update_job(job_id, **{"id; DROP TABLE jobs; --": "invalid"})

@@ -1,3 +1,4 @@
+import io
 import json
 
 import pytest
@@ -157,6 +158,7 @@ def test_fetch_failure_is_terminal_and_keeps_partial_counts(recorder):
     assert recorder.final["job_status"] == "errored"
     assert recorder.final["error_code"] == "INVALID_BASE64_CONTENT"
     assert recorder.updates[-2][1]["fetched_resources_count"] == 0
+    assert all("compilation_hash" not in metadata for _, metadata in recorder.updates)
 
 
 def test_cache_hits_are_counted_separately(recorder, monkeypatch):
@@ -263,3 +265,48 @@ def test_later_tracking_failure_does_not_replace_pdf(recorder, monkeypatch):
     assert response.status_code == 201
     assert response.data == SUCCESS_OUTPUT["pdf"]
     assert response.headers["X-Job-ID"] == recorder.created[0]["id"]
+
+
+def test_compilation_hash_is_equal_across_json_and_multipart(recorder):
+    json_resources = [
+        {"path": "article.tex", "content": "private TeX", "main": True},
+        {"path": "assets/data.txt", "file": "cGF5bG9hZA=="},
+    ]
+    response = build_client().post(
+        "/builds/sync",
+        json={
+            "resources": json_resources,
+            "options": {"compiler": {"silent": False}},
+        },
+    )
+    assert response.status_code == 201
+    json_hash = next(
+        metadata["compilation_hash"]
+        for _, metadata in recorder.updates
+        if "compilation_hash" in metadata
+    )
+
+    recorder.updates.clear()
+    multipart_resources = [
+        {"path": "assets/data.txt", "multipart": "data_file"},
+        {"path": "article.tex", "multipart": "main_file", "main": True},
+    ]
+    response = build_client().post(
+        "/builds/sync",
+        data={
+            "resources": json.dumps(multipart_resources),
+            "options.compiler.silent": "false",
+            "data_file": (io.BytesIO(b"payload"), "ignored.bin"),
+            "main_file": (io.BytesIO(b"private TeX"), "article.tex"),
+        },
+    )
+
+    assert response.status_code == 201
+    multipart_hash = next(
+        metadata["compilation_hash"]
+        for _, metadata in recorder.updates
+        if "compilation_hash" in metadata
+    )
+    assert multipart_hash == json_hash
+    assert len(json_hash) == 64
+    assert [job["compilation_hash"] for job in recorder.created] == [None, None]

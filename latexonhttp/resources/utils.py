@@ -8,6 +8,7 @@ Resources utils.
 """
 
 import hashlib
+import json
 from urllib.parse import urlsplit, urlunsplit
 
 
@@ -70,3 +71,31 @@ def sanitize_input_spec_for_job(input_spec):
             if source_key in resource:
                 resource[source_key] = _redact_resource_url(resource[source_key])
     return cleaned_spec
+
+
+def compute_compilation_hash(compiler_name, options, resources):
+    """Hash the actual fetched inputs, independent of transport and input order."""
+    resource_inputs = sorted(
+        (
+            {
+                "path": resource["build_path"],
+                "is_main_document": resource["is_main_document"],
+                "content_hash": resource["data_spec"]["hash"],
+            }
+            for resource in resources
+        ),
+        key=lambda resource: resource["path"],
+    )
+    serialized_inputs = json.dumps(
+        {
+            "version": 1,
+            "compiler": compiler_name,
+            "options": options,
+            "resources": resource_inputs,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(serialized_inputs).hexdigest()

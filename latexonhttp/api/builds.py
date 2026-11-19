@@ -32,6 +32,7 @@ from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
 from latexonhttp.resources.utils import (
+    compute_compilation_hash,
     process_resource_data_spec,
     prune_resources_content_for_logging,
     sanitize_input_spec_for_job,
@@ -467,9 +468,6 @@ def compiler_latex():
         )
         if error:
             return error, 400
-        # TODO
-        # - Process build global signature/hash
-        # (compiler, resource hashes, other options...)
 
         # -------------
         # Compilation.
@@ -485,6 +483,9 @@ def compiler_latex():
         _update_job_safely(
             workspace_id,
             job_status="compiling",
+            compilation_hash=compute_compilation_hash(
+                compilerName, input_spec["options"], normalized_resources
+            ),
             started_compiling_at=datetime.now(UTC),
         )
         latexToPdfOutput = latexToPdf(
@@ -619,7 +620,7 @@ def compiler_latex():
         # Cleanup.
         # -------------
 
-        # TODO Option to let workspace on failure
+        # Option to let workspace on failure
         # from env.
         if KEEP_WORKSPACE_DIR is False and (
             KEEP_WORKSPACE_DIR_ON_ERROR is False

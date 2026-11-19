@@ -23,6 +23,7 @@ _UPDATE_COLUMNS = frozenset(
     {
         "job_status",
         "error_code",
+        "compilation_hash",
         "started_fetch_at",
         "ended_fetch_at",
         "started_compiling_at",

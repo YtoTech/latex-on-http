@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Track synchronous compilation jobs in PostgreSQL with sanitized request metadata, lifecycle status and timestamps, resource/cache metrics, PDF metadata, and `X-Job-ID` responses.
+* Add deterministic SHA-256 `compilation_hash` values based on the compiler, effective options, fetched resource paths, and actual contents, independent of transport format or resource order.
 * Isolate each compilation process tree with Bubblewrap, one writable workspace, allowed executables, no network, and a scrubbed environment.
 * Add opt-in `options.compiler.shell_escape` for `minted`/Pygments; shell escape remains explicitly disabled by default (https://github.com/YtoTech/latex-on-http/issues/25).
 * Kill the complete process group on timeout and reject unsafe generated PDF/log symlinks.
