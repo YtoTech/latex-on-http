@@ -58,10 +58,4 @@ jobs:
           cache-from: type=gha,ref=latexonhttp-cache
       - name: Run tests
         run: make COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml:docker-compose.ci-images.yml test-docker-compose
-      - name: Docker Hub push
-        run: ./container/docker_push.sh
-        shell: bash
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
