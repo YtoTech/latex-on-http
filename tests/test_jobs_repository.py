@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -60,7 +60,7 @@ def job_metadata(user_agent=None):
         "remote_ip": "2001:db8::1",
         "forwarded_remote_ip": None,
         "user_agent": user_agent,
-        "received_at": datetime.now(timezone.utc),
+        "received_at": datetime.now(UTC),
     }
 
 

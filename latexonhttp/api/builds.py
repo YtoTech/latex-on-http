@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.api.builds
 ~~~~~~~~~~~~~~~~~~~~~
@@ -8,45 +7,46 @@ Manage Latex builds / compilations.
 :license: AGPL, see LICENSE for more details.
 """
 
-from datetime import datetime, timezone
-
-import envparse
+import json
 import logging
 import pprint
-import json
-import glom
+from datetime import UTC, datetime
+
 import cerberus
+import envparse
+import glom
 from flask import Blueprint, g, request
+
+from latexonhttp.caching.resources import (
+    forward_resource_to_cache,
+    get_resource_from_cache,
+)
 from latexonhttp.compiler import (
-    latexToPdf,
     AVAILABLE_LATEX_COMPILERS,
+    latexToPdf,
 )
-from latexonhttp.sandbox import SandboxUnavailable
-from latexonhttp.sandbox_diagnostics import (
-    report_sandbox_diagnostic,
-    sandbox_unavailable_issue,
-)
-from latexonhttp.resources.normalization import normalize_resources_input
-from latexonhttp.resources.validation import check_resources_prefetch
+from latexonhttp.db.jobs import create_job, update_job
 from latexonhttp.resources.fetching import fetch_resources
+from latexonhttp.resources.json_api import parse_json_resources_spec
+from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
+from latexonhttp.resources.normalization import normalize_resources_input
+from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
 from latexonhttp.resources.utils import (
     process_resource_data_spec,
     prune_resources_content_for_logging,
     sanitize_input_spec_for_job,
 )
-from latexonhttp.db.jobs import create_job, update_job
-from latexonhttp.resources.multipart_api import parse_multipart_resources_spec
-from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
-from latexonhttp.resources.json_api import parse_json_resources_spec
-from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
+from latexonhttp.resources.validation import check_resources_prefetch
+from latexonhttp.sandbox import SandboxUnavailable
+from latexonhttp.sandbox_diagnostics import (
+    report_sandbox_diagnostic,
+    sandbox_unavailable_issue,
+)
 from latexonhttp.workspaces.filesystem import (
     get_workspace_root_path,
     persist_resource_to_workspace,
 )
-from latexonhttp.caching.resources import (
-    forward_resource_to_cache,
-    get_resource_from_cache,
-)
+from latexonhttp.workspaces.lifecycle import create_workspace, remove_workspace
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +210,7 @@ def track_job_response(response):
     job_id = g.get("compilation_job_id")
     if not job_id or not g.get("compilation_job_created"):
         return response
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = response.get_json(silent=True)
     error_code = payload.get("error") if isinstance(payload, dict) else None
     metadata = {
@@ -236,7 +236,7 @@ def track_job_response(response):
 
 @builds_app.route("/sync", methods=["GET", "POST"])
 def compiler_latex():
-    received_at = datetime.now(timezone.utc)
+    received_at = datetime.now(UTC)
     # Buffer before any parser consumes the body so every request has an exact
     # byte count, including multipart framing, and later parsers see the same data.
     http_payload_size = len(request.get_data(cache=True))
@@ -447,13 +447,14 @@ def compiler_latex():
             is_ok, cache_response = forward_resource_to_cache(resource, data)
             if not is_ok or cache_response:
                 return cache_response
+            return None
 
         # Input cache provider.
         g.compilation_job_stage = "fetching"
         _update_job_safely(
             workspace_id,
             job_status="fetching",
-            started_fetch_at=datetime.now(timezone.utc),
+            started_fetch_at=datetime.now(UTC),
         )
         error = fetch_resources(
             normalized_resources, on_fetched, get_from_cache=get_resource_from_cache
@@ -461,7 +462,7 @@ def compiler_latex():
         g.compilation_job_stage = "fetched"
         _update_job_safely(
             workspace_id,
-            ended_fetch_at=datetime.now(timezone.utc),
+            ended_fetch_at=datetime.now(UTC),
             **_fetched_resources_metadata(normalized_resources),
         )
         if error:
@@ -484,7 +485,7 @@ def compiler_latex():
         _update_job_safely(
             workspace_id,
             job_status="compiling",
-            started_compiling_at=datetime.now(timezone.utc),
+            started_compiling_at=datetime.now(UTC),
         )
         latexToPdfOutput = latexToPdf(
             compilerName,
@@ -496,7 +497,7 @@ def compiler_latex():
         g.compilation_job_stage = "compiled"
         _update_job_safely(
             workspace_id,
-            ended_compiling_at=datetime.now(timezone.utc),
+            ended_compiling_at=datetime.now(UTC),
             output_type="pdf" if latexToPdfOutput["pdf"] is not None else None,
             output_size=(
                 len(latexToPdfOutput["pdf"])
@@ -583,9 +584,10 @@ def compiler_latex():
             201,
             {
                 "Content-Type": "application/pdf",
-                # TODO Pass an option for returning as attachment (instead of inline, which is the default).
-                "Content-Disposition": "inline;filename={}".format(
-                    latexToPdfOutput["output_path"]
+                # TODO Pass an option for returning as attachment (instead of the
+                # default, inline).
+                "Content-Disposition": (
+                    "inline;filename=" f"{latexToPdfOutput['output_path']}"
                 ),
             },
         )

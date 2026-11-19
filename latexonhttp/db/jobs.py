@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """PostgreSQL persistence for compilation-job metadata."""
 
 import os
@@ -86,15 +85,14 @@ def create_job(metadata):
     metadata["user_agent_id"] = None
     user_agent = metadata.pop("user_agent")
     metadata["cleaned_payload"] = Jsonb(metadata["cleaned_payload"])
-    with _get_pool().connection() as connection:
-        with connection.cursor() as cursor:
-            metadata["user_agent_id"] = _resolve_user_agent_id(cursor, user_agent)
-            columns = ", ".join(_JOB_COLUMNS)
-            placeholders = ", ".join(["%s"] * len(_JOB_COLUMNS))
-            cursor.execute(
-                f"INSERT INTO jobs ({columns}) VALUES ({placeholders})",
-                [metadata[column] for column in _JOB_COLUMNS],
-            )
+    with _get_pool().connection() as connection, connection.cursor() as cursor:
+        metadata["user_agent_id"] = _resolve_user_agent_id(cursor, user_agent)
+        columns = ", ".join(_JOB_COLUMNS)
+        placeholders = ", ".join(["%s"] * len(_JOB_COLUMNS))
+        cursor.execute(
+            f"INSERT INTO jobs ({columns}) VALUES ({placeholders})",
+            [metadata[column] for column in _JOB_COLUMNS],
+        )
 
 
 def update_job(job_id, **metadata):
@@ -105,11 +103,10 @@ def update_job(job_id, **metadata):
     if not metadata:
         return
     assignments = ", ".join(f"{column} = %s" for column in metadata)
-    with _get_pool().connection() as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                f"UPDATE jobs SET {assignments} WHERE id = %s",
-                [*metadata.values(), job_id],
-            )
-            if cursor.rowcount != 1:
-                raise RuntimeError(f"Compilation job {job_id} was not found")
+    with _get_pool().connection() as connection, connection.cursor() as cursor:
+        cursor.execute(
+            f"UPDATE jobs SET {assignments} WHERE id = %s",
+            [*metadata.values(), job_id],
+        )
+        if cursor.rowcount != 1:
+            raise RuntimeError(f"Compilation job {job_id} was not found")

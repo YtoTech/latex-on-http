@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 latexonhttp.resources.misc
 ~~~~~~~~~~~~~~~~~~~~~
@@ -14,7 +13,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 def process_resource_data_spec(data):
     return {
-        "hash": "sha256:{}".format(hashlib.sha256(data).hexdigest()),
+        "hash": f"sha256:{hashlib.sha256(data).hexdigest()}",
         # What we would like it too have an accurate estimation of size
         # (when written) on disk of the data (not on memory).
         "size": len(data),
@@ -52,7 +51,7 @@ def _redact_resource_url(url):
     try:
         parsed = urlsplit(url)
         # urlsplit port validation can be lazy, so force it before storing.
-        parsed.port
+        _ = parsed.port
         netloc = parsed.netloc.rpartition("@")[2]
         return urlunsplit((parsed.scheme, netloc, parsed.path, "", ""))
     except ValueError:
