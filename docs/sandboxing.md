@@ -45,39 +45,26 @@ If namespace creation is denied, check the host's user-namespace controls (inclu
 
 ### Rootless Docker and Podman
 
-If the `No permissions to create a new namespace` error occurs on a rootless Docker or Podman host, select the supplied rootless override in the repository's local `.env` file:
+If a rootless Docker or Podman host returns `No permissions to create a new namespace`, select the supplied rootless override in the repository's local `.env` (ignored by Git; see `.env.example`):
 
 ```dotenv
 COMPOSE_FILE=docker-compose.yml:docker-compose.rootless.yml
 ```
 
-The `.env` file is ignored by Git. See `.env.example` for a template. Docker Compose reads this file directly, so the usual development commands use both files:
+Compose reads `.env` directly, so the usual commands use both files:
 
 ```sh
 docker compose up -d --build --force-recreate latex
 # Or: make dev
 ```
 
-Linux/macOS uses `:` to separate Compose filenames. Use the platform's `COMPOSE_PATH_SEPARATOR` if running on a platform that uses a different separator.
+Use `:` to separate filenames on Linux/macOS, or the platform's `COMPOSE_PATH_SEPARATOR` elsewhere.
 
-This adds `SYS_ADMIN` to the API container **inside the rootless container runtime's user namespace**. According to [Docker's rootless limitations](https://docs.docker.com/engine/security/rootless/troubleshoot/#known-limitations), capabilities added this way apply only to resources governed by the container's user namespace; they do not grant capabilities in the host's initial user namespace. Compilation children still run as UID/GID 65534 in their Bubblewrap sandbox with all capabilities dropped.
+The override adds `SYS_ADMIN` to the API container **inside the rootless runtime's user namespace**. Per [Docker's rootless limitations](https://docs.docker.com/engine/security/rootless/troubleshoot/#known-limitations), such capabilities apply only within that user namespace and never to the host's initial user namespace; compilation children still run as UID/GID 65534 in their Bubblewrap sandbox with all capabilities dropped. Do not apply it to rootful Docker: it is a trade-off for nested rootless namespaces, not a general workaround, and does not require `privileged` or `seccomp=unconfined`.
 
-Do not apply this override to rootful Docker as a general workaround. It is an explicit trade-off for the nested user namespaces used by rootless Docker, not a substitute for checking host policy. It does not require `privileged` or `seccomp=unconfined`.
+`make -n test-docker-compose-up` shows the selected files.
 
-The Makefile reads the same `.env` and carries the non-base overrides into the test stack. All `test-docker-compose-*` targets use `docker-compose.test.yml` followed by the selected overrides, so the usual commands work unchanged:
-
-```sh
-make test-docker-compose-build
-make test-docker-compose-start
-make test
-make test-docker-compose-stop
-```
-
-You can inspect the selected files without starting containers with `make -n test-docker-compose-start`. `COMPOSE_TEST_FILES` can also be set to an explicit space-separated list if the test stack needs a different set of Compose files.
-
-Verify the built service by running the real sandbox test and compiling a `minted` document. `docker-compose.test.yml` sets `LATEX_REQUIRE_SANDBOX_TESTS=1`, making a missing Bubblewrap executable a test-suite error rather than an ignored skip. A deployment where Bubblewrap cannot create namespaces must be fixed at the host/container policy level before accepting untrusted compilations.
-
-For **trusted local development only**, isolation can be disabled explicitly:
+For **trusted local development only**, disable isolation explicitly:
 
 ```sh
 export LATEX_SANDBOX_BACKEND=none
