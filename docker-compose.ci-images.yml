@@ -1,0 +1,7 @@
+services:
+  latex:
+    image: ${DOCKER_MAIN_IMAGE:-yoant/latexonhttp:ci}
+    build: !reset
+  cache:
+    image: ${DOCKER_CACHE_IMAGE:-yoant/latexonhttp-cache:ci}
+    build: !reset

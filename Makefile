@@ -2,6 +2,11 @@
 # targets can carry non-base Compose overrides into docker-compose.test.yml.
 -include .env
 
+# Image tags, overridable for CI.
+DOCKER_IMAGE_TAG ?= latest
+DOCKER_MAIN_IMAGE ?= yoant/latexonhttp:$(DOCKER_IMAGE_TAG)
+DOCKER_CACHE_IMAGE ?= yoant/latexonhttp-cache:$(DOCKER_IMAGE_TAG)
+
 COMPOSE_FILE ?= docker-compose.yml
 COMPOSE_PATH_SEPARATOR ?= :
 COMPOSE_OVERRIDE_FILES = $(filter-out docker-compose.yml ./docker-compose.yml,$(subst $(COMPOSE_PATH_SEPARATOR), ,$(COMPOSE_FILE)))
@@ -44,11 +49,14 @@ docker-build-python-debian:
 	docker build -f container/python-debian.Dockerfile -t yoant/latexonhttp-python:debian .
 
 docker-build-main:
-	docker build -f Dockerfile .
+	docker build -f Dockerfile -t $(DOCKER_MAIN_IMAGE) .
+
+docker-build-cache:
+	docker build -f cache.Dockerfile -t $(DOCKER_CACHE_IMAGE) .
 
 docker-build-all-debian: docker-pull-yoant-texlive-debian docker-build-tl-distrib-debian docker-build-python-debian docker-build-main
 
-docker-build-all: docker-build-all-debian
+docker-build-all: docker-build-all-debian docker-build-cache
 
 ## -------------------------------
 ## Docker push/images ##
@@ -136,3 +144,6 @@ test-docker-compose-build-no-cache:
 ## -------------------------------
 format:
 	uv run black .
+
+lint:
+	uv run black --check .

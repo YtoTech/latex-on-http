@@ -1,0 +1,44 @@
+name: docker-base-images
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+  push:
+    branches: [master]
+    paths:
+      - 'container/tl-distrib-debian.Dockerfile'
+      - 'container/python-debian.Dockerfile'
+      - 'container/install_latex_packages.sh'
+      - '.github/workflows/docker-base-images.yml'
+
+jobs:
+  build-and-push-base-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push tl-distrib
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: container/tl-distrib-debian.Dockerfile
+          push: true
+          tags: yoant/latexonhttp-tl-distrib:debian
+          cache-from: type=gha,ref=latexonhttp-tl-distrib
+          cache-to: type=gha,mode=max,ref=latexonhttp-tl-distrib
+      - name: Build and push python-debian
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: container/python-debian.Dockerfile
+          push: true
+          tags: yoant/latexonhttp-python:debian
+          cache-from: |
+            type=gha,ref=latexonhttp-python-debian
+            type=registry,ref=yoant/latexonhttp-tl-distrib:debian
+          cache-to: type=gha,mode=max,ref=latexonhttp-python-debian
