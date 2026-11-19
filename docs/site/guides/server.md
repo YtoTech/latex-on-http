@@ -106,6 +106,65 @@ if (response.ok) {
 }
 ```
 
+## PHP
+
+`file_get_contents` with a stream context — available in every PHP
+installation, no curl extension required:
+
+```php
+<?php
+
+$apiUrl = "https://latex.ytotech.com/builds/sync";  // Or your self-hosted instance.
+
+$payload = json_encode([
+    "compiler" => "lualatex",
+    "resources" => [
+        [
+            "main" => true,
+            "content" => "\\documentclass{article}\n"
+                . "\\begin{document}\n"
+                . "Hello from the server code.\n"
+                . "\\end{document}",
+        ],
+        [
+            // Dependencies are stored under `path`, relative to the main
+            // document, and can be referenced from the LaTeX sources.
+            "path" => "logo.png",
+            "url" => "https://www.ytotech.com/images/ytotech_logo.png",
+        ],
+    ],
+]);
+
+$context = stream_context_create([
+    "http" => [
+        "method" => "POST",
+        "header" => "Content-Type: application/json\r\n",
+        "content" => $payload,
+        "timeout" => 120,
+        // Return the body of 4xx responses as well, so compilation failures
+        // can be handled instead of emitting a PHP warning.
+        "ignore_errors" => true,
+    ],
+]);
+
+$response = file_get_contents($apiUrl, false, $context);
+// First header line, eg. "HTTP/1.1 201 Created":
+$statusLine = $http_response_header[0] ?? "";
+
+if ($response !== false && str_contains($statusLine, "201")) {
+    file_put_contents("document.pdf", $response);
+} elseif ($response !== false) {
+    $error = json_decode($response, true);
+    // `error["error"]` is a machine-readable error code, eg. COMPILATION_ERROR;
+    // `error["logs"]` contains the compiler output and `error["log_files"]`
+    // the full LaTeX logs (unless log_files_on_failure is disabled).
+    echo "Compilation failed: " . ($error["error"] ?? "SERVER_ERROR") . "\n";
+    echo ($error["logs"] ?? "") . "\n";
+} else {
+    echo "Request failed: no response from the compilation service.\n";
+}
+```
+
 ## Practical notes
 
 - **Timeouts.** The server kills compilations after a timeout
