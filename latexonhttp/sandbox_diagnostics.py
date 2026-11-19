@@ -28,6 +28,12 @@ _PERMISSION_REASONS = (
     "operation not permitted",
     "no permissions to create",
 )
+# Emitted by the luametatex engine when it starts in plain TeX mode because
+# its Lua launcher stubs (context.lua/mtxrun.lua) could not be loaded from the
+# sandboxed bin directories.
+_LAUNCHER_STUB_PATTERN = re.compile(
+    r"^startup error\s*:\s*no format file given", re.IGNORECASE
+)
 
 
 def _process_failure_from_line(line):
@@ -67,6 +73,8 @@ def find_sandbox_process_issue(output, allowed_commands):
                     os.path.basename(match.group("binary")) if match else "bubblewrap"
                 )
                 return SandboxDiagnostic("missing_binary", binary, line[:1000])
+        if _LAUNCHER_STUB_PATTERN.search(line):
+            return SandboxDiagnostic("missing_launcher_stub", "luametatex", line[:1000])
         binary, kind = _process_failure_from_line(line)
         if kind and binary in allowed_commands:
             return SandboxDiagnostic(kind, binary, line[:1000])

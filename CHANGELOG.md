@@ -6,6 +6,7 @@
 * Add opt-in `options.compiler.shell_escape` for `minted`/Pygments; shell escape remains explicitly disabled by default (https://github.com/YtoTech/latex-on-http/issues/25).
 * Kill the complete process group on timeout and reject unsafe generated PDF/log symlinks.
 * Harden workspace path containment against prefix traversal and symlinked directories.
+* Fix ConTeXt compilation under sandboxing by binding the luametatex launcher stubs (`context.lua`, `mtxrun.lua`) and invoking launchers through their real TeX Live bin-directory aliases so the TeX tree configuration is preserved.
 
 ## 2026-11-18-2
 

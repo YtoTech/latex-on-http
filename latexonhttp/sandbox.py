@@ -70,6 +70,19 @@ DEFAULT_ALLOWED_COMMANDS = (
     "xdvipdfmx",
 )
 SHELL_ESCAPE_COMMANDS = ("python3", "pygmentize")
+# ConTeXt (luametatex-based) launches its Lua machinery through stub files
+# loaded relative to the invoked binary: running `context` looks for
+# `context.lua` (or `.lmt`) in the directory of argv[0], and that stub then
+# loads `mtxrun.lua` from the same directory. In TeX Live these are symlinks
+# from the bin directories into texmf-dist/scripts. As executable directories
+# are hidden and rebuilt from the curated list, the stubs must be bound too:
+# without them the engine falls back to plain TeX mode and fails with
+# "startup error : no format file given, quitting".
+LAUNCHER_STUB_SUFFIXES = (".lua", ".lmt")
+# Nobody else uses the argv[0]-relative Lua launcher mechanism. Constraining
+# this list also prevents script trees from being mistaken for TeX bin dirs:
+# a candidate such as scripts/extractbb/extractbb remains on a read-only tree.
+LUA_LAUNCHER_COMMANDS = ("context", "contextjit", "mtxrun", "mtxrunjit")
 PRIVATE_BIN_DIRECTORIES = (
     "/usr/local/bin",
     "/usr/local/sbin",
@@ -107,8 +120,58 @@ def _executable_bindings(shell_escape):
     for command in _configured_commands(shell_escape):
         public_path = _public_executable(command)
         if public_path:
-            bindings.append((public_path, os.path.realpath(public_path)))
+            real_path = os.path.realpath(public_path)
+            bindings.append((public_path, real_path))
+            launcher_path = _compilation_executable(public_path)
+            if launcher_path != public_path:
+                # Preserve the basename selecting the ConTeXt launcher, but
+                # execute it from the real bin directory instead of /usr/local/bin.
+                bindings.append((launcher_path, real_path))
+    bindings.extend(_companion_stub_bindings(bindings))
     return bindings
+
+
+def _launcher_stub_paths(base_path):
+    """Return the Lua launcher stubs adjacent to one executable alias."""
+    return [
+        base_path + suffix
+        for suffix in LAUNCHER_STUB_SUFFIXES
+        if os.path.isfile(base_path + suffix)
+    ]
+
+
+def _compilation_executable(public_path):
+    """Locate Lua launchers in their real TeX bin directory, keeping argv[0].
+
+    ConTeXt computes SELFAUTOPARENT from the parent of dirname(argv[0]) without
+    resolving its public /usr/local/bin alias. The real luametatex path cannot
+    be used either, because the launcher is selected from the context/mtxrun
+    basename. Run <real-bin-directory>/context instead, where both context.lua
+    and /usr/local/texlive links are present.
+    """
+    if os.path.basename(public_path) not in LUA_LAUNCHER_COMMANDS:
+        return public_path
+    real_directory = os.path.dirname(os.path.realpath(public_path))
+    launcher_path = os.path.join(real_directory, os.path.basename(public_path))
+    if _launcher_stub_paths(launcher_path):
+        return launcher_path
+    return public_path
+
+
+def _companion_stub_bindings(bindings):
+    """Return launcher stub bindings sitting next to curated executables."""
+    stubs = []
+    seen = set()
+    for public_path, real_path in bindings:
+        for base_path in (public_path, real_path):
+            if os.path.basename(base_path) not in LUA_LAUNCHER_COMMANDS:
+                continue
+            for stub_path in _launcher_stub_paths(base_path):
+                if stub_path in seen:
+                    continue
+                seen.add(stub_path)
+                stubs.append((stub_path, os.path.realpath(stub_path)))
+    return stubs
 
 
 def _private_bin_directories(bindings):
@@ -158,6 +221,7 @@ def build_sandbox_command(directory, command, shell_escape=False):
         raise SandboxUnavailable(
             f"Compilation command {command[0]!r} was not found in the sandbox path"
         )
+    executable = _compilation_executable(_public_executable(command[0]))
 
     arguments = [
         bwrap,
@@ -239,7 +303,7 @@ def build_sandbox_command(directory, command, shell_escape=False):
             "--chdir",
             WORKSPACE_MOUNT,
             "--",
-            _public_executable(command[0]),
+            executable,
             *command[1:],
         ]
     )

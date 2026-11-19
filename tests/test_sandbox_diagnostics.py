@@ -34,6 +34,11 @@ from latexonhttp.sandbox_diagnostics import (
             "permission_denied",
             "bubblewrap",
         ),
+        (
+            "startup error : no format file given, quitting",
+            "missing_launcher_stub",
+            "luametatex",
+        ),
     ],
 )
 def test_recognizes_sandbox_process_failures(line, kind, binary):

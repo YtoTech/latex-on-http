@@ -123,6 +123,110 @@ def test_ghostscript_wrapper_dependencies_are_bound(tmp_path, monkeypatch):
         assert ["--ro-bind", f"/usr/bin/{name}", f"/usr/bin/{name}"] in mounts
 
 
+def test_context_lua_launcher_stubs_are_bound(tmp_path, monkeypatch):
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(sandbox, "_public_executable", lambda name: f"/usr/bin/{name}")
+    stub_targets = {
+        "/usr/bin/context.lua": "/usr/share/texmf-dist/scripts/context/lua/context.lua",
+        "/usr/bin/mtxrun.lua": "/usr/share/texmf-dist/scripts/context/lua/mtxrun.lua",
+    }
+    original_isfile = sandbox.os.path.isfile
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "isfile",
+        lambda path: path in stub_targets or original_isfile(path),
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "realpath",
+        lambda path: stub_targets.get(path, path),
+    )
+
+    command = sandbox.build_sandbox_command(tmp_path, ["context", "main.tex"])
+    mounts = [command[index : index + 3] for index in range(len(command) - 2)]
+
+    for stub_path, real_path in stub_targets.items():
+        assert ["--ro-bind", real_path, real_path] in mounts
+        assert ["--symlink", real_path, stub_path] in mounts
+
+
+def test_context_launcher_stays_in_real_tex_bin_directory(tmp_path, monkeypatch):
+    engine_directory = "/usr/local/texlive/2026/bin/x86_64-linux"
+    engine = engine_directory + "/luametatex"
+    launcher = engine_directory + "/context"
+    original_is_dir = sandbox.os.path.isdir
+    original_is_file = sandbox.os.path.isfile
+    real_stubs = {
+        launcher + ".lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/context.lua",
+        engine_directory + "/mtxrun.lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/mtxrun.lua",
+    }
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(
+        sandbox, "_public_executable", lambda name: f"/usr/local/bin/{name}"
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "isfile",
+        lambda path: path in real_stubs or original_is_file(path),
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "realpath",
+        lambda path: (
+            engine
+            if path in ("/usr/local/bin/context", "/usr/local/bin/mtxrun")
+            else real_stubs.get(path, path)
+        ),
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "isdir",
+        lambda path: path == engine_directory or original_is_dir(path),
+    )
+
+    command = sandbox.build_sandbox_command(tmp_path, ["context", "main.tex"])
+    separator = command.index("--")
+    mounts = [command[index : index + 3] for index in range(len(command) - 2)]
+
+    assert command[separator + 1 :] == [launcher, "main.tex"]
+    assert ["--symlink", engine, "/usr/local/bin/context"] in mounts
+    assert ["--symlink", engine, launcher] in mounts
+    assert ["--tmpfs", engine_directory] in [
+        command[index : index + 2] for index in range(len(command) - 1)
+    ]
+    for stub_path, script_path in real_stubs.items():
+        assert ["--ro-bind", script_path, script_path] in mounts
+        assert ["--symlink", script_path, stub_path] in mounts
+
+
+def test_script_with_lua_companion_is_not_relocated(tmp_path, monkeypatch):
+    script_directory = "/usr/local/texlive/texmf-dist/scripts/extractbb"
+    script = script_directory + "/extractbb.pl"
+    lua_companion = script_directory + "/extractbb.lua"
+    original_is_file = sandbox.os.path.isfile
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(
+        sandbox, "_public_executable", lambda name: f"/usr/local/bin/{name}"
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "realpath",
+        lambda path: script if path == "/usr/local/bin/extractbb" else path,
+    )
+    monkeypatch.setattr(
+        sandbox.os.path,
+        "isfile",
+        lambda path: path == lua_companion or original_is_file(path),
+    )
+
+    command = sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
+    separator = command.index("--")
+
+    assert command[separator + 1 :] == ["/usr/local/bin/latexmk", "main.tex"]
+    assert "/usr/local/texlive/texmf-dist/scripts/extractbb/extractbb" not in command
+    assert lua_companion not in command
+
+
 def test_shell_helpers_are_only_exposed_for_shell_escape(tmp_path, monkeypatch):
     monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
     monkeypatch.setattr(
