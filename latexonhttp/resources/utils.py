@@ -12,6 +12,10 @@ import json
 from urllib.parse import urlsplit, urlunsplit
 
 
+def get_main_resource(resources):
+    return next(resource for resource in resources if resource["is_main_document"])
+
+
 def process_resource_data_spec(data):
     return {
         "hash": f"sha256:{hashlib.sha256(data).hexdigest()}",

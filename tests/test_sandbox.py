@@ -157,8 +157,10 @@ def test_context_launcher_stays_in_real_tex_bin_directory(tmp_path, monkeypatch)
     original_is_dir = sandbox.os.path.isdir
     original_is_file = sandbox.os.path.isfile
     real_stubs = {
-        launcher + ".lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/context.lua",
-        engine_directory + "/mtxrun.lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/mtxrun.lua",
+        launcher
+        + ".lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/context.lua",
+        engine_directory
+        + "/mtxrun.lua": "/usr/local/texlive/2026/texmf-dist/scripts/context/lua/mtxrun.lua",
     }
     monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
     monkeypatch.setattr(
@@ -251,21 +253,23 @@ def test_real_sandbox_hides_host_files_network_and_environment(tmp_path, monkeyp
         [
             "python3",
             "-c",
-            "import os, pathlib, socket; "
-            "pathlib.Path('job-output').write_text('ok'); "
-            "print('ENV_SECRET=' + os.getenv('SANDBOX_TEST_SECRET', '')); "
-            "print('PROCFS_VISIBLE=' + str(pathlib.Path('/proc').exists())); "
-            "\nfor filename in ['/etc/hostname', '/app/latex-on-http/pyproject.toml']:\n"
-            "    try:\n"
-            "        pathlib.Path(filename).read_text()\n"
-            "        print('HOST_FILE_READ=YES')\n"
-            "    except OSError:\n"
-            "        print('HOST_FILE_READ=NO')\n"
-            "try:\n"
-            "    socket.create_connection(('127.0.0.1', 1), timeout=0.1)\n"
-            "    print('NETWORK=YES')\n"
-            "except OSError:\n"
-            "    print('NETWORK=NO')",
+            (
+                "import os, pathlib, socket; "
+                "pathlib.Path('job-output').write_text('ok'); "
+                "print('ENV_SECRET=' + os.getenv('SANDBOX_TEST_SECRET', '')); "
+                "print('PROCFS_VISIBLE=' + str(pathlib.Path('/proc').exists())); "
+                "\nfor filename in ['/etc/hostname', '/app/latex-on-http/pyproject.toml']:\n"
+                "    try:\n"
+                "        pathlib.Path(filename).read_text()\n"
+                "        print('HOST_FILE_READ=YES')\n"
+                "    except OSError:\n"
+                "        print('HOST_FILE_READ=NO')\n"
+                "try:\n"
+                "    socket.create_connection(('127.0.0.1', 1), timeout=0.1)\n"
+                "    print('NETWORK=YES')\n"
+                "except OSError:\n"
+                "    print('NETWORK=NO')"
+            ),
         ],
         shell_escape=True,
     )

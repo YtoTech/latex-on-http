@@ -33,6 +33,7 @@ from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.querystring_api import parse_querystring_resources_spec
 from latexonhttp.resources.utils import (
     compute_compilation_hash,
+    get_main_resource,
     process_resource_data_spec,
     prune_resources_content_for_logging,
     sanitize_input_spec_for_job,
@@ -473,12 +474,7 @@ def compiler_latex():
         # Compilation.
         # -------------
 
-        # TODO Do an util to get main resource.
-        main_resource = next(
-            resource
-            for resource in normalized_resources
-            if resource["is_main_document"]
-        )
+        main_resource = get_main_resource(normalized_resources)
         g.compilation_job_stage = "compiling"
         _update_job_safely(
             workspace_id,
