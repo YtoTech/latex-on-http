@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-11-19-2
+
+* Fix pLaTeX/upLaTeX PDF generation by switching from `dvips` + Ghostscript to `dvipdfmx`. Ghostscript 10's default `SAFER` policy rejected writing the output PDF in the sandbox, causing Japanese documents to fail with `COMPILATION_ERROR`.
+* Add `collection-langjapanese` to the base Docker image so the `jsarticle` class, upLaTeX engine, and Japanese fonts are available.
+
 ## 2026-11-19-1
 
 * Track synchronous compilation jobs in PostgreSQL with sanitized request metadata, lifecycle status and timestamps, resource/cache metrics, PDF metadata, and `X-Job-ID` responses.
