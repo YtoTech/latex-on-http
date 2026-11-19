@@ -220,6 +220,28 @@ def test_latex_to_pdf_opts_into_shell_escape(tmp_path, monkeypatch):
     assert "-shell-escape" in (tmp_path / ".latexmkrc").read_text()
 
 
+@pytest.mark.parametrize("compiler_name", ["platex", "uplatex"])
+def test_japanese_compilers_use_dvipdfmx(tmp_path, monkeypatch, compiler_name):
+    commands = []
+
+    def fake_run_command(directory, command, **kwargs):
+        commands.append(command)
+        return fake_command_result(command)
+
+    monkeypatch.setattr(compiler, "run_command", fake_run_command)
+    compiler.latexToPdf(
+        compiler_name,
+        str(tmp_path),
+        {"build_path": "main.tex", "output_path": "main.pdf"},
+        "test-workspace",
+    )
+
+    assert commands[0][1] == "-pdfdvi"
+    latexmkrc = (tmp_path / ".latexmkrc").read_text()
+    assert "$dvipdf = 'dvipdfmx %O -o %D %S';" in latexmkrc
+    assert f"$latex = '{compiler_name} " in latexmkrc
+
+
 def test_bubblewrap_startup_failure_is_not_a_latex_error(tmp_path, monkeypatch):
     monkeypatch.setattr(
         compiler,

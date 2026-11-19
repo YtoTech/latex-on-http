@@ -172,7 +172,8 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         # return the whole directory).
         # TODO Let the config be provided? (dangerous)
         #  -> After the process is hardened.
-        mainLatexCmd = "latex" if compilerName in ["platex", "uplatex"] else "pdflatex"
+        is_dvi_compiler = compilerName in ["platex", "uplatex"]
+        mainLatexCmd = "latex" if is_dvi_compiler else "pdflatex"
         # Shell escape is always explicit. Enabling it adds only the curated
         # shell, Python and pygmentize commands to the already offline sandbox.
         shell_escape_option = "-shell-escape" if shell_escape else "-no-shell-escape"
@@ -184,13 +185,17 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         halt_on_error_str = " -halt-on-error" if halt_on_error else ""
         latexmkrc = f"""${mainLatexCmd} = '{compilerName} {shell_escape_option} -interaction={interaction_mode}{halt_on_error_str} -file-line-error -synctex=1 %O %S';
 """
+        if is_dvi_compiler:
+            # pLaTeX/upLaTeX use dvipdfmx directly. Ghostscript 10's default
+            # SAFER policy rejects the PDF output used by the -pdfps route.
+            latexmkrc += "$dvipdf = 'dvipdfmx %O -o %D %S';\n"
         logger.debug(".latexmkrc: %s", latexmkrc)
         with open(os.path.join(directory, ".latexmkrc"), "w") as fd:
             fd.write(latexmkrc)
         # As an option, use -silent (aka -interaction=batchmode)
         command = [
             "latexmk",
-            "-pdfps" if compilerName in ["platex", "uplatex"] else "-pdf",
+            "-pdfdvi" if is_dvi_compiler else "-pdf",
         ]
         command += ["-silent"] if silent else []
         command += ["-bibtex"] if bibtex_latexmk else []
@@ -201,22 +206,6 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         directory, command, shell_escape=shell_escape, compiler_name=compilerName
     )
     commandOutputs = [mainCmdOutput]
-    # if commandOutputs[0]["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
-    #     # We need a dvipdfmx pass.
-    #     # https://tex.stackexchange.com/questions/295414/what-is-uptex-uplatex
-    #     # TODO Use ptex2pdf?
-    #     # https://github.com/texjporg/ptex2pdf
-    #     command = [
-    #         "dvipdfmx",
-    #         "{}/{}".format(
-    #             log_dir, main_resource["build_path"].replace(".tex", ".dvi")
-    #         ),
-    #     ]
-    #     output_path = "{}/{}".format(
-    #         log_dir, main_resource["build_path"].replace(".tex", ".pdf")
-    #     )
-    #     logger.debug(command)
-    #     commandOutputs.append(run_command(log_dir, command))
     # Return both generated PDF and compile logs.
     pdf, read_error = read_generated_file(directory, output_path, MAX_PDF_SIZE)
     if read_error and read_error["file_read_error"]["reason"] == "not_found":
