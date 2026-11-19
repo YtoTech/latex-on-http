@@ -44,7 +44,7 @@ logging.config.dictConfig(
 logger = logging.getLogger("latexonhttp")
 
 if os.environ.get("SENTRY_DSN"):
-    logger.info("Init Sentry with DSN: %s", os.environ["SENTRY_DSN"])
+    logger.info("Initializing Sentry error reporting")
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
         integrations=[FlaskIntegration()],

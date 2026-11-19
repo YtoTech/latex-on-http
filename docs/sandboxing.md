@@ -91,6 +91,10 @@ Server-side configuration variables:
 * `LATEX_SANDBOX_READ_ONLY_PATHS`: space-separated replacement for the default read-only runtime paths;
 * `MAX_PDF_SIZE` and `MAX_LOG_FILE_SIZE`: maximum generated file sizes returned by the service.
 
+With `SENTRY_DSN` configured, recognized sandbox infrastructure failures are also reported to Sentry. This covers missing curated executables, wrapper-process permission failures, and Bubblewrap startup failures, including requests that still return their normal 400 or 503 error response. Events have stable `sandbox.issue` and `sandbox.binary` tags, a stable fingerprint for grouping, the compiler, workspace ID, and a single recognized diagnostic line. Inherited Sentry/Flask request context is deliberately retained to show the use case that triggered the failure. It may include request parameters or submitted TeX/source data, and should follow your Sentry retention and redaction policy. Full compiler logs are not added as a separate attachment. Ordinary document errors such as missing `.tex` or `.sty` files do not generate these reports.
+
+When `SENTRY_DSN` is not configured, reporting is disabled and compilation behavior is unchanged. A Sentry reporting failure is logged but never replaces the compiler result.
+
 ## Resource limits
 
 Bubblewrap does not provide per-job CPU, memory, PID or disk quotas. Production deployments should add delegated cgroups or a separate per-job container runner for those controls.

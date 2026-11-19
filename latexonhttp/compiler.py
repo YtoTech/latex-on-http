@@ -18,9 +18,14 @@ import glob
 import glom
 from latexonhttp.sandbox import (
     SandboxUnavailable,
+    _configured_commands,
     build_sandbox_command,
     prepare_workspace,
     sandbox_enabled,
+)
+from latexonhttp.sandbox_diagnostics import (
+    find_sandbox_process_issue,
+    report_sandbox_diagnostic,
 )
 from latexonhttp.utils.processes import (
     kill_all_children_processes,
@@ -54,6 +59,7 @@ def run_command(
     timeout=DEFAULT_COMPILE_TIMEOUT,
     shell_escape=False,
     isolate=None,
+    compiler_name=None,
 ):
     """Run one complete command tree, isolated by default.
 
@@ -104,6 +110,18 @@ def run_command(
         raise SandboxUnavailable(stdout.strip())
     ended_at = timeit.default_timer()
     logger.debug("Program returned with status code %d", rc)
+    if is_sandboxed and rc != 0:
+        diagnostic = find_sandbox_process_issue(
+            stdout, _configured_commands(shell_escape)
+        )
+        if diagnostic:
+            report_sandbox_diagnostic(
+                diagnostic,
+                command=original_command,
+                directory=directory,
+                shell_escape=shell_escape,
+                compiler=compiler_name,
+            )
     if rc != 0:
         logger.warning(
             "Command %r failed with return code %d. Command output:\n%s",
@@ -202,7 +220,9 @@ def latexToPdf(compilerName, directory, main_resource, workspace_id, options={})
         command += ["-f"] if force_latexmk else []
         command += [main_resource["build_path"]]
     logger.debug(command)
-    mainCmdOutput = run_command(directory, command, shell_escape=shell_escape)
+    mainCmdOutput = run_command(
+        directory, command, shell_escape=shell_escape, compiler_name=compilerName
+    )
     commandOutputs = [mainCmdOutput]
     # if commandOutputs[0]["return_code"] == 0 and compilerName in ["platex", "uplatex"]:
     #     # We need a dvipdfmx pass.

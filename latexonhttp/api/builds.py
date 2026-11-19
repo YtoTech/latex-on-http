@@ -20,6 +20,10 @@ from latexonhttp.compiler import (
     AVAILABLE_LATEX_COMPILERS,
 )
 from latexonhttp.sandbox import SandboxUnavailable
+from latexonhttp.sandbox_diagnostics import (
+    report_sandbox_diagnostic,
+    sandbox_unavailable_issue,
+)
 from latexonhttp.resources.normalization import normalize_resources_input
 from latexonhttp.resources.validation import check_resources_prefetch
 from latexonhttp.resources.fetching import fetch_resources
@@ -460,6 +464,12 @@ def compiler_latex():
     except SandboxUnavailable as error:
         # Never fall back to executing untrusted TeX without the sandbox.
         logger.error("Compilation sandbox unavailable: %s", error)
+        report_sandbox_diagnostic(
+            sandbox_unavailable_issue(error),
+            command=[compilerName],
+            directory=get_workspace_root_path(workspace_id),
+            compiler=compilerName,
+        )
         return {"error": "SANDBOX_UNAVAILABLE"}, 503
 
     except Exception as e:

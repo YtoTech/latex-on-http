@@ -30,19 +30,25 @@ def build_client():
 
 def test_sandbox_unavailable_returns_503_and_preserves_shell_escape_option(monkeypatch):
     received_options = []
+    reported = []
 
     def fail_compilation(_compiler, _directory, _main, _workspace, options):
         received_options.append(options)
-        raise SandboxUnavailable("sandbox test failure")
+        raise SandboxUnavailable("bwrap: Operation not permitted")
 
     monkeypatch.setattr("latexonhttp.api.builds.latexToPdf", fail_compilation)
     monkeypatch.setattr(
         "latexonhttp.api.builds.forward_resource_to_cache",
         lambda _resource, _data: (True, None),
     )
+    monkeypatch.setattr(
+        "latexonhttp.api.builds.report_sandbox_diagnostic",
+        lambda diagnostic, **context: reported.append((diagnostic, context)),
+    )
     response = build_client().post(
         "/builds/sync",
         json={
+            "compiler": "uplatex",
             "resources": [{"main": True, "content": "test"}],
             "options": {"compiler": {"shell_escape": True}},
         },
@@ -51,6 +57,10 @@ def test_sandbox_unavailable_returns_503_and_preserves_shell_escape_option(monke
     assert response.status_code == 503
     assert response.get_json() == {"error": "SANDBOX_UNAVAILABLE"}
     assert received_options[0]["compiler"]["shell_escape"] is True
+    diagnostic, context = reported[0]
+    assert diagnostic.kind == "permission_denied"
+    assert diagnostic.binary == "bubblewrap"
+    assert context["compiler"] == "uplatex"
 
 
 def test_malformed_resource_is_rejected_before_build():

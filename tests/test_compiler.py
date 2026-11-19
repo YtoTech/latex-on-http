@@ -70,7 +70,7 @@ def test_failed_command_logs_full_output(tmp_path, caplog):
 def test_latex_to_pdf_replaces_invalid_utf8_in_log_files(tmp_path, monkeypatch):
     (tmp_path / "main.log").write_bytes(b"latex log: \x9d\n")
 
-    def fake_run_command(directory, command, shell_escape=False):
+    def fake_run_command(directory, command, shell_escape=False, **kwargs):
         return fake_command_result(command)
 
     monkeypatch.setattr(compiler, "run_command", fake_run_command)
@@ -87,7 +87,7 @@ def test_latex_to_pdf_replaces_invalid_utf8_in_log_files(tmp_path, monkeypatch):
 def test_latex_to_pdf_disables_shell_escape_by_default(tmp_path, monkeypatch):
     calls = []
 
-    def fake_run_command(directory, command, shell_escape=False):
+    def fake_run_command(directory, command, shell_escape=False, **kwargs):
         calls.append(shell_escape)
         return fake_command_result(command)
 
@@ -106,7 +106,7 @@ def test_latex_to_pdf_disables_shell_escape_by_default(tmp_path, monkeypatch):
 def test_latex_to_pdf_opts_into_shell_escape(tmp_path, monkeypatch):
     calls = []
 
-    def fake_run_command(directory, command, shell_escape=False):
+    def fake_run_command(directory, command, shell_escape=False, **kwargs):
         calls.append(shell_escape)
         return fake_command_result(command)
 
