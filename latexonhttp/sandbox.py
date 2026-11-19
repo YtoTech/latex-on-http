@@ -176,6 +176,10 @@ def build_sandbox_command(directory, command, shell_escape=False):
         if public_path:
             arguments.extend(["--ro-bind", os.path.realpath(public_path), public_path])
 
+    # TeX and its supported helpers do not need procfs. Avoid mounting a new
+    # instance: container runtimes mask the outer /proc, which can make procfs
+    # mounts fail inside nested PID namespaces (including rootless Docker and
+    # Podman). The private PID namespace itself is still used for containment.
     arguments.extend(
         [
             "--symlink",
@@ -186,8 +190,6 @@ def build_sandbox_command(directory, command, shell_escape=False):
             "/sbin",
             "--dev",
             "/dev",
-            "--proc",
-            "/proc",
             "--tmpfs",
             "/tmp",
             "--bind",

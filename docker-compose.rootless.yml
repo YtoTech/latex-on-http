@@ -1,0 +1,8 @@
+# Optional override for rootless Docker/Podman hosts that reject nested
+# user namespaces. This capability is confined to the rootless daemon's user
+# namespace; compilation children still drop all capabilities via Bubblewrap.
+# Use only with rootless runtimes, never as a generic rootful-Docker override.
+services:
+  latex:
+    cap_add:
+      - SYS_ADMIN

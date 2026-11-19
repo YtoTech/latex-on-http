@@ -23,7 +23,49 @@ The executable allowlist covers conventional `/usr/bin`-style entry points. A mi
 
 The image installs `bubblewrap` and `python3-pygments`. The host must allow Bubblewrap to create unprivileged user and mount namespaces.
 
-Do not grant the API container broad `SYS_ADMIN` access or expose the Docker socket merely to bypass a namespace restriction. A missing Bubblewrap executable returns HTTP 503 with `SANDBOX_UNAVAILABLE`; there is no automatic unsandboxed fallback.
+Rootless Docker and rootless Podman are the intended deployment targets. The Compose files use their normal seccomp defaults; no custom seccomp profile, `systempaths=unconfined`, or `unmask=ALL` override is required. A missing Bubblewrap executable returns HTTP 503 with `SANDBOX_UNAVAILABLE`; there is no automatic unsandboxed fallback.
+
+The sandbox deliberately does **not** mount procfs. Container runtimes mask parts of the outer `/proc`, which can cause `bwrap: Can't mount proc on /proc: Operation not permitted` in a nested PID namespace. TeX and the supported helpers do not need procfs, so omitting it avoids widening access to host namespace paths. The private PID namespace remains enabled for process-tree containment.
+
+Recreate the service after changing security or namespace configuration—rebuilding its image or running `docker compose restart` alone does not update an existing container's runtime settings:
+
+```sh
+docker compose up -d --build --force-recreate latex
+```
+
+If namespace creation is denied, check the host's user-namespace controls (including `kernel.unprivileged_userns_clone`, `user.max_user_namespaces`, and AppArmor restrictions) and ensure kernel user namespaces are enabled.
+
+### Rootless Docker and Podman
+
+If the `No permissions to create a new namespace` error occurs on a rootless Docker or Podman host, select the supplied rootless override in the repository's local `.env` file:
+
+```dotenv
+COMPOSE_FILE=docker-compose.yml:docker-compose.rootless.yml
+```
+
+The `.env` file is ignored by Git. See `.env.example` for a template. Docker Compose reads this file directly, so the usual development commands use both files:
+
+```sh
+docker compose up -d --build --force-recreate latex
+# Or: make dev
+```
+
+Linux/macOS uses `:` to separate Compose filenames. Use the platform's `COMPOSE_PATH_SEPARATOR` if running on a platform that uses a different separator.
+
+This adds `SYS_ADMIN` to the API container **inside the rootless container runtime's user namespace**. According to [Docker's rootless limitations](https://docs.docker.com/engine/security/rootless/troubleshoot/#known-limitations), capabilities added this way apply only to resources governed by the container's user namespace; they do not grant capabilities in the host's initial user namespace. Compilation children still run as UID/GID 65534 in their Bubblewrap sandbox with all capabilities dropped.
+
+Do not apply this override to rootful Docker as a general workaround. It is an explicit trade-off for the nested user namespaces used by rootless Docker, not a substitute for checking host policy. It does not require `privileged` or `seccomp=unconfined`.
+
+The Makefile reads the same `.env` and carries the non-base overrides into the test stack. All `test-docker-compose-*` targets use `docker-compose.test.yml` followed by the selected overrides, so the usual commands work unchanged:
+
+```sh
+make test-docker-compose-build
+make test-docker-compose-start
+make test
+make test-docker-compose-stop
+```
+
+You can inspect the selected files without starting containers with `make -n test-docker-compose-start`. `COMPOSE_TEST_FILES` can also be set to an explicit space-separated list if the test stack needs a different set of Compose files.
 
 Verify the built service by running the real sandbox test and compiling a `minted` document. `docker-compose.test.yml` sets `LATEX_REQUIRE_SANDBOX_TESTS=1`, making a missing Bubblewrap executable a test-suite error rather than an ignored skip. A deployment where Bubblewrap cannot create namespaces must be fixed at the host/container policy level before accepting untrusted compilations.
 

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 
 import pytest
@@ -19,6 +20,15 @@ def test_missing_bubblewrap_fails_closed(tmp_path, monkeypatch):
         sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
 
 
+def test_rootless_override_is_limited_to_latex_container():
+    override = (Path(__file__).parents[1] / "docker-compose.rootless.yml").read_text()
+
+    assert override.count("- SYS_ADMIN") == 1
+    assert "privileged: true" not in override
+    assert "seccomp=unconfined" not in override
+    assert "cap_add" in override
+
+
 def test_sandbox_mounts_only_current_workspace_and_allowlisted_binaries(
     tmp_path, monkeypatch
 ):
@@ -33,6 +43,8 @@ def test_sandbox_mounts_only_current_workspace_and_allowlisted_binaries(
     assert command[separator + 1 :] == ["/usr/bin/latexmk", "main.tex"]
     assert "--clearenv" in command
     assert "--unshare-net" in command
+    assert "--unshare-pid" in command
+    assert "--proc" not in command
     assert "--cap-drop" in command
     assert ["--bind", str(tmp_path), "/work"] == command[
         command.index("--bind") : command.index("--bind") + 3
@@ -69,6 +81,7 @@ def test_real_sandbox_hides_host_files_network_and_environment(tmp_path, monkeyp
             "import os, pathlib, socket; "
             "pathlib.Path('job-output').write_text('ok'); "
             "print('ENV_SECRET=' + os.getenv('SANDBOX_TEST_SECRET', '')); "
+            "print('PROCFS_VISIBLE=' + str(pathlib.Path('/proc').exists())); "
             "\nfor filename in ['/etc/hostname', '/app/latex-on-http/pyproject.toml']:\n"
             "    try:\n"
             "        pathlib.Path(filename).read_text()\n"
@@ -86,6 +99,7 @@ def test_real_sandbox_hides_host_files_network_and_environment(tmp_path, monkeyp
 
     assert result["return_code"] == 0, result["stdout"]
     assert result["stdout"].count("HOST_FILE_READ=NO") == 2
+    assert "PROCFS_VISIBLE=False" in result["stdout"]
     assert "NETWORK=NO" in result["stdout"]
     assert "ENV_SECRET=\n" in result["stdout"]
     assert "must-not-leak" not in result["stdout"]
