@@ -34,6 +34,9 @@ DEFAULT_ALLOWED_COMMANDS = (
     "uptex",
     "euptex",
     "kpsewhich",
+    # latexmk's #!/usr/bin/env perl shebang needs both helpers. Mounting
+    # these fixed commands does not grant general shell-escape access.
+    "env",
     "perl",
     "texlua",
     "texluac",

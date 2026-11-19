@@ -69,6 +69,19 @@ def test_sandbox_mounts_only_current_workspace_and_allowlisted_binaries(
     assert "--no-shell-escape" not in command
 
 
+def test_latexmk_shebang_helpers_are_bound(tmp_path, monkeypatch):
+    monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
+    monkeypatch.setattr(sandbox, "_public_executable", lambda name: f"/usr/bin/{name}")
+    monkeypatch.setattr(sandbox.os.path, "realpath", lambda path: path)
+
+    command = sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
+    mounts = [command[index : index + 3] for index in range(len(command) - 2)]
+
+    for name in ("env", "perl"):
+        assert ["--ro-bind", f"/usr/bin/{name}", f"/usr/bin/{name}"] in mounts
+    assert ["--ro-bind", "/usr/bin/sh", "/usr/bin/sh"] not in mounts
+
+
 def test_shell_helpers_are_only_exposed_for_shell_escape(tmp_path, monkeypatch):
     monkeypatch.setenv("LATEX_BWRAP_PATH", "/usr/bin/bwrap")
     monkeypatch.setattr(
