@@ -23,7 +23,9 @@ The executable allowlist covers conventional `/usr/bin`-style entry points. A mi
 
 The image installs `bubblewrap` and `python3-pygments`. The host must allow Bubblewrap to create unprivileged user and mount namespaces.
 
-Rootless Docker and rootless Podman are the intended deployment targets. The Compose files use their normal seccomp defaults; no custom seccomp profile, `systempaths=unconfined`, or `unmask=ALL` override is required. A missing Bubblewrap executable returns HTTP 503 with `SANDBOX_UNAVAILABLE`; there is no automatic unsandboxed fallback.
+Rootless Docker and rootless Podman are the intended deployment targets. The base Compose files use their normal runtime policies; any Bubblewrap-specific overrides belong in `docker-compose.rootless.yml`. A missing Bubblewrap executable returns HTTP 503 with `SANDBOX_UNAVAILABLE`; there is no automatic unsandboxed fallback.
+
+Bubblewrap always creates a mount namespace and uses `pivot_root` to finish its private root. Docker's default seccomp profile does not allow `pivot_root`, including when `SYS_ADMIN` is present. The rootless override therefore loads `container/seccomp-bubblewrap.json`, which retains Docker's pinned deny-by-default baseline and adds only that one syscall. It does not use `seccomp=unconfined`, `privileged`, `systempaths=unconfined`, or `unmask=ALL`.
 
 The sandbox deliberately does **not** mount procfs. Container runtimes mask parts of the outer `/proc`, which can cause `bwrap: Can't mount proc on /proc: Operation not permitted` in a nested PID namespace. TeX and the supported helpers do not need procfs, so omitting it avoids widening access to host namespace paths. The private PID namespace remains enabled for process-tree containment.
 

@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 import shutil
@@ -18,6 +19,20 @@ def test_missing_bubblewrap_fails_closed(tmp_path, monkeypatch):
 
     with pytest.raises(sandbox.SandboxUnavailable):
         sandbox.build_sandbox_command(tmp_path, ["latexmk", "main.tex"])
+
+
+def test_seccomp_profile_only_adds_pivot_root():
+    profile_path = Path(__file__).parents[1] / "container" / "seccomp-bubblewrap.json"
+    profile = json.loads(profile_path.read_text())
+    pivot_root_rules = [
+        rule for rule in profile["syscalls"] if rule.get("names") == ["pivot_root"]
+    ]
+
+    assert profile["defaultAction"] == "SCMP_ACT_ERRNO"
+    assert len(pivot_root_rules) == 1
+    assert pivot_root_rules[0]["action"] == "SCMP_ACT_ALLOW"
+    assert "includes" not in pivot_root_rules[0]
+    assert "excludes" not in pivot_root_rules[0]
 
 
 def test_rootless_override_is_limited_to_latex_container():
