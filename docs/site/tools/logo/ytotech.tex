@@ -1,0 +1,27 @@
+% YtoTech wordmark, recreated with TikZ from the logo included in the
+% repository (samples/quotes/mrzool-inspired/logo.png): "Yto" in red,
+% "Tech" in blue, set in Computer Modern.
+%
+% Build the light and dark variants with ./build.sh (see README.md).
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{positioning}
+
+\ifdefined\DarkLogo
+  \definecolor{logored}{HTML}{E39A96}
+  \definecolor{logoblue}{HTML}{B7B9E2}
+\else
+  \definecolor{logored}{HTML}{B14040}
+  \definecolor{logoblue}{HTML}{383866}
+\fi
+
+\begin{document}
+\begin{tikzpicture}
+  \node[anchor=base west, inner sep=0pt, text=logored,
+        font=\fontsize{44}{44}\selectfont] (yto) at (0,0) {Yto};
+  \node[anchor=base west, inner sep=0pt, text=logoblue,
+        font=\fontsize{44}{44}\selectfont,
+        right=0.04em of yto.base east] (tech) {Tech};
+\end{tikzpicture}
+\end{document}

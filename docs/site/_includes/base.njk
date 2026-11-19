@@ -5,7 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% if title %}{{ title }} · {% endif %}LaTeX-on-HTTP documentation</title>
     <meta name="description" content="Compiles LaTeX documents through an HTTP API: endpoint reference, usage guides and a live playground.">
-    <link rel="icon" href="{{ rootPrefix }}assets/favicon.svg">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#b14040">
+    <link rel="icon" href="{{ rootPrefix }}assets/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="{{ rootPrefix }}assets/fonts/lmroman10-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ rootPrefix }}assets/fonts/lmmono10-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <script>
+      // Apply a saved theme before first paint to avoid a light flash.
+      try {
+        var storedTheme = localStorage.getItem("loh-docs-theme");
+        if (storedTheme === "dark" || storedTheme === "light") {
+          document.documentElement.setAttribute("data-theme", storedTheme);
+        }
+      } catch (error) {
+        /* Storage unavailable: fall back to the system preference. */
+      }
+    </script>
     <link rel="stylesheet" href="{{ rootPrefix }}assets/css/styles.css">
   </head>
   <body>
@@ -13,8 +28,9 @@
     <div class="layout">
       <header class="sidebar" id="sidebar">
         <div class="brand">
-          <a class="brand-link" href="{{ rootPrefix }}index.html">
-            <span class="brand-name">LaTeX<span class="brand-accent">-On-HTTP</span></span>
+          <a class="brand-link" href="{{ rootPrefix }}index.html" aria-label="LaTeX-on-HTTP documentation">
+            <img class="brand-logo brand-logo-light" src="{{ rootPrefix }}assets/img/latex-on-http-logo.svg" alt="LaTeX-on-HTTP" width="284" height="46">
+            <img class="brand-logo brand-logo-dark" src="{{ rootPrefix }}assets/img/latex-on-http-logo-dark.svg" alt="" aria-hidden="true" width="284" height="46">
             <span class="brand-sub">documentation</span>
           </a>
         </div>
@@ -33,6 +49,13 @@
           {% endfor %}
         </nav>
         <div class="sidebar-footer">
+          <div class="sidebar-by">
+            <span>by</span>
+            <a href="https://www.ytotech.com" aria-label="YtoTech">
+              <img class="ytotech-logo ytotech-logo-light" src="{{ rootPrefix }}assets/img/ytotech-logo.svg" alt="YtoTech" width="148" height="45">
+              <img class="ytotech-logo ytotech-logo-dark" src="{{ rootPrefix }}assets/img/ytotech-logo-dark.svg" alt="" aria-hidden="true" width="148" height="45">
+            </a>
+          </div>
           <a class="sidebar-link" href="https://github.com/YtoTech/latex-on-http">GitHub ↗</a>
           <a class="sidebar-link" href="https://github.com/YtoTech/latex-on-http/blob/master/CHANGELOG.md">Changelog ↗</a>
         </div>
@@ -44,9 +67,14 @@
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <span>Menu</span>
           </button>
-          <button class="topbar-button" id="theme-toggle" aria-label="Toggle dark mode">
-            <span class="theme-icon-light" aria-hidden="true">☾</span>
-            <span class="theme-icon-dark" aria-hidden="true">☀</span>
+          <button class="topbar-button" id="theme-toggle" aria-label="Switch to dark mode">
+            <svg class="theme-icon theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            </svg>
+            <svg class="theme-icon theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M12 2.5v2M12 19.5v2M4.3 4.3l1.4 1.4M18.3 18.3l1.4 1.4M2.5 12h2M19.5 12h2M4.3 19.7l1.4-1.4M18.3 5.7l1.4-1.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
           </button>
         </div>
         <main class="content{% if wide %} content-wide{% endif %}" id="main">
@@ -54,6 +82,7 @@
         </main>
         <footer class="content-footer">
           <p>
+            A <a href="https://www.ytotech.com">YtoTech</a> project.
             Built from the <a href="https://github.com/YtoTech/latex-on-http/tree/master/docs/site">documentation sources</a> —
             LaTeX-on-HTTP is <a href="https://github.com/YtoTech/latex-on-http">open-source</a> (AGPL).
           </p>

@@ -51,6 +51,10 @@ build-docs:
 serve-docs:
 	cd docs/site && npm run dev
 
+# Regenerate the TikZ logo/favicon (requires LaTeX + dvisvgm).
+docs-logo:
+	cd docs/site/tools/logo && ./build.sh
+
 clean-docs:
 	rm -rf docs/_build
 

@@ -1,0 +1,32 @@
+% LaTeX-on-HTTP wordmark, drawn with TikZ.
+%
+% The colours and the red/blue split are borrowed from the YtoTech logo:
+%   red  #b14040  — "LaTeX"
+%   blue #383866  — "on-HTTP"
+%
+% Build the light and dark variants with ./build.sh (see README.md).
+\documentclass[tikz,border=2pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{positioning}
+
+\ifdefined\DarkLogo
+  % Lighter tints, for the dark documentation theme.
+  \definecolor{logored}{HTML}{E39A96}
+  \definecolor{logoblue}{HTML}{B7B9E2}
+\else
+  \definecolor{logored}{HTML}{B14040}
+  \definecolor{logoblue}{HTML}{383866}
+\fi
+
+\begin{document}
+\begin{tikzpicture}
+  % The red and blue words share one baseline, like the "Yto" / "Tech"
+  % split in the YtoTech wordmark.
+  \node[anchor=base west, inner sep=0pt, text=logored,
+        font=\fontsize{44}{44}\selectfont] (latex) at (0,0) {\LaTeX};
+  \node[anchor=base west, inner sep=0pt, text=logoblue,
+        font=\fontsize{44}{44}\selectfont,
+        right=0.08em of latex.base east] (suffix) {-on-HTTP};
+\end{tikzpicture}
+\end{document}

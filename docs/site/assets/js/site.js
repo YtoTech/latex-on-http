@@ -27,16 +27,29 @@
 
   applyTheme(storedTheme());
 
+  function currentTheme() {
+    return (
+      document.documentElement.getAttribute("data-theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light")
+    );
+  }
+
   var themeToggle = document.getElementById("theme-toggle");
   if (themeToggle) {
+    function updateThemeLabel(theme) {
+      themeToggle.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      );
+    }
+
+    updateThemeLabel(currentTheme());
     themeToggle.addEventListener("click", function () {
-      var current =
-        document.documentElement.getAttribute("data-theme") ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light");
-      var next = current === "dark" ? "light" : "dark";
+      var next = currentTheme() === "dark" ? "light" : "dark";
       applyTheme(next);
+      updateThemeLabel(next);
       try {
         window.localStorage.setItem(THEME_KEY, next);
       } catch (error) {
