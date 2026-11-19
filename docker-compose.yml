@@ -4,7 +4,7 @@ services:
     # restart: always
     # command: dev
     ports:
-     - "8080:8080"
+     - "8088:8080"
     volumes:
      - .:/app/latex-on-http
      - ./tools:/app/latex-on-http/tools
@@ -51,17 +51,13 @@ services:
       timeout: 2s
       retries: 30
   adminer:
-    image: docker.io/shyim/adminerevo:4.8.4
+    image: docker.io/adminer:latest
     ports:
       - 8092:8080
     environment:
-      ADMINER_DEFAULT_DRIVER: pgsql
       ADMINER_DEFAULT_SERVER: postgres_db
-      ADMINER_DEFAULT_USER: latexonhttp
-      ADMINER_DEFAULT_PASSWORD: latexdev
-      ADMINER_DEFAULT_DB: latexonhttp
       # ADMINER_DESIGN: nette
       # https://www.adminer.org/plugins/
-      ADMINER_PLUGINS: tables-filter tinymce json-column
+      ADMINER_PLUGINS: tables-filter
     links:
       - postgres_db
