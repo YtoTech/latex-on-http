@@ -121,3 +121,22 @@ def test_multipart_api_latex_file_plus_image(latex_on_http_api_url):
     }
     r = requests.post(latex_on_http_api_url + "/builds/sync", files=files)
     assert r.status_code == 201
+
+
+def test_multipart_api_non_ascii_filename_content_disposition(latex_on_http_api_url):
+    """
+    A non-ASCII output filename (echoing back the uploaded file name) must
+    produce a valid, ASCII-safe Content-Disposition header (RFC 6266): an
+    invalid header makes the WSGI server reject the whole response
+    (InvalidHeader) after the compilation succeeded.
+    """
+    # Create a multipart request.
+    files = {"file1": ("Lab02-肖奕然.tex", LATEX_HELLO_WORLD)}
+    r = requests.post(latex_on_http_api_url + "/builds/sync", files=files)
+    assert r.status_code == 201
+    disposition = r.headers["Content-Disposition"]
+    # The header value must be ASCII-safe for every HTTP client and WSGI server.
+    disposition.encode("ascii")
+    assert "filename*=UTF-8''" in disposition
+    # RFC 5987: percent-encoded UTF-8 of "Lab02-肖奕然.pdf".
+    assert "filename*=UTF-8''Lab02-%E8%82%96%E5%A5%95%E7%84%B6.pdf" in disposition
