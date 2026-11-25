@@ -679,7 +679,9 @@ def test_integration_quota_ban_is_persisted(quota_test_api_url, quota_test_db):
             connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
 
 
-def test_integration_quota_ban_escalation_is_persisted(quota_test_api_url, quota_test_db):
+def test_integration_quota_ban_escalation_is_persisted(
+    quota_test_api_url, quota_test_db
+):
     """Hammering during a ban escalates to a long ban, persisted as a second row.
 
     The 24h violation counter is pre-seeded at the edge of the (raised)
