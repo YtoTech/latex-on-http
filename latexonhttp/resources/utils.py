@@ -49,7 +49,7 @@ def prune_resources_content_for_logging(input_spec):
     }
 
 
-def _redact_resource_url(url):
+def redact_resource_url(url):
     """Keep routing metadata without persisting credentials or query secrets."""
     if not isinstance(url, str):
         return "<redacted>"
@@ -73,7 +73,7 @@ def sanitize_input_spec_for_job(input_spec):
             continue
         for source_key in ("url", "git", "tar"):
             if source_key in resource:
-                resource[source_key] = _redact_resource_url(resource[source_key])
+                resource[source_key] = redact_resource_url(resource[source_key])
     return cleaned_spec
 
 

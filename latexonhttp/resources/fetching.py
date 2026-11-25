@@ -15,7 +15,12 @@ import socket
 
 import requests
 
-from latexonhttp.resources.urlguard import SSRFBlockedError, safe_get
+from latexonhttp.resources.urlguard import (
+    InvalidURLError,
+    SSRFBlockedError,
+    safe_get,
+)
+from latexonhttp.resources.utils import redact_resource_url
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +84,29 @@ FETCHER_HTTP_REQ_READ_TIMEOUT = float(os.getenv("FETCHER_HTTP_REQ_READ_TIMEOUT",
 HTTP_REQUEST_TIMEOUT = (FETCHER_HTTP_REQ_CONNECT_TIMEOUT, FETCHER_HTTP_REQ_READ_TIMEOUT)
 
 
+def _invalid_url_message(invalid):
+    """Human-readable explanation for an :class:`InvalidURLError`."""
+    allowed = ", ".join(invalid.allowed_schemes) if invalid.allowed_schemes else None
+    if invalid.reason == "no_scheme":
+        base = "The resource URL has no scheme (e.g. https://example.com/main.tex)."
+        if allowed:
+            base += f" Allowed schemes: {allowed}."
+        return base
+    if invalid.reason == "unsupported_scheme":
+        base = f"The resource URL scheme '{invalid.detail}' is not supported."
+        if allowed:
+            base += f" Allowed schemes: {allowed}."
+        return base
+    if invalid.reason == "missing_host":
+        return "The resource URL has no host (e.g. https://example.com/main.tex)."
+    if invalid.reason == "invalid_port":
+        return "The resource URL port is invalid (must be between 0 and 65535)."
+    return "The resource URL is malformed and cannot be fetched."
+
+
 def fetcher_url_file(resource, _get_from_cache):
     url = resource["body_source"]["url"]
-    logger.info("Fetching file from %s", url)
+    logger.info("Fetching file from %s", redact_resource_url(url))
     try:
         # SSRF guard: validates the URL (scheme, host, resolved addresses) and
         # pins the connection to a validated address, re-checking every redirect.
@@ -105,10 +130,37 @@ def fetcher_url_file(resource, _get_from_cache):
                 },
             )
         return response.content, None
+    except InvalidURLError as invalid:
+        # An unfetchable URL (bad/missing scheme, no host, unparsable port) is a
+        # client error, not a server fault, and not a security block. The
+        # offending URL is echoed in resource.body_source.url.
+        logger.info(
+            "Rejected resource URL %s: %s", redact_resource_url(url), invalid.reason
+        )
+        fetch_error = {
+            "type": "invalid_url",
+            "reason": invalid.reason,
+            "detail": invalid.detail,
+            "http_code": None,
+            "http_response_content": None,
+        }
+        if invalid.allowed_schemes:
+            fetch_error["allowed_schemes"] = list(invalid.allowed_schemes)
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "message": _invalid_url_message(invalid),
+                "fetch_error": fetch_error,
+                "resource": resource,
+            },
+        )
     except SSRFBlockedError as blocked:
         # A blocked URL is a client error (400), not a server fault. The detail
         # may name the offending host/address but never leaks internal state.
-        logger.warning("Blocked resource URL %s: %s", url, blocked.reason)
+        logger.warning(
+            "Blocked resource URL %s: %s", redact_resource_url(url), blocked.reason
+        )
         return (
             None,
             {
@@ -174,8 +226,11 @@ def fetcher_url_file(resource, _get_from_cache):
             None,
             {
                 "error": "RESOURCE_FETCH_FAILURE",
+                "message": "The resource URL is malformed and cannot be fetched.",
                 "fetch_error": {
                     "type": "invalid_url",
+                    "reason": "malformed_url",
+                    "detail": str(ue),
                     "exception_content": str(ue),
                     "http_code": None,
                     "http_response_content": None,

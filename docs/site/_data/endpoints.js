@@ -223,8 +223,14 @@ const BUILD_ERRORS = [
     code: "RESOURCE_FETCH_FAILURE",
     http: "400",
     description:
-      "A <code>url</code> resource could not be downloaded "
-      + "(<code>fetch_error</code> details the HTTP status or network error).",
+      "A <code>url</code> resource could not be downloaded. "
+      + "<code>fetch_error</code> carries a machine-readable <code>type</code>: "
+      + "<code>http_error</code> (a non-2xx status), <code>connection_error</code>, "
+      + "<code>request_timeout</code>, <code>invalid_url</code> (missing or "
+      + "unsupported scheme, no host, or an invalid port — "
+      + "<code>allowed_schemes</code> lists the accepted schemes), or "
+      + "<code>ssrf_blocked</code> (the URL would reach a private, loopback or "
+      + "link-local address).",
   },
   {
     code: "FETCH_METHOD_NOT_SUPPORTED",

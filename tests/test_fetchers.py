@@ -146,7 +146,9 @@ def test_resource_fetch_file_ssrf_blocked(latex_on_http_api_url, url, reason):
     assert response_payload["resource"]["body_source"]["url"] == url
 
 
-def test_resource_fetch_file_ssrf_blocked_disallowed_scheme(latex_on_http_api_url):
+def test_resource_fetch_file_invalid_url_unsupported_scheme(latex_on_http_api_url):
+    # A non-http(s) scheme is unfetchable, so it is an invalid_url that names the
+    # allowed schemes, not an ssrf block.
     r = requests.post(
         latex_on_http_api_url + "/builds/sync",
         json={"resources": [{"url": "file:///etc/passwd"}]},
@@ -154,8 +156,24 @@ def test_resource_fetch_file_ssrf_blocked_disallowed_scheme(latex_on_http_api_ur
     assert r.status_code == 400
     response_payload = r.json()
     assert response_payload["error"] == "RESOURCE_FETCH_FAILURE"
-    assert response_payload["fetch_error"]["type"] == "ssrf_blocked"
-    assert response_payload["fetch_error"]["reason"] == "disallowed_scheme"
+    assert response_payload["fetch_error"]["type"] == "invalid_url"
+    assert response_payload["fetch_error"]["reason"] == "unsupported_scheme"
+    assert response_payload["fetch_error"]["allowed_schemes"] == ["http", "https"]
+    assert response_payload["fetch_error"]["http_code"] is None
+
+
+def test_resource_fetch_file_invalid_url_missing_scheme(latex_on_http_api_url):
+    # A schemeless URL is a client error (400 invalid_url), never a 500.
+    r = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={"resources": [{"url": "/raw/example.com/main.tex"}]},
+    )
+    assert r.status_code == 400
+    response_payload = r.json()
+    assert response_payload["error"] == "RESOURCE_FETCH_FAILURE"
+    assert response_payload["fetch_error"]["type"] == "invalid_url"
+    assert response_payload["fetch_error"]["reason"] == "no_scheme"
+    assert response_payload["fetch_error"]["allowed_schemes"] == ["http", "https"]
 
 
 # TODO Check error for invalid base64/file resource.

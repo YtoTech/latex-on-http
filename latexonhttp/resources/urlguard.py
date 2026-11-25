@@ -37,18 +37,43 @@ ALLOWED_SCHEMES = tuple(
 MAX_REDIRECTS = int(os.getenv("FETCHER_MAX_REDIRECTS", "3"))
 
 
-class SSRFBlockedError(Exception):
-    """A user-supplied URL was rejected by the SSRF guard.
+class UrlRejectedError(Exception):
+    """A user-supplied URL was rejected before any request was attempted.
 
-    ``reason`` is a stable, machine-readable code (``loopback``, ``private_ip``,
-    ``link_local``, ``disallowed_scheme``, ...); ``detail`` is a human-readable
-    explanation that may include the offending host/address.
+    ``reason`` is a stable, machine-readable code; ``detail`` is a
+    human-readable explanation that may include the offending host/scheme.
+    Subclasses separate an unfetchable URL (:class:`InvalidURLError`, a client
+    error) from one that would have reached a blocked address
+    (:class:`SSRFBlockedError`, a security block).
     """
 
     def __init__(self, reason, detail=""):
         super().__init__(reason if not detail else "%s: %s" % (reason, detail))
         self.reason = reason
         self.detail = detail
+
+
+class InvalidURLError(UrlRejectedError):
+    """The URL cannot be fetched at all (malformed, or an unsupported scheme).
+
+    It never reaches the network, so it is a client error, not a security
+    block. ``allowed_schemes`` carries the accepted schemes when the reason is
+    scheme-related (``no_scheme`` / ``unsupported_scheme``), else ``None``.
+    """
+
+    def __init__(self, reason, detail="", allowed_schemes=None):
+        super().__init__(reason, detail)
+        self.allowed_schemes = allowed_schemes
+
+
+class SSRFBlockedError(UrlRejectedError):
+    """The URL would reach a blocked address.
+
+    ``reason`` is a stable, machine-readable code (``loopback``, ``private_ip``,
+    ``link_local``, ``reserved``, ``multicast``, ``not_global``,
+    ``too_many_redirects``, ...); ``detail`` may name the offending
+    host/address.
+    """
 
 
 def _disallowed_ip_reason(ip_str):
@@ -128,23 +153,35 @@ def _resolve_public_addresses(hostname, port):
 
 
 def validate_url(url):
-    """Validate a user-supplied URL for SSRF.
+    """Validate a user-supplied URL before fetching.
 
-    Returns ``(parsed, [public_ips])``. Raises :class:`SSRFBlockedError` with a
-    machine-readable reason on rejection, or :class:`socket.gaierror` if a
-    hostname does not resolve.
+    Returns ``(parsed, [public_ips])``.
+
+    Raises :class:`InvalidURLError` when the URL cannot be fetched at all
+    (``no_scheme``, ``unsupported_scheme``, ``missing_host``, ``malformed_url``,
+    ``invalid_port``) and :class:`SSRFBlockedError` when the target address is
+    blocked. Propagates :class:`socket.gaierror` when a hostname does not
+    resolve.
     """
     try:
         parsed = urlparse(url)
     except Exception as exc:  # urlparse is lenient; guard against the unexpected
-        raise SSRFBlockedError("invalid_url", str(exc))
+        raise InvalidURLError("malformed_url", str(exc)) from exc
     scheme = (parsed.scheme or "").lower()
+    if not scheme:
+        raise InvalidURLError("no_scheme", url, allowed_schemes=ALLOWED_SCHEMES)
     if scheme not in ALLOWED_SCHEMES:
-        raise SSRFBlockedError("disallowed_scheme", scheme or "<none>")
+        raise InvalidURLError(
+            "unsupported_scheme", scheme, allowed_schemes=ALLOWED_SCHEMES
+        )
+    try:
+        port = parsed.port
+    except ValueError as exc:  # e.g. an out-of-range port; would otherwise 500
+        raise InvalidURLError("invalid_port", url) from exc
     hostname = parsed.hostname
     if not hostname:
-        raise SSRFBlockedError("missing_host", url)
-    port = parsed.port or (443 if scheme == "https" else 80)
+        raise InvalidURLError("missing_host", url)
+    port = port or (443 if scheme == "https" else 80)
     addresses = _resolve_public_addresses(hostname, port)
     return parsed, addresses
 

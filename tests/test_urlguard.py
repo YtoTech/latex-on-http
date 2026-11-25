@@ -14,6 +14,7 @@ import pytest
 
 from latexonhttp.resources import urlguard
 from latexonhttp.resources.urlguard import (
+    InvalidURLError,
     SSRFBlockedError,
     _disallowed_ip_reason,
     safe_get,
@@ -83,25 +84,36 @@ def test_validate_url_allows_public_literal():
     assert parsed.hostname == "8.8.8.8"
 
 
-# --- validate_url: scheme / host ------------------------------------------
+# --- validate_url: scheme / host (unfetchable -> InvalidURLError) -----------
 
 
-def test_validate_url_blocks_disallowed_scheme():
-    with pytest.raises(SSRFBlockedError) as exc:
+def test_validate_url_rejects_unsupported_scheme():
+    with pytest.raises(InvalidURLError) as exc:
         validate_url("file:///etc/passwd")
-    assert exc.value.reason == "disallowed_scheme"
+    assert exc.value.reason == "unsupported_scheme"
+    assert list(exc.value.allowed_schemes) == ["http", "https"]
 
 
-def test_validate_url_blocks_missing_scheme():
-    with pytest.raises(SSRFBlockedError) as exc:
+def test_validate_url_rejects_missing_scheme():
+    with pytest.raises(InvalidURLError) as exc:
         validate_url("example.com/path")
-    assert exc.value.reason == "disallowed_scheme"
+    assert exc.value.reason == "no_scheme"
+    assert list(exc.value.allowed_schemes) == ["http", "https"]
 
 
-def test_validate_url_blocks_missing_host():
-    with pytest.raises(SSRFBlockedError) as exc:
+def test_validate_url_rejects_missing_host():
+    with pytest.raises(InvalidURLError) as exc:
         validate_url("http://")
     assert exc.value.reason == "missing_host"
+    assert exc.value.allowed_schemes is None
+
+
+def test_validate_url_rejects_out_of_range_port():
+    # An out-of-range port makes parsed.port raise ValueError; that must be a
+    # client-error invalid_url, never an unhandled 500.
+    with pytest.raises(InvalidURLError) as exc:
+        validate_url("http://example.com:99999/")
+    assert exc.value.reason == "invalid_port"
 
 
 # --- validate_url: name resolution (mocked getaddrinfo) --------------------

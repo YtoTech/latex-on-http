@@ -262,28 +262,30 @@ def test_url_without_scheme_returns_400_instead_of_server_error():
     assert response.status_code == 400
     payload = response.get_json()
     assert payload["error"] == "RESOURCE_FETCH_FAILURE"
-    # A schemeless URL is rejected up front by the SSRF guard as a disallowed
-    # scheme (rather than letting requests raise MissingSchema); it must still
-    # surface as a client error (400), never a server fault (500).
-    assert payload["fetch_error"]["type"] == "ssrf_blocked"
-    assert payload["fetch_error"]["reason"] == "disallowed_scheme"
+    # A schemeless URL is unusable, so it is an invalid_url (a client error,
+    # 400 -- never a 500), not an ssrf block; it names the reason and the
+    # schemes this service accepts.
+    assert payload["fetch_error"]["type"] == "invalid_url"
+    assert payload["fetch_error"]["reason"] == "no_scheme"
+    assert payload["fetch_error"]["allowed_schemes"] == ["http", "https"]
     assert payload["fetch_error"]["http_code"] is None
     assert payload["resource"]["body_source"]["url"] == url
 
 
 @pytest.mark.parametrize(
-    ("url", "reason"),
+    ("url", "reason", "with_allowed_schemes"),
     [
         (
             "/raw/YtoTech/latex-on-http/master/examples/templates/moderncv.tex",
-            "disallowed_scheme",
+            "no_scheme",
+            True,
         ),
-        ("example.com/main.tex", "disallowed_scheme"),
-        ("https://", "missing_host"),
-        ("ftp://example.com/main.tex", "disallowed_scheme"),
+        ("example.com/main.tex", "no_scheme", True),
+        ("https://", "missing_host", False),
+        ("ftp://example.com/main.tex", "unsupported_scheme", True),
     ],
 )
-def test_malformed_or_unsupported_urls_are_rejected(url, reason):
+def test_malformed_or_unsupported_urls_are_rejected(url, reason, with_allowed_schemes):
     data, error = fetcher_url_file(
         {"type": "url/file", "body_source": {"url": url}},
         None,
@@ -291,10 +293,13 @@ def test_malformed_or_unsupported_urls_are_rejected(url, reason):
 
     assert data is None
     assert error["error"] == "RESOURCE_FETCH_FAILURE"
-    # The SSRF guard classifies malformed/unsupported URLs as blocks rather
-    # than invalid URLs: missing scheme / unsupported scheme -> disallowed_scheme,
-    # missing host -> missing_host.
-    assert error["fetch_error"]["type"] == "ssrf_blocked"
+    # Unusable URLs are invalid_url (not ssrf_blocked): no scheme -> no_scheme,
+    # a non-http(s) scheme -> unsupported_scheme, no host -> missing_host.
+    assert error["fetch_error"]["type"] == "invalid_url"
     assert error["fetch_error"]["reason"] == reason
     assert error["fetch_error"]["detail"]
     assert error["fetch_error"]["http_code"] is None
+    if with_allowed_schemes:
+        assert error["fetch_error"]["allowed_schemes"] == ["http", "https"]
+    else:
+        assert "allowed_schemes" not in error["fetch_error"]
