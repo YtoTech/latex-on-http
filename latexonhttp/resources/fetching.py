@@ -64,6 +64,9 @@ def fetcher_base64_file(resource, _get_from_cache):
                 "message": (
                     "The resource file field must contain valid Base64-encoded content."
                 ),
+                # Path of the resource in the build filesystem, so clients can
+                # tell which uploaded file failed to decode.
+                "path": resource.get("build_path"),
                 "fetch_error": {
                     "type": "invalid_base64",
                     "exception_content": str(exc),

@@ -188,13 +188,29 @@ def test_invalid_base64_returns_400_instead_of_server_error():
 )
 def test_invalid_base64_alphabet_is_rejected(raw_base64):
     data, error = fetcher_base64_file(
-        {"type": "base64/file", "body_source": {"raw_base64": raw_base64}},
+        {
+            "type": "base64/file",
+            "build_path": "assets/broken.tex",
+            "body_source": {"raw_base64": raw_base64},
+        },
         None,
     )
 
     assert data is None
     assert error["error"] == "INVALID_BASE64_CONTENT"
     assert error["fetch_error"]["type"] == "invalid_base64"
+    assert error["path"] == "assets/broken.tex"
+
+
+def test_invalid_base64_error_path_defaults_to_none():
+    data, error = fetcher_base64_file(
+        {"type": "base64/file", "body_source": {"raw_base64": "not base64!"}},
+        None,
+    )
+
+    assert data is None
+    assert error["error"] == "INVALID_BASE64_CONTENT"
+    assert error["path"] is None
 
 
 def test_valid_base64_is_still_decoded():

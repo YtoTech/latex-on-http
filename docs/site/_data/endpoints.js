@@ -217,7 +217,8 @@ const BUILD_ERRORS = [
   {
     code: "INVALID_BASE64_CONTENT",
     http: "400",
-    description: "A <code>file</code> resource is not valid base64 content.",
+    description: "A <code>file</code> resource is not valid base64 content. "
+      + "<code>path</code> is the resource's path in the build filesystem.",
   },
   {
     code: "RESOURCE_FETCH_FAILURE",

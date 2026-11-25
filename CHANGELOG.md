@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-11-25-2
+
+* Surface the failing resource path in invalid Base64 resource errors: the `INVALID_BASE64_CONTENT` response now carries the resource's `build_path` as a `path` field, so a client uploading several files can tell which one failed to decode instead of re-checking every `file` resource; the field is `null` when the resource has no build path yet.
+
 ## 2026-11-25-1
 
 * Upgrade Gunicorn from 26.2.0 to 27.0.1: an invalid response header now answers `500 Internal Server Error` instead of dropping the connection with no reply (and the header value is kept out of the error log), request bodies of known length are read in large steps so large multipart uploads are much faster while other threads keep the worker busy, and gthread keep-alive fixes serve requests arriving while a previous body is drained and keep client connections usable across worker recycling/shutdown.
