@@ -68,7 +68,7 @@ def test_api_packages_info_installed_xmltex(latex_on_http_api_url):
     The API allow to get info on an installed package.
     """
     r = requests.get(
-        "{}/packages/xmltex".format(latex_on_http_api_url), allow_redirects=False
+        f"{latex_on_http_api_url}/packages/xmltex", allow_redirects=False
     )
     assert r.status_code == 200
     payload = r.json()
@@ -89,7 +89,7 @@ def test_api_packages_info_installed_xpiano(latex_on_http_api_url):
     The API allow to get info on an installed package.
     """
     r = requests.get(
-        "{}/packages/xpiano".format(latex_on_http_api_url), allow_redirects=False
+        f"{latex_on_http_api_url}/packages/xpiano", allow_redirects=False
     )
     assert r.status_code == 200
     payload = r.json()
