@@ -252,15 +252,25 @@ def _fetched_resources_metadata(resources):
     }
 
 
-def get_rate_limit_documentation_url():
-    """Absolute URL of the rate-limiting documentation served from /docs/."""
+def get_documentation_base_url():
+    """Absolute URL of the documentation site served from /docs/."""
     forwarded_scheme = (
         (request.headers.get("X-Forwarded-Proto") or "").split(",")[0].strip()
     )
     return (
         url_for("docs.documentation", _external=True, _scheme=forwarded_scheme or None)
-        + "api/rate-limiting/"
+        + "api/"
     )
+
+
+def get_rate_limit_documentation_url():
+    """Absolute URL of the rate-limiting documentation served from /docs/."""
+    return get_documentation_base_url() + "rate-limiting/"
+
+
+def get_builds_sync_documentation_url():
+    """Absolute URL of the /builds/sync documentation served from /docs/."""
+    return get_documentation_base_url() + "builds-sync/"
 
 
 @builds_app.before_request
@@ -373,7 +383,13 @@ def compiler_latex():
             return error, 400
 
     if not input_spec or not input_spec.get("resources"):
-        return {"error": "MISSING_COMPILATION_SPECIFICATION"}, 400
+        return (
+            {
+                "error": "MISSING_COMPILATION_SPECIFICATION",
+                "documentation": get_builds_sync_documentation_url(),
+            },
+            400,
+        )
 
     # Payload validations.
     logger.info(request.content_type)

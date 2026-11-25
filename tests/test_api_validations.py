@@ -14,6 +14,7 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api.builds import builds_app, validate_input_spec
+from latexonhttp.docs import docs_app
 from latexonhttp.resources.fetching import (
     fetcher_base64_file,
     fetcher_url_file,
@@ -33,6 +34,9 @@ def disable_job_tracking(monkeypatch):
 def build_client():
     test_app = Flask(__name__)
     test_app.register_blueprint(builds_app, url_prefix="/builds")
+    # Registered (like in the real app) so error responses can build their
+    # /docs/ documentation links via url_for.
+    test_app.register_blueprint(docs_app)
     return test_app.test_client()
 
 
@@ -315,14 +319,19 @@ def test_naked_get_returns_missing_compilation_specification():
     response = build_client().get("/builds/sync")
 
     assert response.status_code == 400
-    assert response.get_json() == {"error": "MISSING_COMPILATION_SPECIFICATION"}
+    body = response.get_json()
+    assert body["error"] == "MISSING_COMPILATION_SPECIFICATION"
+    # A browser landing here is told where the request format is documented.
+    assert body["documentation"].endswith("/docs/api/builds-sync/")
 
 
 def test_empty_resources_returns_missing_compilation_specification():
     response = build_client().post("/builds/sync", json={"resources": []})
 
     assert response.status_code == 400
-    assert response.get_json() == {"error": "MISSING_COMPILATION_SPECIFICATION"}
+    body = response.get_json()
+    assert body["error"] == "MISSING_COMPILATION_SPECIFICATION"
+    assert body["documentation"].endswith("/docs/api/builds-sync/")
 
 
 VALID_SPEC = {

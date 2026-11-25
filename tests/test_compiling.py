@@ -54,9 +54,9 @@ SAMPLE_HELLO_CONTEXT = "hello_context"
 def test_no_payload_error(latex_on_http_api_url):
     r = requests.post(latex_on_http_api_url + "/builds/sync", json={})
     assert r.status_code == 400
-    assert r.json() == {
-        "error": "MISSING_COMPILATION_SPECIFICATION",
-    }
+    body = r.json()
+    assert body["error"] == "MISSING_COMPILATION_SPECIFICATION"
+    assert body["documentation"].endswith("/docs/api/builds-sync/")
 
 
 def test_simple_compilation_body_pdflatex(latex_on_http_api_url):

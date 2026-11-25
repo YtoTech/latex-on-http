@@ -5,6 +5,7 @@ import pytest
 from flask import Flask
 
 from latexonhttp.api import builds
+from latexonhttp.docs import docs_app
 from latexonhttp.sandbox import SandboxUnavailable
 
 SUCCESS_OUTPUT = {
@@ -54,6 +55,9 @@ def recorder(monkeypatch, tmp_path):
 def build_client():
     test_app = Flask(__name__)
     test_app.register_blueprint(builds.builds_app, url_prefix="/builds")
+    # Registered (like in the real app) so error responses can build their
+    # /docs/ documentation links via url_for.
+    test_app.register_blueprint(docs_app)
     return test_app.test_client()
 
 
