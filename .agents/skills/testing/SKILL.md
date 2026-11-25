@@ -1,9 +1,9 @@
 ---
 name: testing
-description: How to run the LaTeX-on-HTTP test suite from the Cline/LLM container. Covers the dedicated .venv-cline virtualenv, the unit tier (no Docker, no LaTeX), the docker-compose integration tier, environment variables, and this container's known limitations.
+description: How to run the LaTeX-on-HTTP test suite in the LLM/AI coding container. Covers the dedicated .venv-cline virtualenv, the unit tier (no Docker, no LaTeX, no DB), the docker-compose integration tier, key environment variables, and this container's known limitations. Read this before running or debugging tests.
 ---
 
-# Testing LaTeX-on-HTTP (Cline / LLM container)
+# Testing LaTeX-on-HTTP (LLM / AI coding container)
 
 ## Environment map
 
@@ -77,3 +77,20 @@ make test-unit
 - `DEV.md` — dev guide (migrations, job tracking, database).
 - `docs/sandboxing.md` — sandboxing model and its configuration variables.
 - `docker-compose.test.yml` — the reference test configuration (env vars).
+
+## Discovery across AI assistants
+
+This file is the **single source of truth** for how to test this repo. It lives
+at `.agents/skills/testing/SKILL.md` (a neutral, tool-agnostic location) and is
+surfaced to AI coding assistants so it is loaded whenever tests are run or
+debugged:
+
+- **OpenCode** — discovered natively from `.agents/skills/` (a project
+  compatibility source); also referenced from `AGENTS.md`.
+- **Cline** — pointed here from `.clinerules`.
+- **Claude Code** — pointed here from `CLAUDE.md`.
+
+Keep this file as the canonical copy. Edit the pointer files only to change
+*when* they fire, never to duplicate the instructions here. Do **not** create a
+second skill folder (`.opencode/skills/`, `.claude/skills/`, …) for `testing` —
+that would register a duplicate skill ID in OpenCode.

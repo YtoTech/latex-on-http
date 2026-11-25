@@ -9,8 +9,10 @@ Manage Latex builds / compilations.
 
 import json
 import logging
+import os
 import pprint
 from datetime import UTC, datetime
+from urllib.parse import quote
 
 import cerberus
 import envparse
@@ -179,6 +181,30 @@ def check_resource_source_fields(resources):
                 "source_fields": source_fields,
             }
     return None
+
+
+def build_content_disposition_header(output_path):
+    """Build an ASCII-safe ``Content-Disposition`` header value for the PDF.
+
+    The output filename echoes back the uploaded document name, which may
+    contain non-ASCII characters (e.g. an uploaded ``Lab02-肖奕然.tex``).
+    HTTP header values must stay printable ASCII (RFC 9110): gunicorn rejects
+    the whole response with an InvalidHeader otherwise — after the compilation
+    itself succeeded. Follow RFC 6266: quote the filename, and for non-ASCII
+    names percent-encode it (RFC 5987 ``filename*=UTF-8''`` parameter), using
+    the percent-encoded form as ASCII ``filename`` fallback.
+    """
+    filename = os.path.basename(output_path) if output_path else "output.pdf"
+    try:
+        filename.encode("ascii")
+    except UnicodeEncodeError:
+        encoded = quote(filename, safe="")
+        return f"inline; filename=\"{encoded}\"; filename*=UTF-8''{encoded}"
+    # Keep the header value printable ASCII (RFC 9110): replace control
+    # characters, then escape for the quoted-string syntax (RFC 9110 §5.6.5).
+    printable = "".join(char if " " <= char <= "~" else "_" for char in filename)
+    escaped = printable.replace("\\", "\\\\").replace('"', '\\"')
+    return f'inline; filename="{escaped}"'
 
 
 def parse_bool_str_arg(value):
@@ -642,8 +668,8 @@ def compiler_latex():
                 "Content-Type": "application/pdf",
                 # TODO Pass an option for returning as attachment (instead of the
                 # default, inline).
-                "Content-Disposition": (
-                    "inline;filename=" f"{latexToPdfOutput['output_path']}"
+                "Content-Disposition": build_content_disposition_header(
+                    latexToPdfOutput["output_path"]
                 ),
             },
         )

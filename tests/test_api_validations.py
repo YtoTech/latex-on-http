@@ -262,23 +262,28 @@ def test_url_without_scheme_returns_400_instead_of_server_error():
     assert response.status_code == 400
     payload = response.get_json()
     assert payload["error"] == "RESOURCE_FETCH_FAILURE"
-    assert payload["fetch_error"]["type"] == "invalid_url"
-    assert "No scheme supplied" in payload["fetch_error"]["exception_content"]
+    # A schemeless URL is rejected up front by the SSRF guard as a disallowed
+    # scheme (rather than letting requests raise MissingSchema); it must still
+    # surface as a client error (400), never a server fault (500).
+    assert payload["fetch_error"]["type"] == "ssrf_blocked"
+    assert payload["fetch_error"]["reason"] == "disallowed_scheme"
     assert payload["fetch_error"]["http_code"] is None
-    assert payload["fetch_error"]["http_response_content"] is None
     assert payload["resource"]["body_source"]["url"] == url
 
 
 @pytest.mark.parametrize(
-    "url",
+    ("url", "reason"),
     [
-        "/raw/YtoTech/latex-on-http/master/examples/templates/moderncv.tex",
-        "example.com/main.tex",
-        "https://",
-        "ftp://example.com/main.tex",
+        (
+            "/raw/YtoTech/latex-on-http/master/examples/templates/moderncv.tex",
+            "disallowed_scheme",
+        ),
+        ("example.com/main.tex", "disallowed_scheme"),
+        ("https://", "missing_host"),
+        ("ftp://example.com/main.tex", "disallowed_scheme"),
     ],
 )
-def test_malformed_or_unsupported_urls_are_rejected(url):
+def test_malformed_or_unsupported_urls_are_rejected(url, reason):
     data, error = fetcher_url_file(
         {"type": "url/file", "body_source": {"url": url}},
         None,
@@ -286,6 +291,10 @@ def test_malformed_or_unsupported_urls_are_rejected(url):
 
     assert data is None
     assert error["error"] == "RESOURCE_FETCH_FAILURE"
-    assert error["fetch_error"]["type"] == "invalid_url"
-    assert error["fetch_error"]["exception_content"]
+    # The SSRF guard classifies malformed/unsupported URLs as blocks rather
+    # than invalid URLs: missing scheme / unsupported scheme -> disallowed_scheme,
+    # missing host -> missing_host.
+    assert error["fetch_error"]["type"] == "ssrf_blocked"
+    assert error["fetch_error"]["reason"] == reason
+    assert error["fetch_error"]["detail"]
     assert error["fetch_error"]["http_code"] is None

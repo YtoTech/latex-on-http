@@ -11,8 +11,11 @@ import base64
 import binascii
 import logging
 import os
+import socket
 
 import requests
+
+from latexonhttp.resources.urlguard import SSRFBlockedError, safe_get
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +83,9 @@ def fetcher_url_file(resource, _get_from_cache):
     url = resource["body_source"]["url"]
     logger.info("Fetching file from %s", url)
     try:
-        response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
+        # SSRF guard: validates the URL (scheme, host, resolved addresses) and
+        # pins the connection to a validated address, re-checking every redirect.
+        response = safe_get(url, HTTP_REQUEST_TIMEOUT)
         logger.info(
             "Fetch response %s of content length %d",
             response.status_code,
@@ -100,6 +105,38 @@ def fetcher_url_file(resource, _get_from_cache):
                 },
             )
         return response.content, None
+    except SSRFBlockedError as blocked:
+        # A blocked URL is a client error (400), not a server fault. The detail
+        # may name the offending host/address but never leaks internal state.
+        logger.warning("Blocked resource URL %s: %s", url, blocked.reason)
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "type": "ssrf_blocked",
+                    "reason": blocked.reason,
+                    "detail": blocked.detail,
+                    "http_code": None,
+                },
+                "resource": resource,
+            },
+        )
+    except socket.gaierror as gae:
+        # A name that does not resolve is a plain fetch failure, not a block.
+        return (
+            None,
+            {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "fetch_error": {
+                    "type": "connection_error",
+                    "exception_content": str(gae),
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            },
+        )
     except requests.exceptions.Timeout as te:
         return (
             None,
