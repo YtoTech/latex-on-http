@@ -21,6 +21,9 @@ services:
       DATABASE_URL: postgres://latexonhttp:latexdev@postgres_db:5432/latexonhttp
       LOGGING_LEVEL: DEBUG
       DEFAULT_COMPILE_TIMEOUT: 30
+      # Maximum incoming request body in bytes; empty keeps the code default
+      # (40 MiB, see MAX_REQUEST_BODY_BYTES).
+      MAX_REQUEST_BODY_BYTES: ${MAX_REQUEST_BODY_BYTES:-}
     depends_on:
       cache:
         condition: service_started

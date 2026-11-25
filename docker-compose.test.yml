@@ -21,6 +21,10 @@ services:
       # Reduce HTTP fetch read timeout so that resource fetch timeouts can be
       # tested quickly (see tests/test_fetchers.py).
       FETCHER_HTTP_REQ_READ_TIMEOUT: 3
+      # Small request-body limit so the 413 REQUEST_TOO_LARGE path can be
+      # exercised end to end; every other test payload stays well below it
+      # (see tests/test_request_size_limit.py).
+      MAX_REQUEST_BODY_BYTES: 1048576
   cache:
     build:
       context: .

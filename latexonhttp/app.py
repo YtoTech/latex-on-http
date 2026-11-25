@@ -43,7 +43,13 @@ if os.environ.get("SENTRY_DSN"):
         auto_session_tracking=False,
     )
 
+# Maximum size in bytes of an incoming request body; larger requests are
+# rejected with 413 REQUEST_TOO_LARGE before the payload is read (see
+# latexonhttp.api.builds). Protects instance memory on public deployments.
+MAX_REQUEST_BODY_BYTES = int(os.getenv("MAX_REQUEST_BODY_BYTES") or 40 * 1024 * 1024)
+
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BODY_BYTES
 app.register_blueprint(builds_app, url_prefix="/builds")
 app.register_blueprint(fonts_app, url_prefix="/fonts")
 app.register_blueprint(packages_app, url_prefix="/packages")

@@ -281,6 +281,15 @@ const BUILD_ERRORS = [
       + "and keep serving instead.",
   },
   {
+    code: "REQUEST_TOO_LARGE",
+    http: "413",
+    description:
+      "The request body exceeds the instance limit "
+      + "(<code>MAX_REQUEST_BODY_BYTES</code>, 40 MiB by default). Reduce the "
+      + "size of the uploaded resources; the body is rejected before it is "
+      + "read.",
+  },
+  {
     code: "SERVER_ERROR",
     http: "500",
     description: "An unexpected error occurred server-side.",

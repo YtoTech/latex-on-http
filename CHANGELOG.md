@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-11-25-3
+
+* Limit incoming request sizes: `MAX_REQUEST_BODY_BYTES` (default 40 MiB) caps the HTTP request body through Flask's `MAX_CONTENT_LENGTH`, so a client can no longer pin a worker with an unbounded upload on public instances (the fair-use quota bounded request count, not payload size). Oversized requests are rejected with `413 REQUEST_TOO_LARGE` as a JSON payload (`message` names the configured limit, `documentation` links to the instance-served `/docs/api/builds-sync/` reference) instead of Werkzeug's stock HTML error page.
+
 ## 2026-11-25-2
 
 * Surface the failing resource path in invalid Base64 resource errors: the `INVALID_BASE64_CONTENT` response now carries the resource's `build_path` as a `path` field, so a client uploading several files can tell which one failed to decode instead of re-checking every `file` resource; the field is `null` when the resource has no build path yet.

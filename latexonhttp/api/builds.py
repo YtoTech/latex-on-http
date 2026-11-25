@@ -17,7 +17,8 @@ from urllib.parse import quote
 import cerberus
 import envparse
 import glom
-from flask import Blueprint, g, request, url_for
+from flask import Blueprint, current_app, g, request, url_for
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from latexonhttp.caching.resources import (
     forward_resource_to_cache,
@@ -271,6 +272,29 @@ def get_rate_limit_documentation_url():
 def get_builds_sync_documentation_url():
     """Absolute URL of the /builds/sync documentation served from /docs/."""
     return get_documentation_base_url() + "builds-sync/"
+
+
+@builds_app.errorhandler(RequestEntityTooLarge)
+def request_too_large(_error):
+    """Reject oversized request bodies with the JSON error contract.
+
+    Flask raises RequestEntityTooLarge when a payload exceeds
+    app.config["MAX_CONTENT_LENGTH"] (set from MAX_REQUEST_BODY_BYTES,
+    see latexonhttp.app); without this handler the client would get
+    Werkzeug's stock HTML error page instead of a JSON payload.
+    """
+    limit = current_app.config["MAX_CONTENT_LENGTH"]
+    return (
+        {
+            "error": "REQUEST_TOO_LARGE",
+            "message": (
+                f"The request body exceeds the instance limit of {limit} bytes."
+                " Reduce the size of the uploaded resources."
+            ),
+            "documentation": get_builds_sync_documentation_url(),
+        },
+        413,
+    )
 
 
 @builds_app.before_request
