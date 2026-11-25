@@ -56,7 +56,7 @@ PACKAGE_INFO_OPTIONAL_PROPERTIES = ["cat-contact-repository", "cat-related"]
 def check_info_properties(package):
     for property_name in PACKAGE_INFO_MANDATORIES_PROPERTIES:
         assert property_name in package
-    for key in package.keys():
+    for key in package:
         assert (
             key in PACKAGE_INFO_MANDATORIES_PROPERTIES
             or key in PACKAGE_INFO_OPTIONAL_PROPERTIES
@@ -67,9 +67,7 @@ def test_api_packages_info_installed_xmltex(latex_on_http_api_url):
     """
     The API allow to get info on an installed package.
     """
-    r = requests.get(
-        f"{latex_on_http_api_url}/packages/xmltex", allow_redirects=False
-    )
+    r = requests.get(f"{latex_on_http_api_url}/packages/xmltex", allow_redirects=False)
     assert r.status_code == 200
     payload = r.json()
     assert "package" in payload
@@ -88,9 +86,7 @@ def test_api_packages_info_installed_xpiano(latex_on_http_api_url):
     """
     The API allow to get info on an installed package.
     """
-    r = requests.get(
-        f"{latex_on_http_api_url}/packages/xpiano", allow_redirects=False
-    )
+    r = requests.get(f"{latex_on_http_api_url}/packages/xpiano", allow_redirects=False)
     assert r.status_code == 200
     payload = r.json()
     assert "package" in payload
