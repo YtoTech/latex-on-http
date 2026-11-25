@@ -3,6 +3,7 @@
 ## 2026-11-25-3
 
 * Limit incoming request sizes: `MAX_REQUEST_BODY_BYTES` (default 40 MiB) caps the HTTP request body through Flask's `MAX_CONTENT_LENGTH`, so a client can no longer pin a worker with an unbounded upload on public instances (the fair-use quota bounded request count, not payload size). Oversized requests are rejected with `413 REQUEST_TOO_LARGE` as a JSON payload (`message` names the configured limit, `documentation` links to the instance-served `/docs/api/builds-sync/` reference) instead of Werkzeug's stock HTML error page.
+* Limit the size of fetched build resources: `MAX_RESOURCE_SIZE` (default 50 MiB) caps a single fetched resource of any type (URL, inline content, base64 file or cache hit) and `MAX_TOTAL_RESOURCE_SIZE` (default 500 MiB) caps the combined size of all the fetched resources of one build; a value of `0` disables a limit. Over-limit builds return `400 RESOURCE_FETCH_FAILURE` with `fetch_error.type` set to `resource_too_large` (carrying `size` and `max_size`) or `total_too_large` (carrying `total_size` and `max_total_size` and the resource that tipped the total over), and the oversized data is never written to the workspace. The URL fetcher streams its body and drops the connection at the cap (reading at most `MAX_RESOURCE_SIZE + 1` bytes), so an oversized remote file is rejected without being buffered in memory. Both variables are passed through the base Compose file from `.env` (empty keeps the code defaults) and documented in `docs/sandboxing.md` and `.env.example`.
 
 ## 2026-11-25-2
 

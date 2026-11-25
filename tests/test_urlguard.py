@@ -233,3 +233,101 @@ def test_safe_get_blocks_too_many_redirects():
         with pytest.raises(SSRFBlockedError) as exc:
             safe_get("http://public.example/a", timeout=(5, 5))
     assert exc.value.reason == "too_many_redirects"
+
+
+# --- safe_get: capped body read (max_bytes) ---------------------------------
+
+
+class _FakeStreamResponse:
+    """A streamed response fake: the body is only visible through iter_content.
+
+    ``iter_content`` yields the stored body in fixed-size chunks, like a
+    requests streamed response; ``chunks_yielded`` counts how far the read
+    went, to prove an oversized body is not consumed in full.
+    """
+
+    def __init__(self, body, chunk_size=65536):
+        self.headers = {}
+        self.is_redirect = False
+        self._body = body
+        self._chunk_size = chunk_size
+        self._content = b""
+        self._content_consumed = False
+        self.chunks_yielded = 0
+
+    def iter_content(self, chunk_size):
+        for offset in range(0, len(self._body), self._chunk_size):
+            self.chunks_yielded += 1
+            yield self._body[offset : offset + self._chunk_size]
+
+    def close(self):
+        pass
+
+    @property
+    def content(self):
+        return self._content
+
+
+def test_safe_get_max_bytes_truncates_oversized_body_to_cap_plus_one():
+    with (
+        mock.patch.object(
+            urlguard.socket, "getaddrinfo", return_value=_addrinfo("93.184.216.34")
+        ),
+        mock.patch.object(urlguard.requests, "Session") as session_cls,
+    ):
+        session = session_cls.return_value
+        fake = _FakeStreamResponse(b"x" * 200_000)
+        session.get.return_value = fake
+        response = safe_get("http://public.example/big", timeout=(5, 5), max_bytes=1000)
+    # The stored body is capped at exactly max_bytes + 1, not the full body.
+    assert response.content == b"x" * 1001
+    # The read is truncated mid-chunk at the cap: the stream stops after the
+    # very first chunk, while the full 200000-byte body would need 4.
+    assert fake.chunks_yielded == 1
+
+
+def test_safe_get_max_bytes_keeps_a_body_that_fits():
+    body = b"hello world"
+    with (
+        mock.patch.object(
+            urlguard.socket, "getaddrinfo", return_value=_addrinfo("93.184.216.34")
+        ),
+        mock.patch.object(urlguard.requests, "Session") as session_cls,
+    ):
+        session = session_cls.return_value
+        fake = _FakeStreamResponse(body)
+        session.get.return_value = fake
+        response = safe_get(
+            "http://public.example/small", timeout=(5, 5), max_bytes=1000
+        )
+    assert response.content == body
+    assert response._content_consumed is True
+
+
+def test_safe_get_max_bytes_requests_a_streamed_response():
+    with (
+        mock.patch.object(
+            urlguard.socket, "getaddrinfo", return_value=_addrinfo("93.184.216.34")
+        ),
+        mock.patch.object(urlguard.requests, "Session") as session_cls,
+    ):
+        session = session_cls.return_value
+        session.get.return_value = _FakeStreamResponse(b"hello")
+        safe_get("http://public.example/file", timeout=(5, 5), max_bytes=10)
+    # A cap implies stream=True so the body can be aborted mid-download.
+    assert session.get.call_args.kwargs["stream"] is True
+
+
+def test_safe_get_without_max_bytes_keeps_the_historical_read():
+    with (
+        mock.patch.object(
+            urlguard.socket, "getaddrinfo", return_value=_addrinfo("93.184.216.34")
+        ),
+        mock.patch.object(urlguard.requests, "Session") as session_cls,
+    ):
+        session = session_cls.return_value
+        session.get.return_value = _FakeResponse(200, content=b"hello")
+        response = safe_get("http://public.example/file", timeout=(5, 5))
+    # No cap: no stream parameter, no capped read, body untouched.
+    assert "stream" not in session.get.call_args.kwargs
+    assert response.content == b"hello"

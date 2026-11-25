@@ -24,6 +24,15 @@ services:
       # Maximum incoming request body in bytes; empty keeps the code default
       # (40 MiB, see MAX_REQUEST_BODY_BYTES).
       MAX_REQUEST_BODY_BYTES: ${MAX_REQUEST_BODY_BYTES:-}
+      # Maximum sizes in bytes of the generated PDF and log files returned by
+      # the service; empty keeps the code defaults (100 MiB / 10 MiB).
+      MAX_PDF_SIZE: ${MAX_PDF_SIZE:-}
+      MAX_LOG_FILE_SIZE: ${MAX_LOG_FILE_SIZE:-}
+      # Maximum fetched resource sizes in bytes; empty keeps the code defaults
+      # (50 MiB per resource, 500 MiB combined, see MAX_RESOURCE_SIZE and
+      # MAX_TOTAL_RESOURCE_SIZE). 0 disables a limit.
+      MAX_RESOURCE_SIZE: ${MAX_RESOURCE_SIZE:-}
+      MAX_TOTAL_RESOURCE_SIZE: ${MAX_TOTAL_RESOURCE_SIZE:-}
     depends_on:
       cache:
         condition: service_started

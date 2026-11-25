@@ -86,6 +86,15 @@ FETCHER_HTTP_REQ_READ_TIMEOUT = float(os.getenv("FETCHER_HTTP_REQ_READ_TIMEOUT",
 # (Connect, read) timeouts.
 HTTP_REQUEST_TIMEOUT = (FETCHER_HTTP_REQ_CONNECT_TIMEOUT, FETCHER_HTTP_REQ_READ_TIMEOUT)
 
+# In bytes. Maximum size of a single fetched resource (any source type);
+# 0 disables the limit. The URL fetcher streams its body and drops the
+# connection at this size, so an oversized remote file is never held in
+# memory in full.
+MAX_RESOURCE_SIZE = int(os.getenv("MAX_RESOURCE_SIZE", 50 * 1024 * 1024))
+# In bytes. Maximum combined size of all the fetched resources of one build;
+# 0 disables the limit.
+MAX_TOTAL_RESOURCE_SIZE = int(os.getenv("MAX_TOTAL_RESOURCE_SIZE", 500 * 1024 * 1024))
+
 
 def _invalid_url_message(invalid):
     """Human-readable explanation for an :class:`InvalidURLError`."""
@@ -113,7 +122,11 @@ def fetcher_url_file(resource, _get_from_cache):
     try:
         # SSRF guard: validates the URL (scheme, host, resolved addresses) and
         # pins the connection to a validated address, re-checking every redirect.
-        response = safe_get(url, HTTP_REQUEST_TIMEOUT)
+        # When the size limit is active, the body is streamed and the
+        # connection dropped at MAX_RESOURCE_SIZE + 1 bytes.
+        response = safe_get(
+            url, HTTP_REQUEST_TIMEOUT, max_bytes=MAX_RESOURCE_SIZE or None
+        )
         logger.info(
             "Fetch response %s of content length %d",
             response.status_code,
@@ -277,6 +290,9 @@ def fetch_resources(resources, on_fetched, get_from_cache=None):
     # (for eg. retries and follow_redirects for URL, encoding, etc.)
     # - default option dict;
     # - override by input.
+    # Combined size of the fetched resources of this build (for the
+    # MAX_TOTAL_RESOURCE_SIZE limit).
+    total_size = 0
     for resource in resources:
         resource_fetcher = FETCHERS.get(resource["type"])
         if not resource_fetcher:
@@ -285,6 +301,58 @@ def fetch_resources(resources, on_fetched, get_from_cache=None):
         fetched_data, fetch_error = resource_fetcher(resource, get_from_cache)
         if fetch_error:
             return fetch_error
+        # Size limits (0 disables a limit), checked before on_fetched so an
+        # oversized resource is never written to the workspace.
+        size = len(fetched_data)
+        if MAX_RESOURCE_SIZE and size > MAX_RESOURCE_SIZE:
+            logger.warning(
+                "Rejected fetched resource %s: %d bytes exceeds the "
+                "MAX_RESOURCE_SIZE limit of %d bytes",
+                resource.get("build_path"),
+                size,
+                MAX_RESOURCE_SIZE,
+            )
+            return {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "message": (
+                    f"The fetched resource is {size} bytes, which exceeds "
+                    f"the instance limit of {MAX_RESOURCE_SIZE} bytes."
+                ),
+                "fetch_error": {
+                    "type": "resource_too_large",
+                    "size": size,
+                    "max_size": MAX_RESOURCE_SIZE,
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            }
+        total_size += size
+        if MAX_TOTAL_RESOURCE_SIZE and total_size > MAX_TOTAL_RESOURCE_SIZE:
+            logger.warning(
+                "Rejected fetched resource %s: the combined size of the "
+                "fetched resources (%d bytes) exceeds the "
+                "MAX_TOTAL_RESOURCE_SIZE limit of %d bytes",
+                resource.get("build_path"),
+                total_size,
+                MAX_TOTAL_RESOURCE_SIZE,
+            )
+            return {
+                "error": "RESOURCE_FETCH_FAILURE",
+                "message": (
+                    f"The total size of the fetched resources is {total_size} "
+                    f"bytes, which exceeds the instance limit of "
+                    f"{MAX_TOTAL_RESOURCE_SIZE} bytes."
+                ),
+                "fetch_error": {
+                    "type": "total_too_large",
+                    "total_size": total_size,
+                    "max_total_size": MAX_TOTAL_RESOURCE_SIZE,
+                    "http_code": None,
+                    "http_response_content": None,
+                },
+                "resource": resource,
+            }
         on_fetched_error = on_fetched(resource, fetched_data)
         if on_fetched_error:
             return on_fetched_error

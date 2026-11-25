@@ -224,14 +224,21 @@ const BUILD_ERRORS = [
     code: "RESOURCE_FETCH_FAILURE",
     http: "400",
     description:
-      "A <code>url</code> resource could not be downloaded. "
+      "A resource could not be fetched. "
       + "<code>fetch_error</code> carries a machine-readable <code>type</code>: "
       + "<code>http_error</code> (a non-2xx status), <code>connection_error</code>, "
       + "<code>request_timeout</code>, <code>invalid_url</code> (missing or "
       + "unsupported scheme, no host, or an invalid port — "
-      + "<code>allowed_schemes</code> lists the accepted schemes), or "
+      + "<code>allowed_schemes</code> lists the accepted schemes), "
       + "<code>ssrf_blocked</code> (the URL would reach a private, loopback or "
-      + "link-local address).",
+      + "link-local address), <code>resource_too_large</code> (the resource "
+      + "exceeds the instance <code>MAX_RESOURCE_SIZE</code> limit — "
+      + "<code>size</code> and <code>max_size</code> are in bytes) or "
+      + "<code>total_too_large</code> (the combined size of the build's "
+      + "fetched resources exceeds the instance "
+      + "<code>MAX_TOTAL_RESOURCE_SIZE</code> limit — <code>total_size</code> "
+      + "and <code>max_total_size</code> are in bytes). The size limits apply "
+      + "to every resource type, including inline content and cache hits.",
   },
   {
     code: "FETCH_METHOD_NOT_SUPPORTED",

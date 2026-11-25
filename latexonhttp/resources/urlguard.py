@@ -227,10 +227,37 @@ def _session_for(scheme, hostname, ip):
     return session
 
 
-def safe_get(url, timeout):
+def _read_capped_body(response, max_bytes):
+    """Read a streamed response body into ``response``, at most ``max_bytes + 1`` bytes.
+
+    The read stops (and the connection is dropped with the session) as soon as
+    the cap is passed, so an oversized remote file cannot exhaust memory or
+    bandwidth: the stored body is truncated at exactly ``max_bytes + 1`` bytes
+    and the caller detects the overflow by its length. When the body fits, it
+    is stored in full.
+    """
+    chunks = []
+    total = 0
+    for chunk in response.iter_content(chunk_size=65536):
+        room = max_bytes + 1 - total
+        piece = chunk[:room]
+        total += len(piece)
+        chunks.append(piece)
+        if total > max_bytes:
+            break
+    response._content = b"".join(chunks)
+    response._content_consumed = total <= max_bytes
+
+
+def safe_get(url, timeout, max_bytes=None):
     """Fetch a user-supplied URL with SSRF protection.
 
-    Returns the final :class:`requests.Response` (body already read into memory).
+    Returns the final :class:`requests.Response`. Without ``max_bytes`` the
+    body is read into memory in full (the historical behavior). With a
+    ``max_bytes`` cap the body is streamed and the connection is dropped once
+    ``max_bytes + 1`` bytes have been received (see :func:`_read_capped_body`),
+    so an oversized remote file is reported by its truncated length without
+    ever being held in memory in full.
     Raises :class:`SSRFBlockedError` if any hop -- including a redirect target --
     is blocked, and lets :mod:`requests` transport exceptions (timeout,
     connection error) propagate for the caller to handle.
@@ -242,7 +269,17 @@ def safe_get(url, timeout):
         hostname = parsed.hostname
         session = _session_for(scheme, hostname, addresses[0])
         try:
-            response = session.get(current_url, timeout=timeout, allow_redirects=False)
+            if max_bytes is None:
+                response = session.get(
+                    current_url, timeout=timeout, allow_redirects=False
+                )
+            else:
+                response = session.get(
+                    current_url,
+                    timeout=timeout,
+                    allow_redirects=False,
+                    stream=True,
+                )
         except Exception:
             session.close()
             raise
@@ -256,6 +293,8 @@ def safe_get(url, timeout):
                 raise SSRFBlockedError("too_many_redirects", url)
             current_url = urljoin(current_url, location)
             continue
+        if max_bytes is not None:
+            _read_capped_body(response, max_bytes)
         session.close()
         return response
     raise SSRFBlockedError("too_many_redirects", url)

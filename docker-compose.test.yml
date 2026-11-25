@@ -25,6 +25,11 @@ services:
       # exercised end to end; every other test payload stays well below it
       # (see tests/test_request_size_limit.py).
       MAX_REQUEST_BODY_BYTES: 1048576
+      # Small fetched resource limits (512 KiB) so the RESOURCE_FETCH_FAILURE
+      # size paths can be exercised end to end; every other test resource stays
+      # well below them (see tests/test_fetchers.py).
+      MAX_RESOURCE_SIZE: 524288
+      MAX_TOTAL_RESOURCE_SIZE: 524288
   cache:
     build:
       context: .
