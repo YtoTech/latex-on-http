@@ -109,8 +109,12 @@ def test_integration_body_under_limit_is_still_compiled(latex_on_http_api_url):
                 # Kept under the 512 KiB fetched-resource pin of
                 # docker-compose.test.yml (MAX_RESOURCE_SIZE), so this test
                 # exercises the request-body cap, not the fetch cap.
+                # Split over many short lines: TeX reads input lines into a
+                # buffer of `buf_size` characters (a few KB to 200 KB,
+                # distribution dependent) and aborts with
+                # "Unable to read an entire line" on a longer single line.
                 "content": "\\documentclass{article}\n\\begin{document}\n"
-                + "%x" * 200_000
+                + ("%x" * 250 + "\n") * 800
                 + "Hello World\n\\end{document}",
             }
         ]

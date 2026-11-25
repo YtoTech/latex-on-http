@@ -86,14 +86,21 @@ FETCHER_HTTP_REQ_READ_TIMEOUT = float(os.getenv("FETCHER_HTTP_REQ_READ_TIMEOUT",
 # (Connect, read) timeouts.
 HTTP_REQUEST_TIMEOUT = (FETCHER_HTTP_REQ_CONNECT_TIMEOUT, FETCHER_HTTP_REQ_READ_TIMEOUT)
 
+# Code defaults, used when the environment variables are not set. Named so
+# they stay testable in environments (like the docker-compose test stack)
+# that pin the variables to smaller values.
+DEFAULT_MAX_RESOURCE_SIZE = 50 * 1024 * 1024
+DEFAULT_MAX_TOTAL_RESOURCE_SIZE = 500 * 1024 * 1024
 # In bytes. Maximum size of a single fetched resource (any source type);
 # 0 disables the limit. The URL fetcher streams its body and drops the
 # connection at this size, so an oversized remote file is never held in
 # memory in full.
-MAX_RESOURCE_SIZE = int(os.getenv("MAX_RESOURCE_SIZE", 50 * 1024 * 1024))
+MAX_RESOURCE_SIZE = int(os.getenv("MAX_RESOURCE_SIZE", DEFAULT_MAX_RESOURCE_SIZE))
 # In bytes. Maximum combined size of all the fetched resources of one build;
 # 0 disables the limit.
-MAX_TOTAL_RESOURCE_SIZE = int(os.getenv("MAX_TOTAL_RESOURCE_SIZE", 500 * 1024 * 1024))
+MAX_TOTAL_RESOURCE_SIZE = int(
+    os.getenv("MAX_TOTAL_RESOURCE_SIZE", DEFAULT_MAX_TOTAL_RESOURCE_SIZE)
+)
 
 
 def _invalid_url_message(invalid):

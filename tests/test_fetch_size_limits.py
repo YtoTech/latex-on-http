@@ -197,5 +197,9 @@ def test_fetch_error_still_wins_over_size_limits(monkeypatch):
 
 
 def test_defaults_are_50mib_and_500mib():
-    assert fetching.MAX_RESOURCE_SIZE == 50 * 1024 * 1024
-    assert fetching.MAX_TOTAL_RESOURCE_SIZE == 500 * 1024 * 1024
+    # The code defaults, not the runtime constants: the docker-compose test
+    # stack pins MAX_RESOURCE_SIZE / MAX_TOTAL_RESOURCE_SIZE to 512 KiB (see
+    # docker-compose.test.yml), so when the suite runs inside that stack the
+    # runtime constants reflect the environment, not the defaults.
+    assert fetching.DEFAULT_MAX_RESOURCE_SIZE == 50 * 1024 * 1024
+    assert fetching.DEFAULT_MAX_TOTAL_RESOURCE_SIZE == 500 * 1024 * 1024
