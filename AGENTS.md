@@ -6,6 +6,10 @@
 - `.env` is ignored by Git and contains local Docker Compose / runtime configuration for this workspace.
 - If environment variables need to change, update `.env.example` or document the changes; do not modify `.env` unless explicitly asked.
 
+## Python style
+
+- Always use f-strings (PEP 498) for string interpolation in Python code when possible.
+
 ## Testing
 
 - Use the dedicated unit-tier virtualenv. **Never** create, modify, install into, or delete `.venv/` — it belongs to the host.
