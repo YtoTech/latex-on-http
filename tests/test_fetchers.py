@@ -119,4 +119,43 @@ def test_resource_fetch_file_name_resolution_failure(latex_on_http_api_url):
     )
 
 
+# --- SSRF guard: user-supplied URLs must not reach internal addresses ------
+
+
+@pytest.mark.parametrize(
+    "url, reason",
+    [
+        ("http://127.0.0.1/secret", "loopback"),
+        ("http://169.254.169.254/latest/meta-data/", "link_local"),
+        ("http://10.0.0.1/internal", "private_ip"),
+        ("http://192.168.0.10/", "private_ip"),
+        ("http://[::1]/", "loopback"),
+    ],
+)
+def test_resource_fetch_file_ssrf_blocked(latex_on_http_api_url, url, reason):
+    r = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={"resources": [{"url": url}]},
+    )
+    assert r.status_code == 400
+    response_payload = r.json()
+    assert response_payload["error"] == "RESOURCE_FETCH_FAILURE"
+    assert response_payload["fetch_error"]["type"] == "ssrf_blocked"
+    assert response_payload["fetch_error"]["reason"] == reason
+    assert response_payload["fetch_error"]["http_code"] is None
+    assert response_payload["resource"]["body_source"]["url"] == url
+
+
+def test_resource_fetch_file_ssrf_blocked_disallowed_scheme(latex_on_http_api_url):
+    r = requests.post(
+        latex_on_http_api_url + "/builds/sync",
+        json={"resources": [{"url": "file:///etc/passwd"}]},
+    )
+    assert r.status_code == 400
+    response_payload = r.json()
+    assert response_payload["error"] == "RESOURCE_FETCH_FAILURE"
+    assert response_payload["fetch_error"]["type"] == "ssrf_blocked"
+    assert response_payload["fetch_error"]["reason"] == "disallowed_scheme"
+
+
 # TODO Check error for invalid base64/file resource.
