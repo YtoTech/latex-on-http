@@ -99,15 +99,18 @@ def test_integration_oversized_body_is_rejected(latex_on_http_api_url):
 
 
 def test_integration_body_under_limit_is_still_compiled(latex_on_http_api_url):
-    """A body just under the 1 MiB test limit compiles normally, so the cap
-    does not break ordinary (if large) documents."""
+    """A body under the 1 MiB test request-body limit compiles normally, so
+    the cap does not break ordinary (if large) documents."""
     spec = {
         "resources": [
             {
                 "main": True,
                 # Comment padding: grows the body without affecting the PDF.
+                # Kept under the 512 KiB fetched-resource pin of
+                # docker-compose.test.yml (MAX_RESOURCE_SIZE), so this test
+                # exercises the request-body cap, not the fetch cap.
                 "content": "\\documentclass{article}\n\\begin{document}\n"
-                + "%x" * 400_000
+                + "%x" * 200_000
                 + "Hello World\n\\end{document}",
             }
         ]
