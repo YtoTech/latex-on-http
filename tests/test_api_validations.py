@@ -8,11 +8,12 @@ Check malformed resource inputs return useful client errors.
 """
 
 import base64
+import threading
 
 import pytest
 from flask import Flask
 
-from latexonhttp.api.builds import builds_app
+from latexonhttp.api.builds import builds_app, validate_input_spec
 from latexonhttp.resources.fetching import (
     fetcher_base64_file,
     fetcher_url_file,
@@ -303,3 +304,70 @@ def test_malformed_or_unsupported_urls_are_rejected(url, reason, with_allowed_sc
         assert error["fetch_error"]["allowed_schemes"] == ["http", "https"]
     else:
         assert "allowed_schemes" not in error["fetch_error"]
+
+
+def test_naked_get_returns_missing_compilation_specification():
+    """A browser navigating to /builds/sync with no parameters gets a 400.
+
+    Regression test for GlitchTip #11969: such a request used to reach the
+    shape validator with ``{"resources": []}`` and crash with a 500.
+    """
+    response = build_client().get("/builds/sync")
+
+    assert response.status_code == 400
+    assert response.get_json() == {"error": "MISSING_COMPILATION_SPECIFICATION"}
+
+
+def test_empty_resources_returns_missing_compilation_specification():
+    response = build_client().post("/builds/sync", json={"resources": []})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"error": "MISSING_COMPILATION_SPECIFICATION"}
+
+
+VALID_SPEC = {
+    "compiler": "lualatex",
+    "resources": [{"content": "Hello world", "main": True}],
+}
+INVALID_SPEC_INVALID_COMPILER = {
+    "compiler": "badtex",
+    "resources": [{"content": "Hello world", "main": True}],
+}
+INVALID_SPEC_INVALID_RESOURCES = {"resources": "not a list"}
+
+
+def test_validate_input_spec_is_thread_safe():
+    """Concurrent validation calls must not share state (GlitchTip #11969).
+
+    cerberus.Validator instances are stateful, so every call must use its
+    own: with a shared instance, concurrent calls clobber each other's
+    document, schema and rules queue (wrong results, IndexError).
+    """
+    cases = [
+        (VALID_SPEC, False),
+        (INVALID_SPEC_INVALID_COMPILER, True),
+        (INVALID_SPEC_INVALID_RESOURCES, True),
+    ]
+    lock = threading.Lock()
+    failures = []
+
+    def worker(spec, expected_has_errors):
+        try:
+            for _ in range(200):
+                validator = validate_input_spec(spec)
+                if bool(validator.errors) != expected_has_errors:
+                    with lock:
+                        failures.append((spec, validator.errors))
+        except Exception as exc:
+            with lock:
+                failures.append(exc)
+
+    threads = [
+        threading.Thread(target=worker, args=case) for case in cases for _ in range(3)
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert failures == []
