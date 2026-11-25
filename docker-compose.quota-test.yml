@@ -8,10 +8,18 @@ services:
     environment:
       VALKEY_HOST: valkey
       QUOTA_LIMIT_SECOND: "3"
-      QUOTA_LIMIT_MINUTE: "5"
+      # The tests flood at most 15 requests, so the minute window never
+      # breaches: the second window stays the only (deterministic) trigger.
+      QUOTA_LIMIT_MINUTE: "50"
       QUOTA_LIMIT_HOUR: "1000"
       QUOTA_LIMIT_DAY: "1000"
       QUOTA_LIMIT_WEEK: "1000"
+      # Keep the standard floods (<= 15 violations, one ban episode) out of
+      # the long-ban regime, so the tests assert the short-ban behavior in
+      # isolation; the deterministic escalation test below pre-seeds the
+      # counters instead of flooding to the default thresholds.
+      QUOTA_BAN_LONG_VIOLATIONS: "100"
+      QUOTA_BAN_COUNT_FOR_LONG: "100"
   valkey:
     # Deliberately ephemeral, unlike the persisted base-file service: each
     # test run must start from fresh counters and bans.

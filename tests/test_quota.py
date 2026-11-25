@@ -21,6 +21,7 @@ import flask
 import psycopg
 import pytest
 import requests
+import valkey
 
 from latexonhttp import quota
 
@@ -666,9 +667,54 @@ def test_integration_quota_ban_is_persisted(quota_test_api_url, quota_test_db):
                 (ip,),
             ).fetchall()
         # One row for the short ban: arming is persisted, the hammering
-        # re-arms that follow it are not.
+        # re-arms that follow it are not. The Compose override keeps the
+        # long-ban thresholds out of reach of a flood, so the ban cannot
+        # escalate during it (see
+        # test_integration_quota_ban_escalation_is_persisted).
         assert rows == [
             ("short", "violation_window", "second", timedelta(seconds=3600))
+        ]
+    finally:
+        with psycopg.connect(quota_test_db, autocommit=True) as connection:
+            connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
+
+
+def test_integration_quota_ban_escalation_is_persisted(quota_test_api_url, quota_test_db):
+    """Hammering during a ban escalates to a long ban, persisted as a second row.
+
+    The 24h violation counter is pre-seeded at the edge of the (raised)
+    long-ban threshold, so a single hammering request crosses it
+    deterministically instead of relying on flood timing.
+    """
+    ip = f"203.0.114.{uuid.uuid4().int % 200 + 2}"
+    with psycopg.connect(quota_test_db, autocommit=True) as connection:
+        connection.execute("DELETE FROM quota_bans WHERE client_ip = %s", (ip,))
+    try:
+        # Arm the short ban: 3 allowed requests (second window), then
+        # denials until the 3rd violation arms it.
+        responses = _flood(quota_test_api_url, ip, 15)
+        assert responses[-1].json()["quota"]["banned"] is True
+        threshold = int(os.getenv("QUOTA_BAN_LONG_VIOLATIONS", "10"))
+        with valkey.Valkey(
+            host=os.getenv("VALKEY_HOST"),
+            port=int(os.getenv("VALKEY_PORT", "6379")),
+            decode_responses=True,
+        ) as store:
+            store.set(f"quota:viol:24h:{ip}", threshold - 1, ex=86400)
+        # One more hammering request crosses the threshold and escalates.
+        response = _flood(quota_test_api_url, ip, 1)[0]
+        assert response.json()["quota"]["banned"] is True
+        with psycopg.connect(quota_test_db) as connection:
+            rows = connection.execute(
+                "SELECT level, source, trigger_period, expires_at - armed_at"
+                " FROM quota_bans WHERE client_ip = %s ORDER BY armed_at",
+                (ip,),
+            ).fetchall()
+        # One row per ban state change: the arming, then the escalation
+        # (NULL trigger period, as it is not tied to a breached window).
+        assert rows == [
+            ("short", "violation_window", "second", timedelta(seconds=3600)),
+            ("long", "ban_escalation", None, timedelta(days=1)),
         ]
     finally:
         with psycopg.connect(quota_test_db, autocommit=True) as connection:
