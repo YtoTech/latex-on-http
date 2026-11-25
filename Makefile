@@ -17,11 +17,20 @@ DOCKER_COMPOSE_TEST = docker compose $(COMPOSE_TEST_FLAGS) -p latex-on-http-test
 ## -------------------------------
 ## Running Python app ##
 ## -------------------------------
+# Gunicorn sizing, overridable from .env (see .env.example and
+# docs/reverse-proxy.md). /builds/sync holds a worker thread for the whole
+# build (fetch + compile, up to DEFAULT_COMPILE_TIMEOUT), so a busy instance
+# with few threads queues the documentation and the light API endpoints
+# behind in-flight compilations. Threads waiting on a subprocess or a fetch
+# release the GIL and are cheap until actually used.
+GUNICORN_WORKERS ?= 2
+GUNICORN_THREADS ?= 16
+
 install:
 	uv sync
 
 start:
-	uv run gunicorn --workers=2 --threads=8 --bind=0.0.0.0:8080 app:app
+	uv run gunicorn --workers=$(GUNICORN_WORKERS) --threads=$(GUNICORN_THREADS) --bind=0.0.0.0:8080 app:app
 
 debug:
 	uv run python app.py --verbose --debug

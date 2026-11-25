@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## unreleased
+
+* Make the Gunicorn server sizing configurable and raise the default thread pool: `make start` now reads `GUNICORN_WORKERS` (default 2) and `GUNICORN_THREADS` (default 16, up from 8) from the environment, so `.env` can size the instance without code changes (documented in `.env.example`). `POST /builds/sync` holds a worker thread for the whole build (fetch + compile, up to `DEFAULT_COMPILE_TIMEOUT`), so the old 2 x 8 sizing let a busy instance queue the documentation site and the light API endpoints behind in-flight compilations; waiting threads release the GIL and cost little until actually used, so more slots keep the non-compiling routes responsive.
+* Add `docs/reverse-proxy.md`, an operational guide for public instances: why the static docs slow down under compilation load, how to size `GUNICORN_WORKERS` / `GUNICORN_THREADS` (including the memory trade-off of `MAX_PDF_SIZE` per in-flight build), and ready-to-paste Caddy (primary) and nginx configurations that serve the statically-built documentation site directly from the reverse proxy so `/docs/*` never reaches the Python app — with the Flask `/docs/` route kept as fallback for proxy-less self-hosting, and a load-test recipe to verify the effect.
+
 ## 2026-11-25-3
 
 * Limit incoming request sizes: `MAX_REQUEST_BODY_BYTES` (default 40 MiB) caps the HTTP request body through Flask's `MAX_CONTENT_LENGTH`, so a client can no longer pin a worker with an unbounded upload on public instances (the fair-use quota bounded request count, not payload size). Oversized requests are rejected with `413 REQUEST_TOO_LARGE` as a JSON payload (`message` names the configured limit, `documentation` links to the instance-served `/docs/api/builds-sync/` reference) instead of Werkzeug's stock HTML error page.
