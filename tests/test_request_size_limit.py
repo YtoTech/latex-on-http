@@ -16,9 +16,10 @@ from flask import Flask
 from latexonhttp.api.builds import builds_app
 from latexonhttp.docs import docs_app
 
-# The unit-tier test app pins the limit low so oversized bodies fit in a
-# few KB (the production default is 40 MiB, see MAX_REQUEST_BODY_BYTES).
-LIMIT = 1024
+# The unit-tier test app pins the limit to 1 Mo, matching the 1 MiB pin of
+# docker-compose.test.yml (the production default is 40 MiB, see
+# MAX_REQUEST_BODY_BYTES).
+LIMIT = 1024 * 1024
 
 
 @pytest.fixture(autouse=True)
@@ -48,7 +49,7 @@ def test_oversized_json_body_returns_413_request_too_large():
     assert response.status_code == 413
     payload = response.get_json()
     assert payload["error"] == "REQUEST_TOO_LARGE"
-    assert str(LIMIT) in payload["message"]
+    assert "1 Mo" in payload["message"]
     assert payload["documentation"].endswith("/docs/api/builds-sync/")
 
 
@@ -93,7 +94,7 @@ def test_integration_oversized_body_is_rejected(latex_on_http_api_url):
     assert r.status_code == 413
     payload = r.json()
     assert payload["error"] == "REQUEST_TOO_LARGE"
-    assert str(1048576) in payload["message"]
+    assert "1 Mo" in payload["message"]
     assert payload["documentation"].endswith("/docs/api/builds-sync/")
 
 

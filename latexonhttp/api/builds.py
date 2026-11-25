@@ -288,7 +288,8 @@ def request_too_large(_error):
         {
             "error": "REQUEST_TOO_LARGE",
             "message": (
-                f"The request body exceeds the instance limit of {limit} bytes."
+                f"The request body exceeds the instance limit of"
+                f" {limit / 1024 / 1024:g} Mo."
                 " Reduce the size of the uploaded resources."
             ),
             "documentation": get_builds_sync_documentation_url(),
