@@ -168,11 +168,7 @@ def validate_input_spec(input_spec):
 
     A fresh ``cerberus.Validator`` is built per call: validator instances
     are not thread-safe (``validate()`` mutates instance state such as
-    ``self.document``, ``self.schema`` and ``self._remaining_rules``), and
-    gunicorn serves each worker with multiple threads. A module-level
-    shared validator let concurrent requests clobber each other's state
-    (GlitchTip #11969: ``IndexError: pop from empty list`` inside
-    cerberus' ``__validate_definitions``).
+    ``self.document``, ``self.schema`` and ``self._remaining_rules``).
     """
     validator = cerberus.Validator(input_spec_schema)
     validator.validate(input_spec)
@@ -376,13 +372,7 @@ def compiler_latex():
         if error:
             return error, 400
 
-    if not input_spec:
-        return {"error": "MISSING_COMPILATION_SPECIFICATION"}, 400
-
-    # An empty resources list (e.g. a browser navigating to /builds/sync
-    # with no parameters) is a missing compilation specification too:
-    # fail with a 400 instead of crashing later in get_main_resource.
-    if not input_spec.get("resources"):
+    if not input_spec or not input_spec.get("resources"):
         return {"error": "MISSING_COMPILATION_SPECIFICATION"}, 400
 
     # Payload validations.
@@ -391,13 +381,13 @@ def compiler_latex():
     logger.info(pprint.pformat(request.form))
     logger.info(pprint.pformat(prune_resources_content_for_logging(input_spec)))
 
-    validator = validate_input_spec(input_spec)
-    if validator.errors:
+    input_spec_validator = validate_input_spec(input_spec)
+    if input_spec_validator.errors:
         return (
             json.dumps(
                 {
                     "error": "INVALID_PAYLOAD_SHAPE",
-                    "shape_errors": validator.errors,
+                    "shape_errors": input_spec_validator.errors,
                     "input_spec_mode": input_spec_mode,
                     "input_spec": input_spec,
                 },
