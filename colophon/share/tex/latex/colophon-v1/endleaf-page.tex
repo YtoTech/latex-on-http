@@ -7,13 +7,28 @@
 % (\AddToHook{class/article/after}). \EndleafPaper is A4, Letter or A3.
 % \EndleafOrientation is defined only when the job named one.
 % article has no a3paper option: A3 starts from the a4paper layout.
-% A3 or landscape keeps the class's physical margins and gives the extra
-% paper to the text block, the rule endleaf-fit uses for its own
-% landscape page. A4 and Letter portrait are left as the class set them.
+% A3 portrait keeps the class's physical margins and gives the extra
+% paper to the text block. A4 and Letter portrait are left as the class
+% set them. \EndleafPageL/R/T/B hold the page margins (paper edge to text
+% block) in every case.
+% ENDLEAF-R80-MARGINS. Landscape on any paper uses the pinned margins
+% \EndleafLandL/R/T/B: left and right 20 mm, top (paper edge to the text
+% block top) 20 mm, bottom 22 mm; A4 landscape gives a 257 x 168 mm text
+% block. endleaf-fit uses the same names for an auto-turned landscape
+% page, so a named and an auto-turned landscape page get the same block.
 \ifdefined\EndleafPaper\else\def\EndleafPaper{A4}\fi
 \def\EndleafPageAthree{A3}
 \def\EndleafPageLandscape{landscape}
 \newif\ifEndleafPageResize
+\newif\ifEndleafPageLand
+\newdimen\EndleafLandL
+\newdimen\EndleafLandR
+\newdimen\EndleafLandT
+\newdimen\EndleafLandB
+\EndleafLandL=20mm
+\EndleafLandR=20mm
+\EndleafLandT=20mm
+\EndleafLandB=22mm
 \newdimen\EndleafPageW
 \newdimen\EndleafPageH
 \newdimen\EndleafPageL
@@ -33,13 +48,22 @@
     \EndleafPageW=\EndleafPageH
     \EndleafPageH=\EndleafPageL
     \EndleafPageResizetrue
+    \EndleafPageLandtrue
   \fi
 \fi
+\EndleafPageL=\dimexpr 1in+\oddsidemargin\relax
+\EndleafPageR=\dimexpr\paperwidth-\EndleafPageL-\textwidth\relax
+\EndleafPageT=\dimexpr 1in+\topmargin+\headheight+\headsep\relax
+\EndleafPageB=\dimexpr\paperheight-\EndleafPageT-\textheight\relax
+\ifEndleafPageLand
+  \EndleafPageL=\EndleafLandL
+  \EndleafPageR=\EndleafLandR
+  \EndleafPageT=\EndleafLandT
+  \EndleafPageB=\EndleafLandB
+  \oddsidemargin=\dimexpr\EndleafPageL-1in\relax
+  \topmargin=\dimexpr\EndleafPageT-1in-\headheight-\headsep\relax
+\fi
 \ifEndleafPageResize
-  \EndleafPageL=\dimexpr 1in+\oddsidemargin\relax
-  \EndleafPageR=\dimexpr\paperwidth-\EndleafPageL-\textwidth\relax
-  \EndleafPageT=\dimexpr 1in+\topmargin+\headheight+\headsep\relax
-  \EndleafPageB=\dimexpr\paperheight-\EndleafPageT-\textheight\relax
   \paperwidth=\EndleafPageW
   \paperheight=\EndleafPageH
   \textwidth=\dimexpr\paperwidth-\EndleafPageL-\EndleafPageR\relax

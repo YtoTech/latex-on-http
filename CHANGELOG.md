@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## 2026-11-16 (ENDLEAF-R80)
+
+* ENDLEAF-R80-MARGINS: a landscape page uses pinned margins on any paper:
+  left and right 20 mm, top (paper edge to the text block top) 20 mm,
+  bottom 22 mm, so A4 landscape has a 257 x 168 mm text block.
+  `endleaf-page.tex` defines `\EndleafLandL`, `\EndleafLandR`,
+  `\EndleafLandT` and `\EndleafLandB`; `endleaf-fit.tex` uses the same
+  names (with a fallback of the same numbers), so a named landscape page and
+  an auto-turned one get the same text block on the same paper. The sysml
+  canvas and plain picture landscape line on A4 grows from about 220 mm to
+  257 mm and the landscape height to 168 mm. Portrait and A3 portrait are
+  unchanged.
+* ENDLEAF-R80-CAPTION: inside a figure or table float, `\elfit@bounded`
+  fits a diagram fence plus a caption reserve into the text height (the
+  landscape height for a fence turned inside a float). The reserve is
+  `\ElfitCaptionHeight` plus `\abovecaptionskip` when that optional hook is
+  defined, else three `\normalsize` lines plus `\abovecaptionskip`; outside
+  a float it is 0. The height scale never goes below the 7 pt floor. Width
+  fit and the `ENDLEAF_SHELLFIT`, `ENDLEAF_SHELLTURN` and `ENDLEAF_SHELLPAGE`
+  log lines are unchanged.
+* ENDLEAF-R80-TALL-WARN: a fence still taller than that bound at the floor
+  is set at the floor and logs `ENDLEAF_SHELLTALL n height avail`; the
+  worker reports it as a `layout_too_tall` job warning (packages
+  `["diagram"]`, message with the page and the mm over).
+  `tests/colophon/test_r80_landscape.py` covers the TeX source and the
+  warning.
+
 ## 2026-10-29 (ENDLEAF-R75)
 
 * ENDLEAF-R75: the worker image installs circuitikz 1.8.7 (2026/09/12) from

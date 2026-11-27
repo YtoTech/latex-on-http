@@ -19,6 +19,12 @@ that scale) and ``belowTypeFloor`` (``minTextPt`` under 7 pt, ENDLEAF-R26),
 with a ``fix``: scale inside the source when the text stays at or above
 7 pt, otherwise redraw or split. At most ``MAX_PICTURE_WARNINGS`` pictures
 are listed; one more item counts the rest.
+
+ENDLEAF-R80-TALL. endleaf-fit.tex also logs ``ENDLEAF_SHELLTALL n height avail``
+(TeX pt) for a document-shell fence, with its caption reserve, that is still
+taller than its bound at the floor scale. Each one is a ``layout_too_tall``
+item (packages ``diagram``, ``overMm``, ``page``, ``landscape``), listed
+beside ``layout_overhang`` and counted under ``MAX_PICTURE_WARNINGS``.
 """
 
 import json
@@ -55,7 +61,14 @@ _SHELLFIT = re.compile(
 )
 _SHELLTURN = re.compile(r"ENDLEAF_SHELLTURN ([0-9]{1,5})")
 _SHELLPAGE = re.compile(r"ENDLEAF_SHELLPAGE ([0-9]{1,5}) ([0-9]{1,5}) (portrait|landscape)")
+# ENDLEAF-R80-TALL. endleaf-fit.tex logs a fence (with its caption reserve) that
+# is still taller than its bound at the floor scale:
+#   ENDLEAF_SHELLTALL n height-pt avail-pt
+_SHELLTALL = re.compile(
+    r"ENDLEAF_SHELLTALL ([0-9]{1,5}) ([0-9]+(?:\.[0-9]+)?)pt ([0-9]+(?:\.[0-9]+)?)pt"
+)
 SCALED_CODE = "picture_scaled"
+TOO_TALL_CODE = "layout_too_tall"
 TYPE_FLOOR_PT = 7.0
 # endleaf-layout.tex logs 99 when a picture sets no text.
 NO_TEXT_PT = 99.0
@@ -225,6 +238,42 @@ def _shell_warnings(text):
         if landscape:
             item["landscape"] = True
         out.append(item)
+    # ENDLEAF-R80-TALL: its own dedupe set, so a fence that also overhangs
+    # yields both items. It is read whatever natural width says.
+    tall_seen = set()
+    for match in _SHELLTALL.finditer(text):
+        number = int(match.group(1))
+        if number in tall_seen:
+            continue
+        tall_seen.add(number)
+        height, avail = float(match.group(2)), float(match.group(3))
+        over = height - avail
+        if over < MIN_OVERHANG_PT:
+            continue
+        if len(out) >= MAX_PICTURE_WARNINGS:
+            extra += 1
+            continue
+        page, orientation = pages.get(number, (None, None))
+        landscape = number in turned or orientation == "landscape"
+        where = " ".join(
+            x for x in (f"pg{page}" if page is not None else None, "landscape" if landscape else None) if x
+        )
+        prefix = f"{where}: " if where else ""
+        millimetres = round(over * _PT_TO_MM, 1)
+        item = {
+            "code": TOO_TALL_CODE,
+            "packages": ["diagram"],
+            "message": (
+                f"{prefix}a diagram and its caption run {millimetres:.1f} mm past the text height;"
+                " redraw or split. Fix: shorten the diagram or split it across pages"
+            ),
+            "overMm": millimetres,
+        }
+        if page is not None:
+            item["page"] = page
+        if landscape:
+            item["landscape"] = True
+        out.append(item)
     if extra:
         out.append(
             {
@@ -247,7 +296,7 @@ def final_pass(output):
 def layout_warnings(log):
     """Structured warnings from a final-pass log; ``[]`` when nothing overhangs."""
     text = (log or "").replace("\n", "")
-    if "ENDLEAF_SHELLFIT" in text:
+    if "ENDLEAF_SHELLFIT" in text or "ENDLEAF_SHELLTALL" in text:
         return _shell_warnings(text) + [
             item for item in _plain_warnings(text) if item["packages"] != ["diagram"]
         ]
@@ -322,7 +371,7 @@ def parse_layout(stderr):
         for item in parsed:
             if (
                 isinstance(item, dict)
-                and item.get("code") in (LAYOUT_CODE, SCALED_CODE)
+                and item.get("code") in (LAYOUT_CODE, SCALED_CODE, TOO_TALL_CODE)
                 and isinstance(item.get("packages"), list)
                 and item["packages"]
                 and all(isinstance(name, str) and name for name in item["packages"])

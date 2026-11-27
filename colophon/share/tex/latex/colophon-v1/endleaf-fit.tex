@@ -41,10 +41,6 @@
 \newdimen\elfit@portoddm
 \newdimen\elfit@portevenm
 \newdimen\elfit@porttopm
-\newdimen\elfit@left
-\newdimen\elfit@right
-\newdimen\elfit@top
-\newdimen\elfit@bot
 \newdimen\elfit@landpw
 \newdimen\elfit@landph
 \newdimen\elfit@landtw
@@ -56,6 +52,18 @@
 \newif\ifelfit@insidefloat
 \newif\ifelfit@locked
 \newif\ifelfit@shipland
+% ENDLEAF-R80-MARGINS. Pinned landscape margins; endleaf-page.tex defines
+% them. Same numbers here when this file runs without it.
+\ifdefined\EndleafLandL\else
+  \newdimen\EndleafLandL
+  \newdimen\EndleafLandR
+  \newdimen\EndleafLandT
+  \newdimen\EndleafLandB
+  \EndleafLandL=20mm
+  \EndleafLandR=20mm
+  \EndleafLandT=20mm
+  \EndleafLandB=22mm
+\fi
 \ifdefined\EndleafPaper
   \edef\elfit@papername{\EndleafPaper}
 \else
@@ -78,8 +86,9 @@
 \let\elfit@table\table
 \let\elfit@endtable\endtable
 
-% Snapshot portrait article metrics. Landscape keeps the same
-% physical margins and uses the extra A4 width.
+% Snapshot portrait article metrics. ENDLEAF-R80-MARGINS: the landscape
+% text block is the turned paper minus \EndleafLandL/R/T/B (A4: 257 x
+% 168 mm), the same block a named landscape page gets.
 \AtBeginDocument{%
   \elfit@portline=\linewidth
   \elfit@porttw=\textwidth
@@ -89,14 +98,10 @@
   \elfit@portoddm=\oddsidemargin
   \elfit@portevenm=\evensidemargin
   \elfit@porttopm=\topmargin
-  \elfit@left=\dimexpr 1in+\oddsidemargin\relax
-  \elfit@right=\dimexpr\paperwidth-\elfit@left-\textwidth\relax
-  \elfit@top=\dimexpr 1in+\topmargin+\headheight+\headsep\relax
-  \elfit@bot=\dimexpr\paperheight-\elfit@top-\textheight\relax
   \elfit@landpw=\paperheight
   \elfit@landph=\paperwidth
-  \elfit@landtw=\dimexpr\elfit@landpw-\elfit@left-\elfit@right\relax
-  \elfit@landth=\dimexpr\elfit@landph-\elfit@top-\elfit@bot\relax
+  \elfit@landtw=\dimexpr\elfit@landpw-\EndleafLandL-\EndleafLandR\relax
+  \elfit@landth=\dimexpr\elfit@landph-\EndleafLandT-\EndleafLandB\relax
   \ifdim\elfit@landth<80pt
     \elfit@landth=80pt
   \fi
@@ -117,9 +122,9 @@
 \def\elfit@setlandscape{%
   \global\paperwidth=\elfit@landpw
   \global\paperheight=\elfit@landph
-  \global\oddsidemargin=\elfit@portoddm
-  \global\evensidemargin=\elfit@portevenm
-  \global\topmargin=\elfit@porttopm
+  \global\oddsidemargin=\dimexpr\EndleafLandL-1in\relax
+  \global\evensidemargin=\dimexpr\EndleafLandL-1in\relax
+  \global\topmargin=\dimexpr\EndleafLandT-1in-\headheight-\headsep\relax
   \global\textwidth=\elfit@landtw
   \global\textheight=\elfit@landth
   \global\hsize=\elfit@landtw
@@ -540,8 +545,20 @@
 %  4. Otherwise (a named orientation, or still too wide landscape): set it
 %     at the floor scale, centred; it overhangs and logs that.
 % The height still bounds the scale, as Pandoc's own macro does.
+% ENDLEAF-R80-CAPTION. The height bound B is \elfit@landth for a fence
+% turned inside a float (that page is not set landscape yet, so
+% \textheight is still the portrait value), else \textheight. Inside a
+% wrapped figure or table float a caption is assumed, and the scale fits
+% (ht+dp)*scale + \elfit@capreserve into B: the reserve is
+% \ElfitCaptionHeight+\abovecaptionskip when the optional hook
+% \ElfitCaptionHeight is defined, else 3\baselineskip (at \normalsize)
+% +\abovecaptionskip. Outside a float the reserve is 0. The height scale
+% never goes below the 7 pt floor; a fence still taller than B at the
+% floor is set there and logs ENDLEAF_SHELLTALL (ENDLEAF-R80-TALL-WARN),
+% height = (ht+dp)*scale + reserve, avail = B.
 % Log lines (compile time, then shipout):
 %   ENDLEAF_SHELLFIT n natural-width line type-pt scale
+%   ENDLEAF_SHELLTALL n height avail
 %   ENDLEAF_SHELLTURN n
 %   ENDLEAF_SHELLPAGE n page portrait|landscape
 \newcount\elfit@fencen
@@ -553,6 +570,9 @@
   \def\elfit@fencetype{10}
 \fi
 \def\elfit@fencefloor{7}
+\newdimen\elfit@fencebound
+\newdimen\elfit@capreserve
+\newdimen\elfit@tallht
 % \elfit@fencescale{line}: \elfit@s = min(line / width, 1).
 \def\elfit@fencescale#1{%
   \Gscale@div\elfit@s{#1}{\wd\elfit@fencebox}%
@@ -588,9 +608,38 @@
   \ifelfit@thisland
     \elfit@fenceline=\elfit@landline
   \fi
-  \Gscale@div\elfit@h{\textheight}{\dimexpr\ht\elfit@fencebox+\dp\elfit@fencebox\relax}%
+  % ENDLEAF-R80-CAPTION: height bound and caption reserve.
+  \ifelfit@thisland
+    \elfit@fencebound=\elfit@landth
+  \else
+    \elfit@fencebound=\textheight
+  \fi
+  \ifelfit@insidefloat
+    \ifdefined\ElfitCaptionHeight
+      \elfit@capreserve=\dimexpr\ElfitCaptionHeight+\abovecaptionskip\relax
+    \else
+      \begingroup
+        \normalsize
+        \xdef\elfit@captmp{\the\dimexpr 3\baselineskip+\abovecaptionskip\relax}%
+      \endgroup
+      \elfit@capreserve=\elfit@captmp
+    \fi
+  \else
+    \elfit@capreserve=\z@
+  \fi
+  \let\elfit@fencetall\relax
+  \Gscale@div\elfit@h{\dimexpr\elfit@fencebound-\elfit@capreserve\relax}{\dimexpr\ht\elfit@fencebox+\dp\elfit@fencebox\relax}%
   \ifdim\elfit@h\p@<\elfit@s\p@\let\elfit@s\elfit@h\fi
+  \ifdim\elfit@s\p@<\elfit@minscale\p@
+    \let\elfit@s\elfit@minscale
+    \elfit@tallht=\elfit@s\dimexpr\ht\elfit@fencebox+\dp\elfit@fencebox\relax
+    \advance\elfit@tallht\elfit@capreserve
+    \ifdim\elfit@tallht>\elfit@fencebound
+      \def\elfit@fencetall{\typeout{ENDLEAF_SHELLTALL \the\elfit@fencen\space\the\elfit@tallht\space\the\elfit@fencebound}}%
+    \fi
+  \fi
   \typeout{ENDLEAF_SHELLFIT \the\elfit@fencen\space\the\wd\elfit@fencebox\space\the\elfit@fenceline\space\elfit@fencetype\space\elfit@s}%
+  \elfit@fencetall
   \elfit@fenceturn
   \ifdim\elfit@s\p@<\p@
     \setbox\elfit@fencebox\hbox{\scalebox{\elfit@s}{\box\elfit@fencebox}}%

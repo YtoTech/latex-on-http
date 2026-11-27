@@ -307,7 +307,7 @@ gate still reads `X-Colophon-Job`.
 | `memory.peak` | integer or `null` | cgroup peak, when the sandbox reported one. |
 | `memory.mode` | string | `cgroup` or `rlimit`, only when the sandbox reported it. |
 | `pids.peak` | integer or `null` | cgroup pid peak. |
-| `warnings` | array of object | Present only when non-empty. Each object is `code`, `packages`, `message`. `code` `notationPdfOnly` means inline siunitx or mhchem was kept as source text for HTML or DOCX. `packages` lists `siunitx` and `mhchem` in order. `code` `layout_overhang` means a picture runs past the text line on a TeX PDF; `packages` names `sysml-tikz` or `tikz` and the PDF is still returned (ENDLEAF-R59-OVERHANG). The gate reads this array from `X-Colophon-Job` (also sent as `X-Endleaf-Job`). |
+| `warnings` | array of object | Present only when non-empty. Each object is `code`, `packages`, `message`. `code` `notationPdfOnly` means inline siunitx or mhchem was kept as source text for HTML or DOCX. `packages` lists `siunitx` and `mhchem` in order. `code` `layout_overhang` means a picture runs past the text line on a TeX PDF; `packages` names `sysml-tikz` or `tikz` and the PDF is still returned (ENDLEAF-R59-OVERHANG). `code` `layout_too_tall` means a diagram plus its caption runs past the text height on a TeX PDF even at the 7 pt floor; `packages` is `["diagram"]`, the message names the page and the mm over, and the PDF is still returned (ENDLEAF-R80-TALL-WARN). The gate reads this array from `X-Colophon-Job` (also sent as `X-Endleaf-Job`). |
 
 `POST /v1/jobs` errors are JSON. The object always has `error`, `result`,
 `wallSec`, `memory` (`peak`, and `mode` only when reported), and `pids`
