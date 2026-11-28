@@ -1,0 +1,22 @@
+% Copyright (C) 2026 Inkmirage (Endleaf render worker modifications)
+% SPDX-License-Identifier: AGPL-3.0-or-later
+%
+% ENDLEAF-R81-VECTOR. The text block of every shipped page, for every
+% template. At each shipout (portrait, an auto-turned or named landscape
+% page, a label page) one line is logged:
+%   ENDLEAF_PAGEBLOCK page left top width height
+% page counts shipouts from 1; left and top are the paper edge to the text
+% block, width and height the block, all in TeX pt. The PDF layout checker
+% reads them and skips its margin check on a page with no line. Kernel only;
+% this file is not a package, so packageSetHash does not change. It typesets
+% nothing.
+\makeatletter
+\newcount\elpb@page
+\AddToHook{shipout/before}{%
+  \global\advance\elpb@page\@ne
+  \typeout{ENDLEAF_PAGEBLOCK \the\elpb@page\space
+    \the\dimexpr1in+\hoffset+\oddsidemargin\relax\space
+    \the\dimexpr1in+\voffset+\topmargin+\headheight+\headsep\relax\space
+    \the\textwidth\space\the\textheight}%
+}
+\makeatother

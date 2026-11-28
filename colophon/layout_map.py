@@ -3,9 +3,16 @@
 """ENDLEAF-R60-LAYOUT. The page layout map of a fulldoc render.
 
 endleaf-layout.tex logs, in the final pass:
-  ENDLEAF_GEOM <paperheight>pt <texttop>pt <textheight>pt <linewidth>pt
+  ENDLEAF_GEOM <paperheight>pt <texttop>pt <textheight>pt <linewidth>pt [<left>pt]
   ENDLEAF_PICBOX <id> <width>pt <height>pt     (a picture inside a float)
   ENDLEAF_MARK <id> <tag> <page> <ypos-sp> <portrait|landscape>
+ENDLEAF-R81-VECTOR adds the left margin (paper edge to text block, the fifth
+number; a log from before it has four) and, for every template, one page-block
+line per shipped page:
+  ENDLEAF_PAGEBLOCK <page> <left>pt <top>pt <width>pt <height>pt
+(TeX pt from the paper's top-left; ``page_blocks`` reads them for the PDF layout
+checker, which skips its margin check on a page with none). The map's ``geom``
+gains ``left`` when it is logged; every older key and reader is unchanged.
 The gate puts the marks in the body (\\EndleafMark{id}{tag}); the worker
 only reads them back. The sandbox turns them into one ``ENDLEAF_LAYOUTMAP``
 stderr line (zlib, then base64url, of compact JSON); the runner reads it
@@ -42,7 +49,8 @@ LAYOUT_MAP_CAP_BYTES = 12000
 _SP_PER_PT = 65536.0
 _ID = r"[A-Za-z0-9:._\-/+]{1,80}"
 _PT = r"(-?[0-9]+(?:\.[0-9]+)?)pt"
-_GEOM = re.compile(r"ENDLEAF_GEOM " + _PT + " " + _PT + " " + _PT + " " + _PT)
+_GEOM = re.compile(r"ENDLEAF_GEOM " + _PT + " " + _PT + " " + _PT + " " + _PT + "(?: " + _PT + ")?")
+_PAGEBLOCK = re.compile(r"ENDLEAF_PAGEBLOCK ([0-9]{1,5}) " + _PT + " " + _PT + " " + _PT + " " + _PT)
 _PICBOX = re.compile(r"ENDLEAF_PICBOX (" + _ID + ") " + _PT + " " + _PT)
 _FIT = re.compile(
     r"ENDLEAF_PICFIT (" + _ID + r"|-) (?:plain|sysml) " + _PT + " " + _PT + r" ([0-9]+(?:\.[0-9]+)?)"
@@ -64,6 +72,34 @@ def _pt(value):
     return round(float(value), 1)
 
 
+def page_blocks(log):
+    """``{page: (left, top, width, height)}`` in TeX pt from the ENDLEAF_PAGEBLOCK lines.
+
+    TeX wraps log lines, so the log is read with the breaks removed. The last line for a
+    page wins (a later pass overwrites an earlier one).
+    """
+    text = (log or "").replace("\n", "")
+    blocks = {}
+    for match in _PAGEBLOCK.finditer(text):
+        blocks[int(match.group(1))] = tuple(float(match.group(n)) for n in (2, 3, 4, 5))
+    return blocks
+
+
+def page_marks(log):
+    """The ENDLEAF_MARK rows ``[id, tag, page, y-pt-from-bottom, "p"|"l"]`` of a log."""
+    text = (log or "").replace("\n", "")
+    return [
+        [
+            match.group(1),
+            match.group(2),
+            int(match.group(3)),
+            round(int(match.group(4)) / _SP_PER_PT, 1),
+            "l" if match.group(5) == "landscape" else "p",
+        ]
+        for match in _MARK.finditer(text)
+    ]
+
+
 def layout_map(log, *, body_start=None, body_lines=0, aux=None, source=None):
     """The map from a final-pass log, or ``None`` when the body had no marks.
 
@@ -74,17 +110,7 @@ def layout_map(log, *, body_start=None, body_lines=0, aux=None, source=None):
     # and match on the keywords, as layout_warn does.
     text = (log or "").replace("\n", "")
     geom = _GEOM.search(text)
-    marks = []
-    for match in _MARK.finditer(text):
-        marks.append(
-            [
-                match.group(1),
-                match.group(2),
-                int(match.group(3)),
-                round(int(match.group(4)) / _SP_PER_PT, 1),
-                "l" if match.group(5) == "landscape" else "p",
-            ]
-        )
+    marks = page_marks(log)
     turned = tuple(turned_pictures(text).values())
     rows, total = overfull_rows(
         log or "", body_start=body_start, body_lines=body_lines, source=source, turned_lines=turned
@@ -126,15 +152,18 @@ def layout_map(log, *, body_start=None, body_lines=0, aux=None, source=None):
         extra["labels"] = labels
     if total:
         extra["overfullTotal"] = total
+    geometry = {
+        "paper": _pt(geom.group(1)),
+        "top": _pt(geom.group(2)),
+        "textHeight": _pt(geom.group(3)),
+        "line": _pt(geom.group(4)),
+    }
+    if geom.group(5) is not None:
+        geometry["left"] = _pt(geom.group(5))
     return {
         **extra,
         "v": LAYOUT_MAP_VERSION,
-        "geom": {
-            "paper": _pt(geom.group(1)),
-            "top": _pt(geom.group(2)),
-            "textHeight": _pt(geom.group(3)),
-            "line": _pt(geom.group(4)),
-        },
+        "geom": geometry,
         "marks": marks,
         "pictures": pictures,
     }

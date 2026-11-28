@@ -88,6 +88,7 @@ ALLOWED_INPUTS = frozenset(
         "endleaf-type.tex",
         "endleaf-kinds.tex",
         "endleaf-layout.tex",
+        "endleaf-pageblock.tex",
         "endleaf-label.tex",
     }
 )

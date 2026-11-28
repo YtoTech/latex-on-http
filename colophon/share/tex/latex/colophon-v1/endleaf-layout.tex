@@ -9,7 +9,9 @@
 % (endleaf-fit.tex is vendored and pinned, so this file wraps two of its
 % macros after it is loaded instead of editing it; input it after the fit.)
 % and the text block is logged once at \begin{document}:
-%   ENDLEAF_GEOM paperheight-sp texttop-sp textheight-sp linewidth-sp
+%   ENDLEAF_GEOM paperheight texttop textheight linewidth left
+% (ENDLEAF-R81-VECTOR adds left: paper edge to text block. The per-page block
+% line, ENDLEAF_PAGEBLOCK, is logged for every template by endleaf-pageblock.tex.)
 % The worker turns these lines into the layout map it returns with the PDF.
 % Nothing here changes what is typeset: a mark is a whatsit in horizontal
 % mode (a paragraph, a heading); \EndleafVMark is the same mark in vertical
@@ -134,6 +136,6 @@
 \let\endtikzpicture\elfit@closetizpicture
 \let\endcircuitikz\endtikzpicture
 \AtBeginDocument{%
-  \typeout{ENDLEAF_GEOM \the\paperheight\space\the\dimexpr\paperheight-1in-\topmargin-\headheight-\headsep\relax\space\the\textheight\space\the\linewidth}%
+  \typeout{ENDLEAF_GEOM \the\paperheight\space\the\dimexpr\paperheight-1in-\topmargin-\headheight-\headsep\relax\space\the\textheight\space\the\linewidth\space\the\dimexpr1in+\hoffset+\oddsidemargin\relax}%
 }
 \makeatother

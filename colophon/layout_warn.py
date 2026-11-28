@@ -166,6 +166,15 @@ def _picture_warnings(text):
     return out
 
 
+def shell_pages(log):
+    """``{fence n: page}`` from ENDLEAF_SHELLPAGE (the first shipout of a fence wins)."""
+    text = (log or "").replace("\n", "")
+    pages = {}
+    for match in _SHELLPAGE.finditer(text):
+        pages.setdefault(int(match.group(1)), int(match.group(2)))
+    return pages
+
+
 def _shell_warnings(text):
     """ENDLEAF-R70-SHELL. One item per fence that overhangs or was shrunk."""
     pages = {}

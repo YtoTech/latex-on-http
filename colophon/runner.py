@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from colophon.cgroup_caps import CpuControllerMissing
 from colophon.diagnostics import parse_stderr
 from colophon.layout_map import parse_layout_map
+from colophon.pdf_layout_check import parse_pdf_layout
 from colophon.layout_warn import parse_layout
 from colophon.enums import job_payload
 from colophon.tex_log import parse_tex_warnings
@@ -370,7 +371,7 @@ def make_podman_runner(config, switch):
                 pids_peak=meters.get("pidsPeak"),
                 memory_mode=meters.get("memoryMode"),
                 tex_warnings=parse_tex_warnings(stderr),
-                layout_warnings=tuple(parse_layout(stderr)),
+                layout_warnings=tuple(parse_layout(stderr)) + tuple(parse_pdf_layout(stderr)),
                 layout_map=parse_layout_map(stderr),
             )
         finally:

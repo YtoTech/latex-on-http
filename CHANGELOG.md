@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## 2026-11-28 (ENDLEAF-R81)
+
+* ENDLEAF-R81-VECTOR: `ENDLEAF_GEOM` gains a fifth number, the left margin
+  (paper edge to text block), and `endleaf-pageblock.tex` logs one
+  `ENDLEAF_PAGEBLOCK page left top width height` line per shipped page for
+  every template (portrait, landscape turn, label page), not only fulldoc.
+  `colophon/layout_map.py` reads both (`page_blocks`, `geom.left`); a log with
+  the old four-number GEOM line still parses and the layout map is unchanged
+  for existing readers.
+* ENDLEAF-R81-WHERE: `colophon/pdf_layout_check.py` runs in the sandbox after
+  the final TeX pass, PDF jobs only, before the PDF is returned. It reads the
+  PDF vector-native with pdfminer.six, shapely 2 and scipy (no PyMuPDF, no
+  rasteriser, no ML) and sends one `ENDLEAF_PDFLAYOUT` stderr line that the
+  runner appends to the job `warnings`.
+* ENDLEAF-R81-CODES: eight warn-only codes, `pdf_margin_escape`,
+  `pdf_caption_overlap`, `pdf_label_on_stroke`, `pdf_text_escapes_node`,
+  `pdf_text_overlap`, `pdf_label_gutter`, `pdf_stray_source` and
+  `pdf_empty_page`. Each warning has `code`, `packages: ["pdf"]`, `message`
+  (the shape of the model, no Fix line: the gate adds it), `page`, `box`,
+  `regionCount` and, where they apply, `overMm`, `partId` and `fenceNumber`.
+* ENDLEAF-R81-WARN: nothing refuses. At most 10 findings are listed, one
+  `pdf_more_findings` item counts the rest.
+* ENDLEAF-R81-BUDGET: 250 ms per page and 2 s per document; an overrun or an
+  exception keeps the findings so far and adds one `pdf_check_skipped` note.
+* The image installs `python3-pdfminer`, `python3-shapely` and `python3-scipy`
+  (not built here). Without them the check is a `pdf_check_skipped` note.
+  The live worker is not changed by this entry.
+
 ## 2026-11-16 (ENDLEAF-R80)
 
 * ENDLEAF-R80-MARGINS: a landscape page uses pinned margins on any paper:

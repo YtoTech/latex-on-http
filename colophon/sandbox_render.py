@@ -14,8 +14,8 @@ from colophon.enums import JobRejected, parse_job
 from colophon.limits import OUTPUT_CAP_BYTES
 from colophon.pdf_pages import fulldoc_page_count, fulldoc_page_failure
 from colophon.settings import setting
-from colophon.layout_map import label_fit_line, layout_map_line
-from colophon.layout_warn import final_pass, layout_line, layout_warnings
+from colophon.layout_map import label_fit_line, layout_map_line, page_blocks, page_marks
+from colophon.layout_warn import final_pass, layout_line, layout_warnings, shell_pages
 from colophon.tex_log import count_tex_warnings, tex_warn_line
 from colophon.templates import compose_with_body_line
 from colophon.render_plan import RenderPlanError, build_render_plan
@@ -119,6 +119,37 @@ def _run(command):
     return completed.stdout
 
 
+def _pdf_layout_check(job, data, log, body_start, body_lines):
+    """ENDLEAF-R81. Warn-only read of the finished PDF; it never changes the status.
+
+    ``log`` is the final pass's TeX log (for Markdown, Pandoc's last LaTeX run). Findings go
+    out as one ENDLEAF_PDFLAYOUT stderr line; guard and off-page counts go to the worker log.
+    """
+    try:
+        from colophon.overfull import overfull_rows
+        from colophon.pdf_layout_check import PDF_LOG_PREFIX, check_pdf, pdf_layout_line
+
+        warnings = layout_warnings(log)
+        rows, _ = overfull_rows(log, body_start=body_start, body_lines=body_lines)
+        named = {row["page"] for row in rows if "page" in row}
+        named |= {item["page"] for item in warnings if isinstance(item.get("page"), int)}
+        result = check_pdf(
+            data,
+            template_id=job.template_id,
+            blocks=page_blocks(log),
+            marks=page_marks(log) if job.template_id == "fulldoc" else None,
+            shell_pages=shell_pages(log),
+            tex_pages=named,
+        )
+        for line in result.log_lines:
+            sys.stderr.write(PDF_LOG_PREFIX + line + "\n")
+        line = pdf_layout_line(result.items)
+        if line is not None:
+            sys.stderr.write(line + "\n")
+    except Exception:  # warn-only: a failed check never fails the render
+        sys.stderr.write("ENDLEAF_PDFLOG pdfcheck error\n")
+
+
 def render_to_stdout(payload_bytes):
     plan = None
     body_start = None
@@ -215,6 +246,12 @@ def render_to_stdout(payload_bytes):
                     )
                 if mapping is not None:
                     sys.stderr.write(mapping + "\n")
+            # ENDLEAF-R81. PDF jobs only, after the final pass, before the PDF is returned.
+            if status == "ok" and job.output_format == "pdf":
+                if job.input_kind == "tex":
+                    _pdf_layout_check(job, data, log, body_start, body_lines)
+                else:
+                    _pdf_layout_check(job, data, final_pass(output), None, 0)
         except (OSError, RenderPlanError):
             diagnostic = relocate_to_body(
                 first_tex_error(_collect_logs()), body_start, body_lines
