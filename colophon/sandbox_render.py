@@ -282,6 +282,9 @@ def render_to_stdout(payload_bytes):
 
 
 def main():
+    from colophon.pdf_layout_check import _preload
+
+    _preload()  # a bad image fails when the sandbox starts
     raw = sys.stdin.buffer.read()
     code = render_to_stdout(raw)
     raise SystemExit(code)

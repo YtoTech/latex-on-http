@@ -1403,7 +1403,10 @@ def _preload():
     import pdfminer.pdfpage  # noqa: F401
     import scipy.sparse.csgraph  # noqa: F401
     import scipy.spatial  # noqa: F401
-    import shapely  # noqa: F401
+    import shapely
+
+    # Shapely 1.8 has no shapely.polygons; fail here, not inside a page check.
+    shapely.polygons([[[0, 0], [1, 0], [1, 1], [0, 1]]])
 
 
 def _run_page(raw, last, blocks, kind, budget, log_lines):
@@ -1452,7 +1455,8 @@ def check_pdf(
     document_budget=DOCUMENT_BUDGET_SEC,
     clock=time.perf_counter,
 ):
-    """Run every check over a PDF and return a ``CheckResult``; it never raises.
+    """Run every check over a PDF and return a ``CheckResult``; it never raises on a PDF or budget problem.
+    A broken checker install (``_preload``) does raise: that is an image error.
 
     ``blocks`` is ``{page: (left, top, width, height)}`` in TeX pt (ENDLEAF_PAGEBLOCK); a
     page without one skips the margin check and is counted in the log. ``tex_pages`` are the
@@ -1463,8 +1467,8 @@ def check_pdf(
     budget = _Budget(clock, page_budget, document_budget)
     hits, heights = [], {}
     skipped, last, no_block = None, 0, 0
+    _preload()  # environment error, not a skippable miss; library import is not per-page work
     try:
-        _preload()  # library import time is not per-page work
         budget.begin()
         total = _page_count(data)
         stream = extract_pages(data)

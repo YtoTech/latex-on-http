@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-28 (ENDLEAF-R81-LIBS)
+
+* ENDLEAF-R81-LIBS: the render image no longer takes `python3-shapely` (1.8.5),
+  `python3-pdfminer` or `python3-scipy` from Debian. They come from pinned,
+  hash-checked cp311 wheels (`container/pdfcheck-requirements.txt`: shapely 2.2.0,
+  scipy 1.17.1, numpy 2.4.6, pdfminer.six 20260107, charset-normalizer 3.5.3,
+  cryptography 50.0.2, cffi 2.1.1, pycparser 3.12) in the venv
+  `/opt/colophon-pdfcheck`, first on PATH, without system site-packages. The
+  build asserts the versions and the import paths. `packageSetHash` is unchanged.
+* ENDLEAF-R81-LIBS: `_preload()` now calls `shapely.polygons`, so Shapely 1.8
+  fails at once. It runs at sandbox start and outside the `pdf_check_skipped`
+  handler in `check_pdf`: a bad image is an error, not a skipped check.
+
 ## 2026-11-28 (ENDLEAF-R81)
 
 * ENDLEAF-R81-VECTOR: `ENDLEAF_GEOM` gains a fifth number, the left margin

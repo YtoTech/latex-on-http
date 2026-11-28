@@ -546,3 +546,44 @@ def test_sandbox_glue_sends_one_stderr_line_and_never_raises(monkeypatch, capsys
         job, faulty, blocks, None, 0
     )  # warn-only: no exception
     assert "ENDLEAF_PDFLOG" in capsys.readouterr().err
+
+
+def test_preload_exercises_shapely_polygons(monkeypatch):
+    import shapely
+
+    from colophon import pdf_layout_check as plc
+
+    calls = []
+    real = shapely.polygons
+    monkeypatch.setattr(
+        shapely, "polygons", lambda *a, **k: calls.append(a) or real(*a, **k)
+    )
+    plc._preload()
+    assert calls
+
+
+def test_preload_raises_without_shapely_polygons(monkeypatch):
+    import shapely
+
+    from colophon import pdf_layout_check as plc
+
+    monkeypatch.delattr(shapely, "polygons")
+    with pytest.raises(AttributeError):
+        plc._preload()
+    with pytest.raises(AttributeError):
+        plc.check_pdf(b"%PDF-1.4")
+
+
+def test_sandbox_main_preloads(monkeypatch):
+    from colophon import pdf_layout_check as plc
+    from colophon import sandbox_render as sr
+
+    order = []
+    monkeypatch.setattr(plc, "_preload", lambda: order.append("preload"))
+    monkeypatch.setattr(sr, "render_to_stdout", lambda raw: order.append("render") or 0)
+    monkeypatch.setattr(
+        sys, "stdin", type("S", (), {"buffer": __import__("io").BytesIO(b"{}")})()
+    )
+    with pytest.raises(SystemExit):
+        sr.main()
+    assert order == ["preload", "render"]
